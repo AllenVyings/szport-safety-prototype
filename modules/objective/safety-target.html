@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全目标 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-issued { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-executing { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-completed { background:#F6FFED; color:#237804; border:1px solid #73D13D; }
+    .tag-uncompleted { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .org-tree { width:220px; min-width:220px; border-right:1px solid var(--border); padding:12px; overflow-y:auto; }
+    .org-tree-title { font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:8px; }
+    .org-node { padding:8px 12px; border-radius:var(--radius-sm); font-size:13px; cursor:pointer; color:var(--text-primary); transition:all var(--duration-fast) var(--ease-out); }
+    .org-node:hover { background:var(--bg-hover); color:var(--primary); }
+    .org-node.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .org-node-group { padding-left:16px; }
+    .progress-bar { height:6px; background:var(--border-light); border-radius:3px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:3px; transition:width var(--duration-normal) var(--ease-out); }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">目标总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">6</div><div class="stat-label">已下达</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">8</div><div class="stat-label">执行中</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">2</div><div class="stat-label">未完成</div></div>
+  </div>
+
+  <!-- 预警提示 -->
+  <div class="alert alert-warning" style="margin-bottom:16px;">
+    <strong>预警规则</strong> — 完成率&lt;60%时自动提醒责任人；季度末未达标升级提醒至上级负责人
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('manage')">目标管理</div>
+    <div class="tab-item" onclick="switchTab('track')">目标分解追踪</div>
+  </div>
+
+  <!-- Tab1 目标管理 -->
+  <div id="tab-manage" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索目标名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>制定中</option>
+          <option>已下达</option>
+          <option>执行中</option>
+          <option>已完成</option>
+          <option>未完成</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部层级</option>
+          <option>集团级</option>
+          <option>公司级</option>
+          <option>部门级</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openModal()">+ 新增目标</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>目标名称</th>
+            <th>责任单位</th>
+            <th>考核年度</th>
+            <th>分解层级</th>
+            <th>完成率</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集团年度零事故目标</td>
+            <td>集团安全管理部</td>
+            <td>2026</td>
+            <td><span class="tag tag-info">集团级</span></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:72%; background:var(--success);"></div></div>
+                <span style="font-size:13px; font-weight:500;">72%</span>
+              </div>
+            </td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>二级企业安全生产达标目标</td>
+            <td>港口物流公司</td>
+            <td>2026</td>
+            <td><span class="tag tag-info">公司级</span></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:0%; background:var(--primary);"></div></div>
+                <span style="font-size:13px; font-weight:500;">0%</span>
+              </div>
+            </td>
+            <td><span class="tag tag-issued">已下达</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>危化品管理专项目标</td>
+            <td>危化品仓储公司</td>
+            <td>2026</td>
+            <td><span class="tag tag-info">公司级</span></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:45%; background:var(--warning);"></div></div>
+                <span style="font-size:13px; font-weight:500; color:var(--warning);">45%</span>
+              </div>
+            </td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>消防安全能力提升目标</td>
+            <td>集团安全管理部</td>
+            <td>2026</td>
+            <td><span class="tag tag-info">集团级</span></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:88%; background:var(--success);"></div></div>
+                <span style="font-size:13px; font-weight:500;">88%</span>
+              </div>
+            </td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>2025年度安全培训覆盖率</td>
+            <td>港口运营公司</td>
+            <td>2025</td>
+            <td><span class="tag tag-info">公司级</span></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:52%; background:var(--error);"></div></div>
+                <span style="font-size:13px; font-weight:500; color:var(--error);">52%</span>
+              </div>
+            </td>
+            <td><span class="tag tag-uncompleted">未完成</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 目标分解追踪 -->
+  <div id="tab-track" class="tab-content">
+    <div class="card" style="padding:0; overflow:hidden;">
+      <div style="display:flex; min-height:400px;">
+        <!-- 左侧组织树 -->
+        <div class="org-tree">
+          <div class="org-tree-title">组织架构</div>
+          <div class="org-node active" onclick="selectOrg(this, 'group')">深圳港集团</div>
+          <div class="org-node-group">
+            <div class="org-node" onclick="selectOrg(this, 'company1')">港口物流公司</div>
+            <div class="org-node" onclick="selectOrg(this, 'company2')">危化品仓储公司</div>
+            <div class="org-node" onclick="selectOrg(this, 'company3')">港口运营公司</div>
+            <div class="org-node" onclick="selectOrg(this, 'company4')">航运服务公司</div>
+          </div>
+        </div>
+        <!-- 右侧目标执行情况 -->
+        <div style="flex:1; padding:16px; overflow-x:auto;">
+          <div style="font-size:15px; font-weight:500; margin-bottom:12px; color:var(--text-primary);" id="track-org-name">深圳港集团 — 目标执行情况</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>目标名称</th>
+                <th>分解指标</th>
+                <th>当前值</th>
+                <th>目标值</th>
+                <th>完成率</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>集团年度零事故目标</td>
+                <td>重大事故数</td>
+                <td>0</td>
+                <td>0</td>
+                <td><span style="color:var(--success); font-weight:500;">100%</span></td>
+                <td><span class="tag tag-executing">执行中</span></td>
+              </tr>
+              <tr>
+                <td>集团年度零事故目标</td>
+                <td>一般事故数</td>
+                <td>2</td>
+                <td>0</td>
+                <td><span style="color:var(--error); font-weight:500;">未达标</span></td>
+                <td><span class="tag tag-uncompleted">未完成</span></td>
+              </tr>
+              <tr>
+                <td>消防安全能力提升目标</td>
+                <td>消防设施完好率</td>
+                <td>96%</td>
+                <td>100%</td>
+                <td><span style="color:var(--success); font-weight:500;">96%</span></td>
+                <td><span class="tag tag-executing">执行中</span></td>
+              </tr>
+              <tr>
+                <td>消防安全能力提升目标</td>
+                <td>消防演练覆盖率</td>
+                <td>88%</td>
+                <td>100%</td>
+                <td><span style="color:var(--success); font-weight:500;">88%</span></td>
+                <td><span class="tag tag-executing">执行中</span></td>
+              </tr>
+              <tr>
+                <td>安全培训覆盖率</td>
+                <td>全员培训率</td>
+                <td>72%</td>
+                <td>100%</td>
+                <td><span style="color:var(--warning); font-weight:500;">72%</span></td>
+                <td><span class="tag tag-executing">执行中</span></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr style="background:var(--bg-table-header); font-weight:500;">
+                <td colspan="4">汇总</td>
+                <td><span style="color:var(--primary); font-weight:600;">72%</span></td>
+                <td>执行中</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增目标弹窗 -->
+  <div class="modal-overlay" id="modal-add">
+    <div class="modal">
+      <div class="modal-header"><h3>新增安全目标</h3><button class="btn btn-text btn-sm" onclick="closeModal()" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>目标名称</div>
+        <div class="form-content"><input class="form-input" placeholder="请输入目标名称"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>责任单位</div>
+        <div class="form-content">
+          <select class="form-input form-select">
+            <option>请选择责任单位</option>
+            <option>集团安全管理部</option>
+            <option>港口物流公司</option>
+            <option>危化品仓储公司</option>
+            <option>港口运营公司</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>考核年度</div>
+        <div class="form-content">
+          <select class="form-input form-select">
+            <option>2026</option>
+            <option>2025</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">目标描述</div>
+        <div class="form-content"><textarea class="form-input" style="height:80px; padding:8px 12px;" placeholder="请输入目标描述"></textarea></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">关联指标</div>
+        <div class="form-content"><input class="form-input" placeholder="如：重大事故数、培训覆盖率等，多个用逗号分隔"></div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function selectOrg(el, orgId) {
+      document.querySelectorAll('.org-node').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      var nameMap = {
+        'group': '深圳港集团',
+        'company1': '港口物流公司',
+        'company2': '危化品仓储公司',
+        'company3': '港口运营公司',
+        'company4': '航运服务公司'
+      };
+      document.getElementById('track-org-name').textContent = nameMap[orgId] + ' — 目标执行情况';
+    }
+
+    function openModal() {
+      document.getElementById('modal-add').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-add').classList.remove('show');
+    }
+
+    document.getElementById('modal-add').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+</body>
+</html>
