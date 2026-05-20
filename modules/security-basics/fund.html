@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资金保障 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-executing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-completed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .progress-bar-bg { width:100px; height:8px; background:#F0F0F0; border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:6px; }
+    .progress-bar-fill { height:100%; border-radius:4px; transition:width var(--duration-normal) var(--ease-out); }
+    .category-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .category-card { padding:16px; border-radius:var(--radius-md); background:var(--bg-card); border:1px solid var(--border-light); }
+    .category-card .cat-name { font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
+    .category-card .cat-value { font-size:20px; font-weight:600; }
+    .category-card .cat-pct { font-size:12px; color:var(--text-description); margin-top:2px; }
+    .chart-area { padding:20px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-md); }
+    .chart-legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
+    .legend-item { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); }
+    .legend-color { width:14px; height:14px; border-radius:3px; }
+    .pie-visual { display:flex; align-items:center; justify-content:center; gap:40px; padding:20px 0; }
+    .pie-chart { width:180px; height:180px; border-radius:50%; position:relative; }
+    .pie-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80px; height:80px; border-radius:50%; background:var(--bg-card); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .pie-center .pie-total { font-size:18px; font-weight:600; color:var(--text-primary); }
+    .pie-center .pie-label { font-size:11px; color:var(--text-description); }
+    .prd-footer { margin-top:20px; padding:10px 16px; background:#F5F5F5; border-radius:var(--radius-sm); font-size:12px; color:var(--text-description); text-align:center; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">1,050</div><div class="stat-label">年度预算总额（万元）</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">554</div><div class="stat-label">已执行金额（万元）</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">52.8%</div><div class="stat-label">整体执行率</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">5</div><div class="stat-label">项目总数</div></div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('ledger')">费用台账</div>
+    <div class="tab-item" onclick="switchTab('stats')">分类统计</div>
+  </div>
+
+  <!-- Tab1 费用台账 -->
+  <div id="tab-ledger" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索项目名称..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部费用类别</option>
+          <option>安全设施</option>
+          <option>培训教育</option>
+          <option>应急物资</option>
+          <option>隐患整改</option>
+          <option>职业健康</option>
+          <option>其他</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>执行中</option>
+          <option>已完成</option>
+          <option>待审批</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-primary" onclick="showModal('addFundModal')">+ 新增</button>
+      <button class="btn btn-default">导出</button>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>项目名称</th>
+            <th>费用类别</th>
+            <th>预算金额（万元）</th>
+            <th>已用金额（万元）</th>
+            <th>执行率</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>2026年度安全设施改造</td>
+            <td><span class="tag tag-info">安全设施</span></td>
+            <td>580</td>
+            <td>261</td>
+            <td>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:45%; background:var(--primary);"></div></div>
+              <span style="font-size:12px;">45%</span>
+            </td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>安全培训专项经费</td>
+            <td><span class="tag tag-success">培训教育</span></td>
+            <td>120</td>
+            <td>74</td>
+            <td>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:62%; background:var(--success);"></div></div>
+              <span style="font-size:12px;">62%</span>
+            </td>
+            <td><span class="tag tag-completed">已完成</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>应急物资储备采购</td>
+            <td><span class="tag tag-warning">应急物资</span></td>
+            <td>85</td>
+            <td>0</td>
+            <td>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%; background:#D9D9D9;"></div></div>
+              <span style="font-size:12px; color:var(--text-description);">0%</span>
+            </td>
+            <td><span class="tag tag-pending">待审批</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>隐患整改专项资金</td>
+            <td><span style="background:#FFF1F0; color:#CF1322; padding:2px 8px; border-radius:var(--radius-sm); font-size:12px;">隐患整改</span></td>
+            <td>200</td>
+            <td>180</td>
+            <td>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:90%; background:var(--warning);"></div></div>
+              <span style="font-size:12px; color:var(--warning);">90%</span>
+            </td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>职业健康体检费</td>
+            <td><span style="background:#F9F0FF; color:#531DAB; padding:2px 8px; border-radius:var(--radius-sm); font-size:12px;">职业健康</span></td>
+            <td>65</td>
+            <td>39</td>
+            <td>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:60%; background:#531DAB;"></div></div>
+              <span style="font-size:12px;">60%</span>
+            </td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 分类统计 -->
+  <div id="tab-stats" class="tab-content">
+    <div class="category-grid">
+      <div class="category-card">
+        <div class="cat-name">安全设施</div>
+        <div class="cat-value" style="color:var(--primary);">580万</div>
+        <div class="cat-pct">占比 45%</div>
+      </div>
+      <div class="category-card">
+        <div class="cat-name">培训教育</div>
+        <div class="cat-value" style="color:var(--success);">120万</div>
+        <div class="cat-pct">占比 15%</div>
+      </div>
+      <div class="category-card">
+        <div class="cat-name">应急物资</div>
+        <div class="cat-value" style="color:var(--warning);">85万</div>
+        <div class="cat-pct">占比 10%</div>
+      </div>
+      <div class="category-card">
+        <div class="cat-name">隐患整改</div>
+        <div class="cat-value" style="color:var(--error);">200万</div>
+        <div class="cat-pct">占比 20%</div>
+      </div>
+      <div class="category-card">
+        <div class="cat-name">职业健康</div>
+        <div class="cat-value" style="color:#531DAB;">65万</div>
+        <div class="cat-pct">占比 8%</div>
+      </div>
+      <div class="category-card">
+        <div class="cat-name">其他</div>
+        <div class="cat-value" style="color:var(--text-description);">0万</div>
+        <div class="cat-pct">占比 2%</div>
+      </div>
+    </div>
+    <div class="chart-area">
+      <div style="font-size:14px; font-weight:500; margin-bottom:12px;">费用类别占比分布</div>
+      <div class="pie-visual">
+        <div class="pie-chart" style="background:conic-gradient(var(--primary) 0% 45%, var(--success) 45% 60%, var(--warning) 60% 70%, var(--error) 70% 90%, #531DAB 90% 98%, #D9D9D9 98% 100%);">
+          <div class="pie-center">
+            <div class="pie-total">1,050</div>
+            <div class="pie-label">万元</div>
+          </div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-color" style="background:var(--primary);"></div>安全设施 45%</div>
+          <div class="legend-item"><div class="legend-color" style="background:var(--success);"></div>培训教育 15%</div>
+          <div class="legend-item"><div class="legend-color" style="background:var(--warning);"></div>应急物资 10%</div>
+          <div class="legend-item"><div class="legend-color" style="background:var(--error);"></div>隐患整改 20%</div>
+          <div class="legend-item"><div class="legend-color" style="background:#531DAB;"></div>职业健康 8%</div>
+          <div class="legend-item"><div class="legend-color" style="background:#D9D9D9;"></div>其他 2%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增费用弹窗 -->
+  <div id="addFundModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); border-radius:var(--radius-lg); width:600px; max-height:80vh; overflow:auto; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="margin:0; font-size:16px;">新增安全投入项目</h3>
+        <button class="btn btn-text" onclick="hideModal('addFundModal')">&#10005;</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 项目名称</label>
+          <input class="form-input" style="width:100%" placeholder="请输入项目名称">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 费用类别</label>
+          <select class="form-input form-select" style="width:100%">
+            <option>请选择</option>
+            <option>安全设施</option>
+            <option>培训教育</option>
+            <option>应急物资</option>
+            <option>隐患整改</option>
+            <option>职业健康</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 预算金额（万元）</label>
+          <input class="form-input" type="number" style="width:100%" placeholder="请输入预算金额">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 计划执行期</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input class="form-input" type="date" style="flex:1">
+            <span style="color:var(--text-description);">至</span>
+            <input class="form-input" type="date" style="flex:1">
+          </div>
+        </div>
+        <div style="grid-column:span 2">
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">说明</label>
+          <textarea class="form-input" style="width:100%; height:80px" placeholder="请输入项目说明"></textarea>
+        </div>
+      </div>
+      <div style="margin-top:12px; padding:10px 12px; background:var(--primary-5); border:1px solid var(--primary-10); border-radius:var(--radius-sm); font-size:12px; color:var(--primary);">
+        安全投入执行情况将影响绩效考核评分 | 关联模块：绩效考核
+      </div>
+      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-default" onclick="hideModal('addFundModal')">取消</button>
+        <button class="btn btn-primary" onclick="hideModal('addFundModal')">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prd-footer">对应PRD章节 3.12.3 资金保障 | 关联模块：绩效考核（安全投入影响考核）</div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+  </script>
+</body>
+</html>
