@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作指标与扣分规则 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .area-title { font-size: var(--font-size-16);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-4);
+      padding-bottom: var(--spacing-2);
+      border-bottom: 1px solid var(--border-divider); }
+    .stat-cards { display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-5); }
+    .stat-card { background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-5);
+      text-align: center; }
+    .stat-card .stat-value { font-size: 32px;
+      font-weight: var(--font-weight-bold);
+      line-height: 1.2; }
+    .stat-card .stat-card.total .stat-value { color: var(--primary); }
+    .stat-card.deduction .stat-value { color: var(--error); }
+    .stat-card.warning .stat-value { color: var(--warning); }
+    .stat-card.no-deduction .stat-value { color: var(--success); }
+    .deduction-notice { background: #FFF7E6;
+      border: 1px solid #FFE58F;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: #8C6D1F;
+      line-height: 1.6; }
+    .deduction-notice .notice-icon { font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px; }
+    .no-deduction-box { background: #F6FFED;
+      border: 1px solid #B7EB8F;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-4) var(--spacing-5);
+      margin-top: var(--spacing-5);
+      font-size: var(--font-size-13);
+      color: #389E0D;
+      line-height: 1.8; }
+    .no-deduction-box .box-title { font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-2); }
+    .no-deduction-box ul { margin: var(--spacing-1) 0;
+      padding-left: 20px; }
+    .no-deduction-box li { margin: 2px 0; }
+    .warning-panel { background: #FFF1F0;
+      border: 1px solid #FFA39E;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-4) var(--spacing-5);
+      margin-top: var(--spacing-4);
+      font-size: var(--font-size-13);
+      color: #CF1322;
+      line-height: 1.8; }
+    .warning-panel .panel-title { font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-2);
+      display: flex;
+      align-items: center;
+      gap: 4px; }
+    .warning-panel .warning-item { display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-2) 0;
+      border-bottom: 1px solid rgba(255, 163, 158, 0.3); }
+    .warning-panel .warning-item:last-child { border-bottom: none; }
+    .self-check-deduction { text-decoration: line-through;
+      color: #BFBFBF;
+      cursor: help;
+      position: relative; }
+    .self-check-deduction:hover::after { content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 10;
+      text-decoration: none; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 扣分规则说明 -->
+  <div class="deduction-notice">
+    <span class="notice-icon">!</span>
+    <div><strong>扣分规则：</strong>仅外部检查（集团检查、政府检查、上级督查等）发现的隐患触发扣分，企业自查发现的隐患不扣分</div>
+  </div>
+
+  <div class="card">
+    <!-- Tab切换 -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('rules')">扣分规则配置</div>
+      <div class="tab-item" onclick="switchTab('records')">扣分记录</div>
+    </div>
+
+    <!-- Tab1: 扣分规则配置 -->
+    <div id="tab-rules" class="tab-content active">
+      <!-- 扣分规则列表 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>扣分等级</th>
+            <th>扣分情形</th>
+            <th>扣分值</th>
+            <th>触发条件</th>
+            <th>发现方式</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><span class="tag tag-error">重大</span></td>
+            <td>重大事故隐患</td>
+            <td><strong style="color:var(--error)">-10分/项</strong></td>
+            <td>达到法规处罚标准，或严重威胁员工人身安全，或被政府相关部门处罚</td>
+            <td>外部检查</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><span class="tag tag-error">重大</span></td>
+            <td>被县级以上政府/应急管理部门/行业主管部门/市国资委通报批评或会议点名批评</td>
+            <td><strong style="color:var(--error)">-8分/项</strong></td>
+            <td>被通报批评或点名批评</td>
+            <td>外部检查</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><span class="tag tag-warning">较大</span></td>
+            <td>较大事故隐患</td>
+            <td><strong style="color:var(--warning)">-2~5分/项</strong></td>
+            <td>未完成集团部署年度安全生产重点工作；类似隐患反复出现或拒不整改</td>
+            <td>外部检查</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><span class="tag tag-info">一般</span></td>
+            <td>一般事故隐患</td>
+            <td><strong style="color:var(--primary)">-0.5~2分/项</strong></td>
+            <td>检查中发现隐患数量大于季度周报表中自查发现隐患数量</td>
+            <td>外部检查</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><span class="tag tag-info">一般</span></td>
+            <td>一般事故隐患（逾期）</td>
+            <td><strong style="color:var(--primary)">-0.5~2分/项</strong></td>
+            <td>隐患列入整改计划但未在整改时间内报送整改回复</td>
+            <td>外部检查</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><span class="tag tag-warning">其他</span></td>
+            <td>不配合工作</td>
+            <td><strong style="color:var(--warning)">-1分/人次</strong></td>
+            <td>不配合安全检查、督办等工作</td>
+            <td>外部检查</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 不扣分情形说明 -->
+      <div class="no-deduction-box">
+        <div class="box-title">不扣分情形（以下情况不触发绩效考核扣分）</div>
+        <ul>
+          <li>安全管理相关记录档案签字/日期等<strong>不影响生产经营安全</strong>的记录不完善问题</li>
+          <li>检查中提出的<strong>建议项</strong></li>
+          <li><strong>企业自查发现</strong>的隐患（仅外部检查发现的隐患触发扣分）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tab2: 扣分记录 -->
+    <div id="tab-records" class="tab-content">
+      <!-- 季度扣分汇总卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card total">
+          <div class="stat-value">30</div>
+          <div class="stat-label">本季扣分记录数</div>
+        </div>
+        <div class="stat-card deduction">
+          <div class="stat-value">-45.5</div>
+          <div class="stat-label">本季扣分合计</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-value">3</div>
+          <div class="stat-label">诫勉约谈预警单位</div>
+        </div>
+        <div class="stat-card no-deduction">
+          <div class="stat-value">12</div>
+          <div class="stat-label">企业自查（不扣分）</div>
+        </div>
+      </div>
+
+      <!-- 筛选条件 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索单位名称..." style="width:200px">
+          <select class="form-input form-select" style="width:160px">
+            <option>全部季度</option>
+            <option>2026年Q1</option>
+            <option>2026年Q2</option>
+            <option>2025年Q4</option>
+          </select>
+          <select class="form-input form-select" style="width:160px">
+            <option>全部扣分类别</option>
+            <option>重大事故隐患</option>
+            <option>被通报批评</option>
+            <option>较大事故隐患</option>
+            <option>一般事故隐患</option>
+            <option>一般事故隐患（逾期）</option>
+            <option>不配合工作</option>
+          </select>
+          <select class="form-input form-select" style="width:160px">
+            <option>全部确认状态</option>
+            <option>待确认</option>
+            <option>已确认</option>
+            <option>已生效</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+        </div>
+      </div>
+
+      <!-- 扣分明细列表 -->
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>考核单位</th>
+            <th>扣分项</th>
+            <th>扣分值</th>
+            <th>来源</th>
+            <th>发现方式</th>
+            <th>确认状态</th>
+            <th>归属季度</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集装箱码头公司</td>
+            <td>重大事故隐患 - 消防通道堵塞</td>
+            <td><strong style="color:var(--error)">-10</strong></td>
+            <td>集团季度检查</td>
+            <td>外部检查</td>
+            <td><span class="tag tag-success">已生效</span></td>
+            <td>2026年Q1</td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>散货码头公司</td>
+            <td>被通报批评 - 被市应急管理局通报</td>
+            <td><strong style="color:var(--error)">-8</strong></td>
+            <td>政府通报</td>
+            <td>外部检查</td>
+            <td><span class="tag tag-success">已生效</span></td>
+            <td>2026年Q1</td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>物流运输公司</td>
+            <td>较大事故隐患 - 类似隐患反复出现</td>
+            <td><strong style="color:var(--warning)">-5</strong></td>
+            <td>集团专项检查</td>
+            <td>外部检查</td>
+            <td><span class="tag tag-info">已确认</span></td>
+            <td>2026年Q2</td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>集装箱码头公司</td>
+            <td>一般事故隐患 - 安全标识缺失</td>
+            <td><strong style="color:var(--primary)">-1.5</strong></td>
+            <td>集团月度检查</td>
+            <td>外部检查</td>
+            <td><span class="tag tag-warning">待确认</span></td>
+            <td>2026年Q2</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">确认</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>港航建设公司</td>
+            <td>一般事故隐患（逾期）- 隐患超期未整改</td>
+            <td><strong style="color:var(--primary)">-2</strong></td>
+            <td>集团季度检查</td>
+            <td>外部检查</td>
+            <td><span class="tag tag-warning">待确认</span></td>
+            <td>2026年Q2</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">确认</button></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>散货码头公司</td>
+            <td>安全培训记录缺失</td>
+            <td><span class="self-check-deduction" data-tooltip="企业自查发现的隐患不触发绩效考核扣分">-3</span></td>
+            <td>企业自查</td>
+            <td><span class="tag tag-success">企业自查</span></td>
+            <td><span class="tag" style="color:#389E0D;background:#F6FFED">不扣分</span></td>
+            <td>2026年Q2</td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 30 条</span>
+        <div class="pagination-page active">1</div>
+        <div class="pagination-page">2</div>
+        <div class="pagination-page">3</div>
+      </div>
+
+      <!-- 诫勉约谈预警面板 -->
+      <div class="warning-panel">
+        <div class="panel-title">诫勉约谈预警</div>
+        <div class="warning-item">
+          <span>集装箱码头公司 - Q1扣分累计 <strong>18分</strong></span>
+          <span class="tag tag-warning">接近预警线(20分)</span>
+        </div>
+        <div class="warning-item">
+          <span>物流运输公司 - Q1扣分累计 <strong>25分</strong></span>
+          <span class="tag tag-error">已触发诫勉约谈(>20分)</span>
+        </div>
+        <div class="warning-item">
+          <span>仓储服务公司 - 年度累计扣分导致总分 <strong>76分</strong></span>
+          <span class="tag tag-error">已触发诫勉约谈(年度<80分)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+  </script>
+</body>
+</html>
