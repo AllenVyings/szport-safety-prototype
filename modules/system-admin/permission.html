@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>权限管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    /* 表头和内容居中 */
+    .data-table thead th,
+    .data-table tbody td { text-align: center; }
+    .data-table thead th:first-child,
+    .data-table tbody td:first-child { text-align: left; }
+
+    /* 操作按钮统一间距 */
+    .cell-actions { display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; }
+
+    /* 菜单类型标签 */
+    .tag-dir { background:#F9F0FF; color:#722ED1; border:1px solid #D3ADF7; }
+    .tag-menu { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-btn { background:#FFF0F6; color:#EB2F96; border:1px solid #FFADD2; }
+    /* 角色类型标签 */
+    .tag-role-common { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-role-level { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    /* 层级标签 */
+    .tag-level { display:inline-flex; align-items:center; padding:1px 6px; border-radius:var(--radius-sm); font-size:11px; background:var(--primary-light); color:var(--primary); margin-right:2px; }
+    /* 树形表格缩进 */
+    .tree-indent { display:inline-block; width:20px; }
+    .tree-expand { cursor:pointer; font-size:11px; color:var(--text-description); margin-right:8px; user-select:none; transition:transform .15s; }
+    .tree-expand.open { transform:rotate(90deg); display:inline-block; }
+    .menu-child-row { display:none; }
+    .menu-child-row.open { display:table-row; }
+    .btn-child-row { display:none; }
+    .btn-child-row.open { display:table-row; }
+    /* 数据权限配置面板 */
+    .perm-panels { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .perm-panel { border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; }
+    .perm-panel-header { padding:12px 16px; background:var(--bg-table-header); font-size:14px; font-weight:500; border-bottom:1px solid var(--border); }
+    .perm-panel-body { padding:16px; }
+    .perm-config-row { margin-bottom:16px; }
+    .perm-config-label { font-size:13px; color:var(--text-secondary); margin-bottom:6px; font-weight:500; }
+    .radio-group { display:flex; flex-wrap:wrap; gap:12px; }
+    .radio-item { display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; }
+    .checkbox-group { display:flex; flex-wrap:wrap; gap:8px; }
+    .checkbox-item { display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; }
+    /* 权限树 */
+    .perm-tree { border:1px solid var(--border); border-radius:var(--radius-sm); max-height:420px; overflow-y:auto; }
+    .perm-tree-node { padding:5px 12px; border-bottom:1px solid var(--border-light); }
+    .perm-tree-node:last-child { border-bottom:none; }
+    .perm-tree-dir { background:var(--bg-table-header); font-weight:500; }
+    .perm-tree-menu { padding-left:28px; }
+    .perm-tree-btn { padding-left:48px; color:var(--text-secondary); }
+    /* 停用行样式 */
+    tr.stopped td { color:var(--text-description); }
+    tr.stopped .tag { opacity:.6; }
+  </style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+
+  <!-- 统一外层 card -->
+  <div class="card" style="padding:0; overflow:hidden;">
+
+  <!-- Tab 切换（嵌在 card 顶部） -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('menu')">菜单管理</div>
+    <div class="tab-item" onclick="switchTab('role')">角色管理</div>
+    <div class="tab-item" onclick="switchTab('dataperm')">数据权限</div>
+  </div>
+
+  <!-- Tab1 菜单管理 -->
+  <div id="tab-menu" class="tab-content active">
+    <!-- 查询栏 -->
+    <div class="query-bar">
+      <div class="query-item">
+        <span class="query-label">菜单名称</span>
+        <input class="form-input" id="menu-query-name" placeholder="请输入">
+      </div>
+      <div class="query-item">
+        <span class="query-label">菜单类型</span>
+        <select class="form-input form-select" id="menu-query-type">
+          <option value="">全部类型</option>
+          <option value="dir">目录</option>
+          <option value="menu">菜单</option>
+          <option value="btn">按钮</option>
+        </select>
+      </div>
+      <div class="query-item">
+        <span class="query-label">状态</span>
+        <select class="form-input form-select" id="menu-query-status" style="width:100px">
+          <option value="">全部</option>
+          <option value="enabled">启用</option>
+          <option value="disabled">停用</option>
+        </select>
+      </div>
+      <div class="query-item">
+        <button class="btn btn-primary btn-sm" onclick="queryMenuTable()">查询</button>
+        <button class="btn btn-default btn-sm" onclick="resetMenuQuery()">重置</button>
+      </div>
+    </div>
+    <!-- 操作栏 -->
+    <div style="display:flex; justify-content:flex-end; gap:8px; padding:12px 20px;">
+      <button class="btn btn-primary btn-sm" onclick="openAddMenu()">+ 新增菜单</button>
+      <button class="btn btn-default btn-sm" onclick="expandAllMenu()">展开全部</button>
+      <button class="btn btn-default btn-sm" onclick="collapseAllMenu()">折叠全部</button>
+      <button class="btn btn-default btn-sm">导出</button>
+    </div>
+      <table class="data-table" style="margin:0 20px;">
+        <thead>
+          <tr>
+            <th>菜单名称</th>
+            <th>类型</th>
+            <th>路由地址</th>
+            <th>排序</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="menu-table-body">
+          <!-- JS动态渲染 -->
+        </tbody>
+      </table>
+  </div>
+
+  <!-- Tab2 角色管理 -->
+  <div id="tab-role" class="tab-content">
+    <!-- 查询栏 -->
+    <div class="query-bar">
+      <div class="query-item">
+        <span class="query-label">角色名称</span>
+        <input class="form-input" id="role-query-name" placeholder="请输入">
+      </div>
+      <div class="query-item">
+        <span class="query-label">角色类型</span>
+        <select class="form-input form-select" id="role-query-type">
+          <option value="">全部类型</option>
+          <option value="common">通用角色</option>
+          <option value="level">层级角色</option>
+        </select>
+      </div>
+      <div class="query-item">
+        <span class="query-label">状态</span>
+        <select class="form-input form-select" id="role-query-status" style="width:100px">
+          <option value="">全部</option>
+          <option value="enabled">启用</option>
+          <option value="disabled">停用</option>
+        </select>
+      </div>
+      <div class="query-item">
+        <button class="btn btn-primary btn-sm" onclick="queryRoleTable()">查询</button>
+        <button class="btn btn-default btn-sm" onclick="resetRoleQuery()">重置</button>
+      </div>
+    </div>
+    <!-- 操作栏 -->
+    <div style="display:flex; justify-content:flex-end; gap:8px; padding:12px 20px;">
+      <button class="btn btn-primary btn-sm" onclick="openModal()">+ 新增角色</button>
+      <button class="btn btn-default btn-sm">导出</button>
+    </div>
+      <table class="data-table" style="margin:0 20px;">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>角色名称</th>
+            <th>角色编码</th>
+            <th>角色类型</th>
+            <th>关联层级</th>
+            <th>用户数</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="role-table-body">
+          <tr>
+            <td>1</td>
+            <td>超级管理员</td>
+            <td style="font-family:monospace; font-size:12px;">SUPER_ADMIN</td>
+            <td><span class="tag tag-role-common">通用角色</span></td>
+            <td>全部</td>
+            <td>3</td>
+            <td><span class="tag tag-success">启用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openPermConfig('超级管理员')">权限</button></span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>集团安全管理员</td>
+            <td style="font-family:monospace; font-size:12px;">GROUP_SAFETY_ADMIN</td>
+            <td><span class="tag tag-role-level">层级角色</span></td>
+            <td><span class="tag-level">集团</span></td>
+            <td>5</td>
+            <td><span class="tag tag-success">启用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openEditRole('集团安全管理员','GROUP_SAFETY_ADMIN','level','secondary')">编辑</button><button class="btn btn-text btn-sm" onclick="openPermConfig('集团安全管理员')">权限</button><button class="btn btn-text btn-sm" onclick="confirmToggleRole('集团安全管理员','停用',5)">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)" onclick="confirmDeleteRole('集团安全管理员',5)">删除</button></span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>公司安全管理员</td>
+            <td style="font-family:monospace; font-size:12px;">COMPANY_SAFETY_ADMIN</td>
+            <td><span class="tag tag-role-level">层级角色</span></td>
+            <td><span class="tag-level">二级企业</span></td>
+            <td>12</td>
+            <td><span class="tag tag-success">启用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openEditRole('公司安全管理员','COMPANY_SAFETY_ADMIN','level','secondary')">编辑</button><button class="btn btn-text btn-sm" onclick="openPermConfig('公司安全管理员')">权限</button><button class="btn btn-text btn-sm" onclick="confirmToggleRole('公司安全管理员','停用',12)">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)" onclick="confirmDeleteRole('公司安全管理员',12)">删除</button></span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>下属企业安全员</td>
+            <td style="font-family:monospace; font-size:12px;">SUB_SAFETY_OFFICER</td>
+            <td><span class="tag tag-role-level">层级角色</span></td>
+            <td><span class="tag-level">下属企业</span></td>
+            <td>26</td>
+            <td><span class="tag tag-success">启用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openEditRole('下属企业安全员','SUB_SAFETY_OFFICER','level','subordinate')">编辑</button><button class="btn btn-text btn-sm" onclick="openPermConfig('下属企业安全员')">权限</button><button class="btn btn-text btn-sm" onclick="confirmToggleRole('下属企业安全员','停用',26)">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)" onclick="confirmDeleteRole('下属企业安全员',26)">删除</button></span></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>检查员</td>
+            <td style="font-family:monospace; font-size:12px;">INSPECTOR</td>
+            <td><span class="tag tag-role-common">通用角色</span></td>
+            <td>全部</td>
+            <td>28</td>
+            <td><span class="tag tag-success">启用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openEditRole('检查员','INSPECTOR','common','')">编辑</button><button class="btn btn-text btn-sm" onclick="openPermConfig('检查员')">权限</button><button class="btn btn-text btn-sm" onclick="confirmToggleRole('检查员','停用',28)">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)">删除</button></span></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>培训管理员</td>
+            <td style="font-family:monospace; font-size:12px;">TRAINING_ADMIN</td>
+            <td><span class="tag tag-role-common">通用角色</span></td>
+            <td>全部</td>
+            <td>8</td>
+            <td><span class="tag tag-success">启用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openEditRole('培训管理员','TRAINING_ADMIN','common','')">编辑</button><button class="btn btn-text btn-sm" onclick="openPermConfig('培训管理员')">权限</button><button class="btn btn-text btn-sm" onclick="confirmToggleRole('培训管理员','停用',8)">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)" onclick="confirmDeleteRole('培训管理员',8)">删除</button></span></td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>普通员工</td>
+            <td style="font-family:monospace; font-size:12px;">EMPLOYEE</td>
+            <td><span class="tag tag-role-common">通用角色</span></td>
+            <td>全部</td>
+            <td>0</td>
+            <td><span class="tag tag-default">停用</span></td>
+            <td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="openEditRole('普通员工','EMPLOYEE','common','')">编辑</button><button class="btn btn-text btn-sm" onclick="openPermConfig('普通员工')">权限</button><button class="btn btn-text btn-sm" onclick="confirmToggleRole('普通员工','启用',0)">启用</button><button class="btn btn-text btn-sm" style="color:var(--danger)">删除</button></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-bar" id="role-pagination">
+        <span class="pagination-info">共 7 条</span>
+        <select class="pagination-size" onchange="changeRolePageSize(this.value)">
+          <option value="10" selected>10条/页</option>
+          <option value="20">20条/页</option>
+          <option value="50">50条/页</option>
+        </select>
+        <div class="pagination">
+          <div class="pagination-page active">1</div>
+        </div>
+      </div>
+  </div>
+
+  <!-- Tab3 数据权限 -->
+  <div id="tab-dataperm" class="tab-content">
+    <div class="perm-panels" style="padding:16px 20px;">
+      <!-- 人员组织维度 -->
+      <div class="perm-panel">
+        <div class="perm-panel-header">人员组织维度</div>
+        <div class="perm-panel-body">
+          <div class="perm-config-row">
+            <div class="perm-config-label">选择角色</div>
+            <select class="form-input form-select" style="width:100%;" onchange="updateOrgPerm(this.value)">
+              <option value="">请选择角色</option>
+              <option value="2">集团安全管理员（GROUP_SAFETY_ADMIN）</option>
+              <option value="3">公司安全管理员（COMPANY_SAFETY_ADMIN）</option>
+              <option value="4">下属企业安全员（SUB_SAFETY_OFFICER）</option>
+              <option value="5">检查员（INSPECTOR）</option>
+              <option value="6">培训管理员（TRAINING_ADMIN）</option>
+            </select>
+          </div>
+          <div class="perm-config-row">
+            <div class="perm-config-label">可见组织范围</div>
+            <div class="radio-group" id="orgScopeGroup">
+              <label class="radio-item"><input type="radio" name="orgScope" value="self" checked> 本人<span style="font-size:11px; color:var(--text-description);">（创建人或责任人为当前用户的数据）</span></label>
+              <label class="radio-item"><input type="radio" name="orgScope" value="dept"> 本部门</label>
+              <label class="radio-item"><input type="radio" name="orgScope" value="company"> 本公司</label>
+              <label class="radio-item"><input type="radio" name="orgScope" value="company-sub"> 本企业及下属</label>
+              <label class="radio-item"><input type="radio" name="orgScope" value="all"> 全部</label>
+            </div>
+            <div id="orgScopeHint" style="font-size:11px; color:var(--text-description); margin-top:4px;"></div>
+          </div>
+          <div style="padding-top:12px; border-top:1px solid var(--border-light);">
+            <button class="btn btn-primary btn-sm">保存配置</button>
+          </div>
+        </div>
+      </div>
+      <!-- 业务数据分类维度 -->
+      <div class="perm-panel">
+        <div class="perm-panel-header">业务数据分类维度</div>
+        <div class="perm-panel-body">
+          <div class="perm-config-row">
+            <div class="perm-config-label">选择角色</div>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择角色</option>
+              <option value="2">集团安全管理员（GROUP_SAFETY_ADMIN）</option>
+              <option value="3">公司安全管理员（COMPANY_SAFETY_ADMIN）</option>
+              <option value="4">下属企业安全员（SUB_SAFETY_OFFICER）</option>
+              <option value="5">检查员（INSPECTOR）</option>
+              <option value="6">培训管理员（TRAINING_ADMIN）</option>
+            </select>
+          </div>
+          <div class="perm-config-row">
+            <div class="perm-config-label">可见业务数据类型</div>
+            <div class="checkbox-group">
+              <label class="checkbox-item"><input type="checkbox"> 目标职责数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 教育培训数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 现场管理数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 危险源数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 隐患数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 安全检查数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 风险管控数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 作业数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 应急数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 事故数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 考核数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 综合管理数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 基础保障数据</label>
+              <label class="checkbox-item"><input type="checkbox"> 报表数据</label>
+            </div>
+          </div>
+          <div style="padding-top:12px; border-top:1px solid var(--border-light);">
+            <button class="btn btn-primary btn-sm">保存配置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- 关闭统一外层 card -->
+
+  <!-- 新增菜单弹窗 -->
+  <div class="modal-overlay" id="modal-add-menu">
+    <div class="modal" style="width:var(--modal-lg)">
+      <div class="modal-header"><h3 id="menu-modal-title">新增菜单</h3></div>
+      <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>上级菜单</div>
+        <div class="form-content">
+          <select class="form-input form-select" id="menu-parent" onchange="updateMenuTypeOptions()">
+            <option value="">根级目录</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>菜单类型</div>
+        <div class="form-content">
+          <div class="radio-group" id="menu-type-group">
+            <label class="radio-item"><input type="radio" name="menuType" value="dir" id="menuType-dir"> 目录</label>
+            <label class="radio-item"><input type="radio" name="menuType" value="menu" id="menuType-menu" checked> 菜单</label>
+            <label class="radio-item"><input type="radio" name="menuType" value="btn" id="menuType-btn"> 按钮</label>
+          </div>
+          <div style="font-size:12px; color:var(--text-description); margin-top:4px;" id="menu-type-hint">根级可建目录或菜单（根级菜单不可有子按钮），目录下可建菜单，菜单下可建按钮</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>菜单名称</div>
+        <div class="form-content"><input class="form-input" placeholder="请输入菜单名称"></div>
+      </div>
+      <div class="form-group" id="menu-route-group">
+        <div class="form-label"><span class="required" id="route-required" style="display:inline;">*</span>路由地址</div>
+        <div class="form-content"><input class="form-input" id="menu-route-input" placeholder="请输入前端路由路径，如 /risk/identify" style="font-family:monospace;"></div>
+      </div>
+      <div class="form-group" id="menu-icon-group">
+        <div class="form-label">图标</div>
+        <div class="form-content"><input class="form-input" placeholder="选择图标（目录/菜单类型适用）"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>排序</div>
+        <div class="form-content"><input class="form-input" type="number" placeholder="请输入排序号" value="1"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">状态</div>
+        <div class="form-content">
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="menuStatus" value="enabled" checked> 启用</label>
+            <label class="radio-item"><input type="radio" name="menuStatus" value="disabled"> 停用</label>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeMenuModal()">取消</button>
+        <button class="btn btn-primary" onclick="submitAddMenu()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑角色弹窗 -->
+  <div class="modal-overlay" id="modal-add">
+    <div class="modal" style="width:var(--modal-lg)">
+      <div class="modal-header"><h3 id="role-modal-title">新增角色</h3></div>
+      <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>角色名称</div>
+        <div class="form-content"><input class="form-input" placeholder="请输入角色名称"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>角色编码</div>
+        <div class="form-content"><input class="form-input" id="role-code-input" placeholder="大写字母+下划线，如 GROUP_SAFETY_ADMIN" style="font-family:monospace;"><span id="role-code-hint" style="display:block; font-size:12px; color:var(--text-description); margin-top:4px;">大写字母+下划线，4-40字符，如 GROUP_SAFETY_ADMIN</span></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>角色类型</div>
+        <div class="form-content">
+          <div class="radio-group" id="role-type-group">
+            <label class="radio-item"><input type="radio" name="roleType" value="common" checked onchange="toggleLevelGroup()"> 通用角色</label>
+            <label class="radio-item"><input type="radio" name="roleType" value="level" onchange="toggleLevelGroup()"> 层级角色</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" id="level-group" style="display:none;">
+        <div class="form-label"><span class="required" id="level-required" style="display:inline;">*</span>关联层级</div>
+        <div class="form-content">
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="roleLevel" value="group"> 集团</label>
+            <label class="radio-item"><input type="radio" name="roleLevel" value="secondary"> 二级企业</label>
+            <label class="radio-item"><input type="radio" name="roleLevel" value="subordinate"> 下属企业</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">角色描述</div>
+        <div class="form-content"><textarea class="form-input" style="height:80px; padding:8px 12px;" placeholder="请输入角色描述"></textarea></div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="submitRole()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 权限配置弹窗 -->
+  <div class="modal-overlay" id="modal-perm">
+    <div class="modal" style="width:720px;">
+      <div class="modal-header"><h3>权限配置 - <span id="perm-role-name"></span></h3></div>
+      <div class="modal-body" style="padding:0;">
+        <div style="padding:12px 20px; background:var(--bg-table-header); border-bottom:1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; color:var(--text-secondary);">勾选该角色可访问的菜单和按钮权限</span>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-text btn-sm" onclick="checkAllPerm()">全选</button>
+              <button class="btn btn-text btn-sm" onclick="uncheckAllPerm()">取消全选</button>
+              <button class="btn btn-text btn-sm" onclick="expandAllPerm()">展开全部</button>
+              <button class="btn btn-text btn-sm" onclick="collapseAllPerm()">折叠全部</button>
+            </div>
+          </div>
+        </div>
+        <div class="perm-tree" style="margin:16px 20px;" id="perm-tree">
+          <!-- JS动态渲染 -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closePermModal()">取消</button>
+        <button class="btn btn-primary" onclick="savePermConfig()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 确认弹窗 -->
+  <div class="modal-overlay" id="modal-confirm">
+    <div class="modal" style="width:440px;">
+      <div class="modal-header"><h3 id="confirm-title">确认</h3></div>
+      <div class="modal-body">
+        <p id="confirm-message" style="font-size:14px; line-height:1.6;"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeConfirm()">取消</button>
+        <button class="btn btn-primary" id="confirm-ok" onclick="doConfirm()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 菜单数据（来自 menus.js） ==========
+    var MENU_DATA = [
+      { id:'home', name:'系统首页', icon:'🏠', path:'/home', children:null },
+      { id:'dashboard', name:'数据看板', icon:'📊', path:'/dashboard', children:null },
+      { id:'objective', name:'目标职责', icon:'🎯', children:[
+        { id:'objective-target', name:'安全目标', path:'/objective/safety-target', buttons:['新增','编辑','删除','导出'] },
+        { id:'objective-responsibility', name:'安全生产责任书', path:'/objective/responsibility', buttons:['签订','查看','导出'] },
+        { id:'objective-evaluation', name:'安全履职评价', path:'/objective/evaluation', buttons:['评价','查看','导出'] },
+        { id:'objective-meeting', name:'安全会议', path:'/objective/meeting', buttons:['新增','编辑','删除'] }
+      ]},
+      { id:'training', name:'教育培训', icon:'📚', children:[
+        { id:'training-knowledge', name:'培训知识库管理', path:'/training/knowledge', buttons:['新增','编辑','删除','发布'] },
+        { id:'training-education', name:'安全教育培训', path:'/training/education', buttons:['新增','编辑','删除','导出'] },
+        { id:'training-competition', name:'知识竞赛中心', path:'/training/competition', buttons:['新增','编辑','删除','发布'] },
+        { id:'training-external', name:'外来人员培训', path:'/training/external', buttons:['登记','查看','导出'] },
+        { id:'training-archive', name:'培训档案与持证管理', path:'/training/archive', buttons:['查看','导出','提醒'] }
+      ]},
+      { id:'on-site', name:'现场管理', icon:'🏭', children:[
+        { id:'on-site-equipment', name:'设备设施管理', path:'/on-site/equipment', buttons:['新增','编辑','删除','导出'] },
+        { id:'on-site-dangerous-work', name:'危险作业管理', path:'/on-site/dangerous-work', buttons:['申请','审批','监控','导出'] },
+        { id:'on-site-contractor', name:'相关方管理', path:'/on-site/contractor', buttons:['准入','评价','查看'] },
+        { id:'on-site-behavior', name:'行为管控', path:'/on-site/behavior', buttons:['登记','处理','统计'] },
+        { id:'on-site-occupational', name:'职业健康管理', path:'/on-site/occupational', buttons:['新增','编辑','查看','导出'] }
+      ]},
+      { id:'risk', name:'安全风险管控', icon:'⚠️', children:[
+        { id:'risk-guide', name:'风险指引库', path:'/risk/guide', buttons:['新增','编辑','删除','发布'] },
+        { id:'risk-identification', name:'危险源辨识', path:'/risk/identification', buttons:['新增','编辑','删除','导出'] },
+        { id:'risk-check', name:'动态核查', path:'/risk/check', buttons:['核查','审批','查看'] },
+        { id:'risk-map', name:'风险清单与四色图', path:'/risk/map', buttons:['查看','导出'] },
+        { id:'risk-analysis', name:'风险统计分析', path:'/risk/analysis', buttons:['查看','导出'], disabled:true }
+      ]},
+      { id:'hazard', name:'隐患排查治理', icon:'🔍', children:[
+        { id:'hazard-guide', name:'隐患指引库', path:'/hazard/guide', buttons:['新增','编辑','删除','发布'] },
+        { id:'hazard-inspection', name:'安全检查', path:'/hazard/inspection', buttons:['新增','编辑','删除','导出'] },
+        { id:'hazard-rectification', name:'隐患整改治理', path:'/hazard/rectification', buttons:['新增','审批','验收','导出'] },
+        { id:'hazard-analysis', name:'隐患统计分析', path:'/hazard/analysis', buttons:['查看','导出'], disabled:true }
+      ]},
+      { id:'emergency', name:'应急管理', icon:'🚨', children:[
+        { id:'emergency-preparedness', name:'应急准备', path:'/emergency/preparedness', buttons:['新增','编辑','删除','发布'] },
+        { id:'emergency-drill', name:'应急演练', path:'/emergency/drill', buttons:['新增','编辑','评估','导出'] },
+        { id:'emergency-response', name:'应急处置', path:'/emergency/response', buttons:['启动','处置','结束'] },
+        { id:'emergency-typhoon', name:'防台风应急响应', path:'/emergency/typhoon', buttons:['预警','响应','解除'] }
+      ]},
+      { id:'accident', name:'事故管理', icon:'🔴', children:[
+        { id:'accident-report', name:'事故上报', path:'/accident/report', buttons:['上报','续报','结案'] },
+        { id:'accident-investigation', name:'事故调查与归档', path:'/accident/investigation', buttons:['新增','编辑','归档','导出'] }
+      ]},
+      { id:'assessment', name:'绩效考核', icon:'📈', children:[
+        { id:'assessment-target', name:'考核对象与管控分级', path:'/assessment/target', buttons:['新增','编辑','删除','导出'] },
+        { id:'assessment-control', name:'控制指标', path:'/assessment/control', buttons:['新增','编辑','删除'] },
+        { id:'assessment-work', name:'工作指标与扣分规则', path:'/assessment/work', buttons:['新增','编辑','删除'] },
+        { id:'assessment-bonus', name:'加分项与举报奖励', path:'/assessment/bonus', buttons:['新增','编辑','删除'] },
+        { id:'assessment-result', name:'绩效评定与结果应用', path:'/assessment/result', buttons:['评定','查看','导出'] },
+        { id:'assessment-frequency', name:'考核频次与执行', path:'/assessment/frequency', buttons:['执行','查看','导出'] }
+      ]},
+      { id:'management', name:'综合管理', icon:'📋', children:[
+        { id:'management-ledger', name:'公司台账', path:'/management/ledger', buttons:['新增','编辑','删除','导出'] },
+        { id:'management-project', name:'项目信息', path:'/management/project', buttons:['新增','编辑','删除','导出'] },
+        { id:'management-publish', name:'信息发布', path:'/management/publish', buttons:['新增','编辑','发布','撤回'] },
+        { id:'management-supervision', name:'工作督办', path:'/management/supervision', buttons:['督办','反馈','查看'] },
+        { id:'management-report', name:'安全报表', path:'/management/report', buttons:['生成','查看','导出'] }
+      ]},
+      { id:'security-basics', name:'基础保障', icon:'🛡️', children:[
+        { id:'security-basics-org', name:'组织保障', path:'/security-basics/org', buttons:['新增','编辑','删除'] },
+        { id:'security-basics-regulation', name:'制度保障', path:'/security-basics/regulation', buttons:['新增','编辑','删除','发布'] },
+        { id:'security-basics-fund', name:'资金保障', path:'/security-basics/fund', buttons:['新增','编辑','查看','导出'] }
+      ]},
+      { id:'system-admin', name:'系统管理', icon:'⚙️', children:[
+        { id:'system-org', name:'组织架构', path:'/system/org', buttons:['新增','编辑','删除','同步'] },
+        { id:'system-user', name:'用户管理', path:'/system/user', buttons:['新增','编辑','删除','导出'] },
+        { id:'system-permission', name:'权限管理', path:'/system/permission', buttons:['新增','编辑','删除'] },
+        { id:'system-workflow', name:'流程管理', path:'/system/workflow', buttons:['新增','配置','停用','删除'] }
+      ]},
+      { id:'mobile', name:'安全移动端', icon:'📱', path:'/mobile', children:null }
+    ];
+
+    // ========== 渲染菜单管理表格 ==========
+    function renderMenuTable() {
+      var html = '';
+      var idx = 0;
+      MENU_DATA.forEach(function(dir, di) {
+        idx++;
+        var hasChildren = dir.children && dir.children.length > 0;
+        var isSimpleMenu = !hasChildren;
+        // 目录行
+        html += '<tr style="background:var(--bg-table-header); font-weight:500;">';
+        html += '<td>';
+        if (hasChildren) {
+          html += '<span class="tree-expand" onclick="toggleMenu(this, \'menu-' + dir.id + '\')">&#9654;</span>';
+        } else {
+          html += '<span class="tree-indent"></span>';
+        }
+        html += dir.name + '</td>';
+        if (isSimpleMenu) {
+          html += '<td><span class="tag tag-menu">菜单</span></td>';
+          html += '<td style="font-family:monospace; font-size:12px; color:var(--primary);">' + dir.path + '</td>';
+        } else {
+          html += '<td><span class="tag tag-dir">目录</span></td>';
+          html += '<td style="color:var(--text-description);">—</td>';
+        }
+        html += '<td>' + ((di+1)*10) + '</td>';
+        html += '<td><span class="tag tag-success">启用</span></td>';
+        html += '<td><span class="cell-actions">';
+        html += '<button class="btn btn-text btn-sm" onclick="editMenuItem(\'' + dir.name + '\')">编辑</button>';
+        if (hasChildren) html += '<button class="btn btn-text btn-sm" onclick="openAddMenu()">新增</button>';
+        html += '<button class="btn btn-text btn-sm" onclick="toggleMenuItem(\'' + dir.name + '\', \'停用\')">停用</button>';
+        html += '</span></td></tr>';
+
+        // 菜单行（目录的子级）
+        if (hasChildren) {
+          dir.children.forEach(function(menu, mi) {
+            var menuDisabled = menu.disabled || false;
+            var hasBtns = menu.buttons && menu.buttons.length > 0;
+            var rowClass = 'menu-child-row menu-' + dir.id;
+            if (menuDisabled) rowClass += ' stopped';
+            html += '<tr class="' + rowClass + '">';
+            html += '<td><span class="tree-indent"></span>';
+            if (hasBtns) {
+              html += '<span class="tree-expand" onclick="toggleMenu(this, \'btn-' + dir.id + '-' + mi + '\')">&#9654;</span>';
+            } else {
+              html += '<span class="tree-indent"></span>';
+            }
+            html += menu.name + '</td>';
+            html += '<td><span class="tag tag-menu">菜单</span></td>';
+            html += '<td style="font-family:monospace; font-size:12px; color:var(--primary);">' + menu.path + '</td>';
+            html += '<td>' + ((mi+1)*10) + '</td>';
+            html += '<td>' + (menuDisabled ? '<span class="tag tag-default">停用</span>' : '<span class="tag tag-success">启用</span>') + '</td>';
+            html += '<td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="editMenuItem(\'' + menu.name + '\')">编辑</button>' + (hasBtns && !menuDisabled ? '<button class="btn btn-text btn-sm" onclick="openAddMenu()">新增</button>' : '') + (menuDisabled ? '<button class="btn btn-text btn-sm" onclick="toggleMenuItem(\'' + menu.name + '\', \'启用\')">启用</button>' : '<button class="btn btn-text btn-sm" onclick="toggleMenuItem(\'' + menu.name + '\', \'停用\')">停用</button>') + '</span></td>';
+            html += '</tr>';
+            // 按钮行（菜单的子级）
+            if (hasBtns) {
+              menu.buttons.forEach(function(btn, bi) {
+                html += '<tr class="btn-child-row btn-' + dir.id + '-' + mi + '">';
+                html += '<td><span class="tree-indent"></span><span class="tree-indent"></span><span class="tree-indent"></span>' + btn + '</td>';
+                html += '<td><span class="tag tag-btn">按钮</span></td>';
+                html += '<td style="color:var(--text-description);">—</td>';
+                html += '<td>' + ((bi+1)*10) + '</td>';
+                html += '<td>' + (menuDisabled ? '<span class="tag tag-default">停用</span>' : '<span class="tag tag-success">启用</span>') + '</td>';
+                html += '<td><span class="cell-actions"><button class="btn btn-text btn-sm" onclick="editMenuItem(\'' + btn + '\')">编辑</button>' + (menuDisabled ? '<button class="btn btn-text btn-sm" onclick="toggleMenuItem(\'' + btn + '\', \'启用\')">启用</button>' : '<button class="btn btn-text btn-sm" onclick="toggleMenuItem(\'' + btn + '\', \'停用\')">停用</button>') + '</span></td>';
+                html += '</tr>';
+              });
+            }
+          });
+        }
+      });
+      document.getElementById('menu-table-body').innerHTML = html;
+    }
+
+    // ========== 渲染权限树 ==========
+    function renderPermTree() {
+      var html = '';
+      MENU_DATA.forEach(function(dir) {
+        var hasChildren = dir.children && dir.children.length > 0;
+        var isSimpleMenu = !hasChildren;
+        // 目录或简单菜单
+        html += '<div class="perm-tree-node perm-tree-dir" style="display:flex; align-items:center; gap:6px;">';
+        if (hasChildren) {
+          html += '<span class="tree-expand open" onclick="togglePermNode(this)" style="font-size:10px; cursor:pointer;">&#9654;</span>';
+        }
+        html += '<label class="checkbox-item"><input type="checkbox" checked class="perm-check-dir"> <strong>' + dir.name + '</strong></label>';
+        html += '</div>';
+        if (hasChildren) {
+          html += '<div class="perm-tree-children open">';
+          dir.children.forEach(function(menu) {
+            if (!menu.disabled) {
+              html += '<div class="perm-tree-node perm-tree-menu" style="display:flex; align-items:center; gap:6px;">';
+              html += '<span class="tree-expand open" onclick="togglePermNode(this)" style="font-size:10px; cursor:pointer;">&#9654;</span>';
+              html += '<label class="checkbox-item"><input type="checkbox" checked class="perm-check-menu"> ' + menu.name + '</label>';
+              html += '</div>';
+            if (menu.buttons && menu.buttons.length > 0) {
+              html += '<div class="perm-tree-children open">';
+              menu.buttons.forEach(function(btn) {
+                html += '<div class="perm-tree-node perm-tree-btn" style="display:flex; align-items:center; gap:6px;">';
+                html += '<label class="checkbox-item"><input type="checkbox" checked class="perm-check-btn"> ' + btn + '</label>';
+                html += '</div>';
+              });
+              html += '</div>';
+            }
+            }  // end if (!menu.disabled)
+          });
+          html += '</div>';
+        }
+      });
+      document.getElementById('perm-tree').innerHTML = html;
+      setupPermTreeCheckboxes();
+    }
+
+    // ========== 渲染新增菜单弹窗的上级菜单选项 ==========
+    function renderMenuParentOptions() {
+      var sel = document.getElementById('menu-parent');
+      var html = '<option value="">根级目录</option>';
+      MENU_DATA.forEach(function(dir) {
+        var hasChildren = dir.children && dir.children.length > 0;
+        if (hasChildren) {
+          html += '<option value="' + dir.id + '">' + dir.name + '（目录）</option>';
+          dir.children.forEach(function(menu) {
+            html += '<option value="' + menu.id + '">' + menu.name + '（菜单）— 仅可新增按钮</option>';
+          });
+        }
+      });
+      sel.innerHTML = html;
+    }
+
+    // ========== Tab切换 ==========
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    // ========== 树形展开/折叠 ==========
+    function toggleMenu(arrowEl, menuId) {
+      var isOpen = arrowEl.classList.toggle('open');
+      document.querySelectorAll('.' + menuId).forEach(function(row) {
+        if (isOpen) {
+          row.classList.add('open');
+        } else {
+          row.classList.remove('open');
+          if (menuId.startsWith('menu-')) {
+            row.querySelectorAll('.tree-expand.open').forEach(function(a) { a.classList.remove('open'); });
+            var dirId = menuId.replace('menu-', '');
+            document.querySelectorAll('[class*=btn-' + dirId + '-]').forEach(function(br) { br.classList.remove('open'); });
+          }
+        }
+      });
+    }
+
+    function expandAllMenu() {
+      document.querySelectorAll('.tree-expand').forEach(function(el) { el.classList.add('open'); });
+      document.querySelectorAll('.menu-child-row').forEach(function(row) { row.classList.add('open'); });
+      document.querySelectorAll('.btn-child-row').forEach(function(row) { row.classList.add('open'); });
+    }
+
+    function collapseAllMenu() {
+      document.querySelectorAll('.tree-expand').forEach(function(el) { el.classList.remove('open'); });
+      document.querySelectorAll('.menu-child-row').forEach(function(row) { row.classList.remove('open'); });
+      document.querySelectorAll('.btn-child-row').forEach(function(row) { row.classList.remove('open'); });
+    }
+
+    function togglePermNode(arrowEl) {
+      arrowEl.classList.toggle('open');
+      var sibling = arrowEl.parentElement.nextElementSibling;
+      if (sibling && sibling.classList.contains('perm-tree-children')) {
+        sibling.style.display = sibling.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+
+    function expandAllPerm() {
+      document.querySelectorAll('.perm-tree-children').forEach(function(el) { el.style.display = 'block'; });
+      document.querySelectorAll('#modal-perm .tree-expand').forEach(function(el) { el.classList.add('open'); });
+    }
+    function collapseAllPerm() {
+      document.querySelectorAll('.perm-tree-children').forEach(function(el) { el.style.display = 'none'; });
+      document.querySelectorAll('#modal-perm .tree-expand').forEach(function(el) { el.classList.remove('open'); });
+    }
+
+    function checkAllPerm() {
+      document.querySelectorAll('#modal-perm input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
+    }
+    function uncheckAllPerm() {
+      document.querySelectorAll('#modal-perm input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+    }
+
+    // ========== 权限树联动 ==========
+    function setupPermTreeCheckboxes() {
+      document.querySelectorAll('.perm-tree input[type="checkbox"]').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+          var node = this.closest('.perm-tree-node');
+          var children = node.nextElementSibling;
+          // 向下联动
+          if (children && children.classList.contains('perm-tree-children')) {
+            children.querySelectorAll('input[type="checkbox"]').forEach(function(childCb) {
+              childCb.checked = cb.checked;
+            });
+          }
+          // 向上联动
+          if (cb.checked) {
+            var parent = node.parentElement;
+            if (parent && parent.classList.contains('perm-tree-children')) {
+              var parentCb = parent.previousElementSibling.querySelector('input[type="checkbox"]');
+              if (parentCb && !parentCb.checked) parentCb.checked = true;
+              var grandparent = parent.parentElement;
+              if (grandparent && grandparent.classList.contains('perm-tree-children')) {
+                var gpCb = grandparent.previousElementSibling.querySelector('input[type="checkbox"]');
+                if (gpCb && !gpCb.checked) gpCb.checked = true;
+              }
+            }
+          } else {
+            var parent = node.parentElement;
+            if (parent && parent.classList.contains('perm-tree-children')) {
+              var allUnchecked = true;
+              parent.querySelectorAll(':scope > .perm-tree-node input[type="checkbox"]').forEach(function(sibCb) {
+                if (sibCb !== cb && sibCb.checked) allUnchecked = false;
+              });
+              if (allUnchecked) {
+                var parentCb = parent.previousElementSibling.querySelector('input[type="checkbox"]');
+                if (parentCb) parentCb.checked = false;
+              }
+            }
+          }
+        });
+      });
+    }
+
+    // ========== 确认弹窗 ==========
+    var _confirmCallback = null;
+    function showConfirm(title, message, onOk) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      _confirmCallback = onOk;
+      document.getElementById('modal-confirm').style.display = 'flex';
+    }
+    function closeConfirm() {
+      document.getElementById('modal-confirm').style.display = 'none';
+      _confirmCallback = null;
+    }
+    function doConfirm() {
+      if (_confirmCallback) _confirmCallback();
+      closeConfirm();
+    }
+    document.getElementById('modal-confirm').addEventListener('click', function(e) {
+      if (e.target === this) closeConfirm();
+    });
+
+    // ========== 角色停用/启用确认 ==========
+    function confirmToggleRole(roleName, action, userCount) {
+      var msg = action === '停用'
+        ? '确定停用角色「' + roleName + '」？停用后，该角色关联的 ' + userCount + ' 名用户将立即失去对应权限，角色关联关系保留，重新启用后权限自动恢复'
+        : '确定启用角色「' + roleName + '」？启用后，该角色关联的 ' + userCount + ' 名用户将立即恢复对应权限';
+      showConfirm(action + '角色', msg, function() {
+        showToast('角色已' + action);
+      });
+    }
+
+    // ========== 角色删除确认 ==========
+    function confirmDeleteRole(roleName, userCount) {
+      // 模拟：部分角色被审批流程引用
+      var workflowRef = { '集团安全管理员': 3, '公司安全管理员': 5, '下属企业安全员': 2 };
+      if (workflowRef[roleName]) {
+        showConfirm('删除角色', '该角色被 ' + workflowRef[roleName] + ' 个审批流程引用，禁止删除。请先修改相关审批流程后再删除。', null);
+      } else if (userCount > 0) {
+        showConfirm('删除角色', '该角色下有 ' + userCount + ' 名用户，禁止删除。请先移除所有用户的该角色后再删除。', null);
+      } else {
+        showConfirm('删除角色', '确定删除角色「' + roleName + '」？删除后不可恢复。', function() {
+          showToast('角色已删除');
+        });
+      }
+    }
+
+    // ========== Toast ==========
+    function showToast(msg) {
+      var toast = document.createElement('div');
+      toast.textContent = msg;
+      toast.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--success); color:#fff; padding:10px 24px; border-radius:var(--radius-md); font-size:14px; z-index:10000; box-shadow:0 4px 12px rgba(0,0,0,0.15);';
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 2000);
+    }
+
+    // ========== 新增菜单弹窗 ==========
+    function openAddMenu() {
+      document.getElementById('menu-modal-title').textContent = '新增菜单';
+      var nameInput = document.querySelector('#modal-add-menu .form-content input[placeholder="请输入菜单名称"]');
+      if (nameInput) nameInput.value = '';
+      document.getElementById('modal-add-menu').style.display = 'flex';
+      updateMenuTypeOptions();
+    }
+    function closeMenuModal() {
+      document.getElementById('modal-add-menu').style.display = 'none';
+    }
+    document.getElementById('modal-add-menu').addEventListener('click', function(e) {
+      if (e.target === this) closeMenuModal();
+    });
+
+    function updateMenuTypeOptions() {
+      var parent = document.getElementById('menu-parent').value;
+      var dirRadio = document.getElementById('menuType-dir');
+      var menuRadio = document.getElementById('menuType-menu');
+      var btnRadio = document.getElementById('menuType-btn');
+      var iconGroup = document.getElementById('menu-icon-group');
+      var routeGroup = document.getElementById('menu-route-group');
+      var routeReq = document.getElementById('route-required');
+      var hint = document.getElementById('menu-type-hint');
+
+      // 判断选中的上级是目录还是菜单
+      var selectedIsDir = false;
+      var selectedIsMenu = false;
+      MENU_DATA.forEach(function(dir) {
+        if (dir.id === parent && dir.children) selectedIsDir = true;
+        if (dir.children) {
+          dir.children.forEach(function(menu) {
+            if (menu.id === parent) selectedIsMenu = true;
+          });
+        }
+      });
+
+      if (!parent) {
+        // 根级→目录或菜单（根级菜单不可有子按钮）
+        dirRadio.disabled = false; menuRadio.disabled = false; btnRadio.disabled = true;
+        if (dirRadio.checked) {
+          iconGroup.style.display = 'flex'; routeGroup.style.display = 'none';
+        } else {
+          menuRadio.checked = true;
+          iconGroup.style.display = 'flex'; routeGroup.style.display = 'flex'; routeReq.style.display = 'inline';
+        }
+        hint.textContent = '根级可建目录或菜单（根级菜单不可有子按钮）';
+      } else if (selectedIsDir) {
+        // 目录下→仅菜单
+        menuRadio.checked = true;
+        dirRadio.disabled = true; menuRadio.disabled = false; btnRadio.disabled = true;
+        iconGroup.style.display = 'flex'; routeGroup.style.display = 'flex'; routeReq.style.display = 'inline';
+        hint.textContent = '目录下仅可建菜单';
+      } else if (selectedIsMenu) {
+        // 菜单下→仅按钮
+        btnRadio.checked = true;
+        dirRadio.disabled = true; menuRadio.disabled = true; btnRadio.disabled = false;
+        iconGroup.style.display = 'none'; routeGroup.style.display = 'none';
+        hint.textContent = '菜单下仅可建按钮';
+      }
+    }
+
+    // ========== 新增角色弹窗 ==========
+    function openModal() {
+      document.getElementById('role-modal-title').textContent = '新增角色';
+      document.getElementById('role-code-input').value = '';
+      document.getElementById('role-code-input').readOnly = false;
+      document.getElementById('role-code-input').style.background = '';
+      document.getElementById('role-code-input').style.cursor = '';
+      document.getElementById('role-code-hint').textContent = '大写字母+下划线，4-40字符，如 GROUP_SAFETY_ADMIN';
+      document.getElementById('role-code-hint').style.color = 'var(--text-description)';
+      var commonRadio = document.querySelector('input[name="roleType"][value="common"]');
+      commonRadio.checked = true;
+      commonRadio.disabled = false;
+      document.querySelector('input[name="roleType"][value="level"]').disabled = false;
+      document.querySelectorAll('#level-group input[type="radio"]').forEach(function(rb) { rb.checked = false; rb.disabled = false; });
+      toggleLevelGroup();
+      document.getElementById('modal-add').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('modal-add').style.display = 'none';
+    }
+    document.getElementById('modal-add').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ========== 编辑角色弹窗 ==========
+    function openEditRole(name, code, type, level) {
+      document.getElementById('role-modal-title').textContent = '编辑角色';
+      document.getElementById('role-code-input').value = code;
+      document.getElementById('role-code-input').readOnly = true;
+      document.getElementById('role-code-input').style.background = 'var(--bg-table-header)';
+      document.getElementById('role-code-input').style.cursor = 'not-allowed';
+      document.getElementById('role-code-hint').textContent = '角色编码创建后不可修改';
+      document.getElementById('role-code-hint').style.color = 'var(--text-description)';
+      var typeRadio = document.querySelector('input[name="roleType"][value="' + type + '"]');
+      typeRadio.checked = true;
+      document.querySelector('input[name="roleType"][value="common"]').disabled = true;
+      document.querySelector('input[name="roleType"][value="level"]').disabled = true;
+      if (type === 'level' && level) {
+        var levelRadio = document.querySelector('#level-group input[value="' + level + '"]');
+        if (levelRadio) levelRadio.checked = true;
+        document.querySelectorAll('#level-group input[type="radio"]').forEach(function(rb) { rb.disabled = true; });
+      }
+      toggleLevelGroup();
+      document.getElementById('modal-add').style.display = 'flex';
+    }
+
+    function toggleLevelGroup() {
+      var levelGroup = document.getElementById('level-group');
+      var levelReq = document.getElementById('level-required');
+      var isLevel = document.querySelector('input[name="roleType"][value="level"]').checked;
+      if (levelGroup) levelGroup.style.display = isLevel ? 'flex' : 'none';
+      if (levelReq) levelReq.style.display = isLevel ? 'inline' : 'none';
+      if (!isLevel) {
+        document.querySelectorAll('#level-group input[type="radio"]').forEach(function(rb) { rb.checked = false; });
+      }
+    }
+
+    // ========== 权限配置弹窗 ==========
+    var ROLE_MAP = {
+      '超级管理员': 'SUPER_ADMIN',
+      '集团安全管理员': 'GROUP_SAFETY_ADMIN',
+      '公司安全管理员': 'COMPANY_SAFETY_ADMIN',
+      '下属企业安全员': 'SUB_SAFETY_OFFICER',
+      '检查员': 'INSPECTOR',
+      '培训管理员': 'TRAINING_ADMIN',
+      '普通员工': 'EMPLOYEE'
+    };
+    function openPermConfig(roleName) {
+      var code = ROLE_MAP[roleName] || '';
+      document.getElementById('perm-role-name').textContent = code ? roleName + '（' + code + '）' : roleName;
+      var isSuperAdmin = (roleName === '超级管理员');
+      // 超级管理员：只读模式
+      var checkboxes = document.querySelectorAll('#modal-perm input[type="checkbox"]');
+      checkboxes.forEach(function(cb) { cb.disabled = isSuperAdmin; });
+      var permFooter = document.querySelector('#modal-perm .modal-footer');
+      var saveBtn = permFooter.querySelector('.btn-primary');
+      if (isSuperAdmin) {
+        saveBtn.style.display = 'none';
+      } else {
+        saveBtn.style.display = '';
+      }
+      document.getElementById('modal-perm').style.display = 'flex';
+    }
+    function closePermModal() {
+      document.getElementById('modal-perm').style.display = 'none';
+    }
+    document.getElementById('modal-perm').addEventListener('click', function(e) {
+      if (e.target === this) closePermModal();
+    });
+
+    function updateOrgPerm(roleId) {
+      // 层级角色组织范围约束
+      var hint = document.getElementById('orgScopeHint');
+      var radios = document.querySelectorAll('#orgScopeGroup input[type="radio"]');
+      if (roleId === '2') {
+        // 集团安全管理员：全部可选
+        radios.forEach(function(r) { r.disabled = false; });
+        hint.textContent = '';
+      } else if (roleId === '3') {
+        // 公司安全管理员（二级企业）：最多选"本企业及下属"
+        radios.forEach(function(r) {
+          r.disabled = (r.value === 'all');
+        });
+        if (document.querySelector('#orgScopeGroup input[value="all"]').checked) {
+          document.querySelector('#orgScopeGroup input[value="company-sub"]').checked = true;
+        }
+        hint.textContent = '层级角色约束：二级企业层级最多可选"本企业及下属"';
+      } else if (roleId === '4') {
+        // 下属企业安全员：最多选"本公司"
+        radios.forEach(function(r) {
+          r.disabled = (r.value === 'company-sub' || r.value === 'all');
+        });
+        if (document.querySelector('#orgScopeGroup input[value="company-sub"]').checked || document.querySelector('#orgScopeGroup input[value="all"]').checked) {
+          document.querySelector('#orgScopeGroup input[value="company"]').checked = true;
+        }
+        hint.textContent = '层级角色约束：下属企业层级最多可选"本公司"';
+      } else {
+        // 通用角色：不受约束
+        radios.forEach(function(r) { r.disabled = false; });
+        hint.textContent = '';
+      }
+    }
+
+    // ========== 菜单类型radio切换联动 ==========
+    function onMenuTypeChange() {
+      var parent = document.getElementById('menu-parent').value;
+      var dirRadio = document.getElementById('menuType-dir');
+      var menuRadio = document.getElementById('menuType-menu');
+      var iconGroup = document.getElementById('menu-icon-group');
+      var routeGroup = document.getElementById('menu-route-group');
+      var routeReq = document.getElementById('route-required');
+      if (!parent) {
+        // 根级：目录隐藏路由，菜单显示路由
+        if (dirRadio.checked) {
+          routeGroup.style.display = 'none';
+        } else {
+          routeGroup.style.display = 'flex'; routeReq.style.display = 'inline';
+        }
+      }
+    }
+    document.querySelectorAll('input[name="menuType"]').forEach(function(r) {
+      r.addEventListener('change', onMenuTypeChange);
+    });
+
+    // ========== 查询/重置：菜单管理 ==========
+    function queryMenuTable() {
+      var name = document.getElementById('menu-query-name').value.trim().toLowerCase();
+      var type = document.getElementById('menu-query-type').value;
+      var status = document.getElementById('menu-query-status').value;
+      var rows = document.querySelectorAll('#menu-table-body tr');
+      rows.forEach(function(row) {
+        var show = true;
+        // 名称过滤
+        if (name) {
+          var text = row.querySelector('td').textContent.toLowerCase();
+          if (text.indexOf(name) === -1) show = false;
+        }
+        // 类型过滤
+        if (show && type) {
+          var typeTag = row.querySelector('.tag');
+          if (typeTag) {
+            var typeMap = { dir: '目录', menu: '菜单', btn: '按钮' };
+            if (typeTag.textContent !== typeMap[type]) show = false;
+          }
+        }
+        // 状态过滤
+        if (show && status) {
+          var statusTag = row.querySelector('.tag-success, .tag-default');
+          if (statusTag) {
+            var statusMap = { enabled: '启用', disabled: '停用' };
+            if (statusTag.textContent !== statusMap[status]) show = false;
+          }
+        }
+        row.style.display = show ? '' : 'none';
+      });
+      showToast('查询完成');
+    }
+    function resetMenuQuery() {
+      document.getElementById('menu-query-name').value = '';
+      document.getElementById('menu-query-type').value = '';
+      document.getElementById('menu-query-status').value = '';
+      document.querySelectorAll('#menu-table-body tr').forEach(function(row) { row.style.display = ''; });
+    }
+
+    // ========== 查询/重置：角色管理 ==========
+    var ROLE_DATA = [
+      { name:'超级管理员', code:'SUPER_ADMIN', type:'common', level:'', users:3, status:'enabled' },
+      { name:'集团安全管理员', code:'GROUP_SAFETY_ADMIN', type:'level', level:'集团', users:5, status:'enabled' },
+      { name:'公司安全管理员', code:'COMPANY_SAFETY_ADMIN', type:'level', level:'二级企业', users:12, status:'enabled' },
+      { name:'下属企业安全员', code:'SUB_SAFETY_OFFICER', type:'level', level:'下属企业', users:26, status:'enabled' },
+      { name:'检查员', code:'INSPECTOR', type:'common', level:'', users:28, status:'enabled' },
+      { name:'培训管理员', code:'TRAINING_ADMIN', type:'common', level:'', users:8, status:'enabled' },
+      { name:'普通员工', code:'EMPLOYEE', type:'common', level:'', users:0, status:'disabled' }
+    ];
+    function queryRoleTable() {
+      var name = document.getElementById('role-query-name').value.trim().toLowerCase();
+      var type = document.getElementById('role-query-type').value;
+      var status = document.getElementById('role-query-status').value;
+      var rows = document.querySelectorAll('#role-table-body tr');
+      rows.forEach(function(row) { row.style.display = ''; });
+      if (!name && !type && !status) return;
+      rows.forEach(function(row) {
+        var show = true;
+        if (name && row.querySelector('td:nth-child(2)').textContent.toLowerCase().indexOf(name) === -1) show = false;
+        if (show && type) {
+          var isLevel = row.querySelector('.tag-role-level');
+          if (type === 'level' && !isLevel) show = false;
+          if (type === 'common' && isLevel) show = false;
+        }
+        if (show && status) {
+          var hasEnabled = row.querySelector('.tag-success');
+          if (status === 'enabled' && !hasEnabled) show = false;
+          if (status === 'disabled' && hasEnabled) show = false;
+        }
+        row.style.display = show ? '' : 'none';
+      });
+      showToast('查询完成');
+    }
+    function resetRoleQuery() {
+      document.getElementById('role-query-name').value = '';
+      document.getElementById('role-query-type').value = '';
+      document.getElementById('role-query-status').value = '';
+      document.querySelectorAll('#role-table-body tr').forEach(function(row) { row.style.display = ''; });
+    }
+
+    // ========== Tab2 分页 ==========
+    var rolePage = 1;
+    var rolePageSize = 10;
+    function renderRolePagination(total) {
+      var totalPages = Math.ceil(total / rolePageSize);
+      if (totalPages < 1) totalPages = 1;
+      var html = '<span class="pagination-info">共 ' + total + ' 条</span>';
+      html += '<select class="pagination-size" onchange="changeRolePageSize(this.value)">';
+      [10,20,50].forEach(function(s) {
+        html += '<option value="' + s + '"' + (s === rolePageSize ? ' selected' : '') + '>' + s + '条/页</option>';
+      });
+      html += '</select>';
+      html += '<div class="pagination">';
+      if (rolePage > 1) html += '<div class="pagination-page" onclick="goRolePage(' + (rolePage-1) + ')">&lt;</div>';
+      for (var i = 1; i <= totalPages; i++) {
+        if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - rolePage) > 1) {
+          if (i === 3 || i === totalPages - 2) html += '<span style="padding:0 4px;color:var(--text-description);">…</span>';
+          continue;
+        }
+        html += '<div class="pagination-page' + (i === rolePage ? ' active' : '') + '" onclick="goRolePage(' + i + ')">' + i + '</div>';
+      }
+      if (rolePage < totalPages) html += '<div class="pagination-page" onclick="goRolePage(' + (rolePage+1) + ')">&gt;</div>';
+      html += '</div>';
+      if (totalPages > 1) {
+        html += '<div class="pagination-jump">前往<input class="pagination-jump-input" type="number" min="1" max="' + totalPages + '" onkeydown="if(event.key===\'Enter\')goRolePage(+this.value)">页</div>';
+      }
+      document.getElementById('role-pagination').innerHTML = html;
+    }
+    function goRolePage(p) {
+      var total = document.querySelectorAll('#role-table-body tr').length;
+      var totalPages = Math.ceil(total / rolePageSize);
+      if (p < 1 || p > totalPages) return;
+      rolePage = p;
+      var rows = document.querySelectorAll('#role-table-body tr');
+      rows.forEach(function(row, idx) {
+        row.style.display = (idx >= (p-1)*rolePageSize && idx < p*rolePageSize) ? '' : 'none';
+      });
+      renderRolePagination(total);
+    }
+    function changeRolePageSize(size) {
+      rolePageSize = parseInt(size) || 10;
+      rolePage = 1;
+      goRolePage(1);
+    }
+
+    // ========== 弹窗确定/保存 ==========
+    function submitAddMenu() {
+      var name = document.querySelector('#modal-add-menu .form-content input[placeholder="请输入菜单名称"]').value.trim();
+      if (!name) { showToast('请输入菜单名称'); return; }
+      showToast('菜单「' + name + '」新增成功');
+      closeMenuModal();
+    }
+    function submitRole() {
+      var name = document.querySelector('#modal-add .form-content input[placeholder="请输入角色名称"]').value.trim();
+      if (!name) { showToast('请输入角色名称'); return; }
+      var isEdit = document.getElementById('role-modal-title').textContent === '编辑角色';
+      showToast((isEdit ? '编辑' : '新增') + '角色成功');
+      closeModal();
+    }
+    function savePermConfig() {
+      showToast('权限配置已保存');
+      closePermModal();
+    }
+
+    // ========== 菜单操作列：编辑/停用 ==========
+    function editMenuItem(name) {
+      document.getElementById('menu-modal-title').textContent = '编辑菜单';
+      var nameInput = document.querySelector('#modal-add-menu .form-content input[placeholder="请输入菜单名称"]');
+      if (nameInput) nameInput.value = name;
+      document.getElementById('modal-add-menu').style.display = 'flex';
+    }
+    function toggleMenuItem(name, action) {
+      showConfirm(action + '菜单', '确定' + action + '菜单「' + name + '」？' + (action === '停用' ? '停用后该菜单及其子项将隐藏，已分配权限自动暂停' : '启用后权限自动恢复'), function() {
+        showToast('菜单已' + action);
+      });
+    }
+
+    // ========== 初始化 ==========
+    renderMenuTable();
+    renderPermTree();
+    renderMenuParentOptions();
+  </script>
+</body>
+</html>
