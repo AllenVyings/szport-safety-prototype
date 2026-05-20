@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全检查 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .flow-steps { display:flex; align-items:center; gap:4px; padding:12px 0; flex-wrap:wrap; }
+    .flow-node { padding:6px 14px; border-radius:var(--radius-sm); font-size:13px; white-space:nowrap; border:1px solid var(--border); background:var(--bg-base); color:var(--text-secondary); }
+    .flow-node.active { background:var(--primary); color:var(--text-inverse); border-color:var(--primary); }
+    .flow-node.done { background:var(--color-success); color:var(--text-inverse); border-color:var(--color-success); }
+    .flow-node.sub { background:#3DADFF; color:#fff; border-color:#007AD2; }
+    .flow-arrow { color:var(--text-quaternary); font-size:12px; }
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-approved { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-executing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-completed { background:var(--color-success); color:#fff; border:1px solid var(--color-success); }
+    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">检查计划总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-warning)">2</div><div class="stat-label">待审批</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-primary)">4</div><div class="stat-label">执行中</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-success)">5</div><div class="stat-label">已完成</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-error)">1</div><div class="stat-label">逾期</div></div>
+  </div>
+
+  <!-- 流程状态说明 -->
+  <div class="card" style="margin-bottom:16px; padding:12px 16px;">
+    <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">安全检查发起&执行流程</div>
+    <div class="flow-steps">
+      <div class="flow-node done">发起检查计划</div><span class="flow-arrow">→</span>
+      <div class="flow-node done">计划提交</div><span class="flow-arrow">→</span>
+      <div class="flow-node active">计划审批（支持自定义）</div><span class="flow-arrow">→</span>
+      <div class="flow-node">已审批执行中</div><span class="flow-arrow">→</span>
+      <div class="flow-node">录入检查任务</div><span class="flow-arrow">→</span>
+      <div class="flow-node">录入隐患信息</div><span class="flow-arrow">→</span>
+      <div class="flow-node sub">隐患整改治理</div>
+    </div>
+    <!-- 检查类型与绩效联动说明 -->
+    <div style="margin-top:10px; padding:10px 14px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-sm); font-size:12px; color:#0958D9;">
+      💡 检查类型与绩效联动规则："外部检查"发现的隐患触发绩效考核扣分；"飞行检查"和"专项检查"按外部检查规则处理；企业自查（"全面检查"中自查部分）发现的隐患不扣分
+    </div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('plans')">检查计划</div>
+    <div class="tab-item" onclick="switchTab('tasks')">检查任务</div>
+  </div>
+
+  <!-- 检查计划列表 -->
+  <div id="tab-plans" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索关键词..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部类型</option>
+          <option>飞行检查</option>
+          <option>专项检查</option>
+          <option>全面检查</option>
+          <option>外部检查</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>待提交</option>
+          <option>待审批</option>
+          <option>已审批</option>
+          <option>执行中</option>
+          <option>已完成</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="showModal()">+ 发起检查计划</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>检查名称</th>
+            <th>检查类型</th>
+            <th>检查范围</th>
+            <th>计划日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>2026年5月月度安全检查</td>
+            <td>全面检查</td>
+            <td>全集团</td>
+            <td>2026-05-10 ~ 05-20</td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">录入任务</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>节前安全专项检查</td>
+            <td>专项检查</td>
+            <td>集装箱码头公司</td>
+            <td>2026-05-28 ~ 05-30</td>
+            <td><span class="tag tag-pending">待审批</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>消防安全日常巡查</td>
+            <td>飞行检查</td>
+            <td>油罐区</td>
+            <td>2026-05-16</td>
+            <td><span class="tag tag-draft">待提交</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>4月月度安全检查</td>
+            <td>全面检查</td>
+            <td>全集团</td>
+            <td>2026-04-10 ~ 04-20</td>
+            <td><span class="tag tag-completed">已完成</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 检查任务列表 -->
+  <div id="tab-tasks" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索关键词..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>待提交</option>
+          <option>已提交</option>
+          <option>已完成</option>
+          <option>逾期</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>所属计划</th>
+            <th>检查类型</th>
+            <th>检查项目</th>
+            <th>执行人</th>
+            <th>截止日期</th>
+            <th>发现隐患</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>5月月度安全检查</td>
+            <td><span style="font-size:12px; color:#0958D9;">全面检查</span></td>
+            <td>油罐区防火设施</td>
+            <td>张安全</td>
+            <td>2026-05-18</td>
+            <td><span style="color:var(--color-error)">3项</span></td>
+            <td><span class="tag tag-executing">已提交</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">查看隐患</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>5月月度安全检查</td>
+            <td><span style="font-size:12px; color:#0958D9;">全面检查</span></td>
+            <td>码头作业区安全标识</td>
+            <td>李检查</td>
+            <td>2026-05-20</td>
+            <td>0项</td>
+            <td><span class="tag tag-draft">待提交</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">录入隐患</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>4月月度安全检查</td>
+            <td><span style="font-size:12px; color:#0958D9;">专项检查</span></td>
+            <td>配电间设备检查</td>
+            <td>王电工</td>
+            <td>2026-04-20</td>
+            <td><span style="color:var(--color-warning)">1项</span></td>
+            <td><span class="tag tag-completed">已完成</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发起检查计划弹窗 -->
+  <div id="planModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; width:600px; max-height:85vh; overflow-y:auto; box-shadow:0 6px 30px rgba(0,0,0,0.15);">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:16px; font-weight:500;">发起检查计划</span>
+        <span style="cursor:pointer; font-size:18px; color:var(--text-tertiary);" onclick="closePlanModal()">&times;</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">检查名称 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入检查计划名称">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">检查类型 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>飞行检查</option>
+              <option>专项检查</option>
+              <option>全面检查</option>
+              <option>外部检查</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">检查范围 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>全集团</option>
+              <option>集装箱码头公司</option>
+              <option>油罐区</option>
+              <option>化学品仓库</option>
+              <option>综合办公区</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">计划开始日期</label>
+            <input class="form-input" type="date" style="width:100%;">
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">计划结束日期</label>
+            <input class="form-input" type="date" style="width:100%;">
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">检查模板</label>
+            <select class="form-input form-select" id="templateSelect" style="width:100%;" onchange="onTemplateChange()">
+              <option value="default">默认模板</option>
+              <option value="fire">消防安全专项</option>
+              <option value="equipment">设备安全专项</option>
+              <option value="hazmat">危化品专项</option>
+              <option value="custom">自定义</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">审批流程</label>
+            <select class="form-input form-select" style="width:100%;">
+              <option>默认审批</option>
+              <option>简化审批</option>
+              <option>免审批</option>
+            </select>
+          </div>
+        </div>
+        <!-- 自定义检查项区域（选择自定义模板时显示） -->
+        <div id="customTemplateArea" style="display:none; margin-bottom:14px; padding:12px 14px; border:1px solid #91CAFF; border-radius:var(--radius-sm); background:#F0F9FF;">
+          <div style="font-size:13px; font-weight:500; color:#0958D9; margin-bottom:8px;">自定义检查项</div>
+          <div style="margin-bottom:8px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; margin-bottom:4px;">
+              <input type="checkbox" checked> 安全设施完好性
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; margin-bottom:4px;">
+              <input type="checkbox" checked> 操作规程执行情况
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px;">
+              <input type="checkbox" checked> 隐患整改闭环
+            </label>
+          </div>
+          <button class="btn btn-default btn-sm" style="margin-top:4px;">+ 添加检查项</button>
+          <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">自定义模板提交后保存，可在后续检查中复用</div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">检查说明</label>
+          <textarea class="form-input" style="width:100%; height:60px; resize:vertical;" placeholder="请输入检查说明..."></textarea>
+        </div>
+        <!-- 黄色提示框 -->
+        <div style="padding:8px 12px; background:#FFFBE6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806; margin-bottom:16px;">
+          ⚠ 检查计划审批通过后，系统自动生成检查任务并分派给对应区域负责人
+        </div>
+      </div>
+      <div style="padding:12px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn btn-default" onclick="closePlanModal()">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary" onclick="closePlanModal()">提交审批</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal() {
+      document.getElementById('planModal').style.display = 'flex';
+    }
+    function closePlanModal() {
+      document.getElementById('planModal').style.display = 'none';
+    }
+    function onTemplateChange() {
+      var val = document.getElementById('templateSelect').value;
+      document.getElementById('customTemplateArea').style.display = (val === 'custom') ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
