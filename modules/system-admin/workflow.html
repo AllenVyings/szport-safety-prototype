@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>流程管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    /* 流程功能标签 */
+    .tag-func { display:inline-flex; align-items:center; padding:1px 8px; border-radius:var(--radius-full); font-size:11px; margin-right:4px; }
+    .tag-func-sign { background:#E6F7FF; color:#0958D9; }
+    .tag-func-reject { background:#FFF1F0; color:#CF1322; }
+    .tag-func-jump { background:#F9F0FF; color:#722ED1; }
+    .tag-func-abandon { background:#F5F5F5; color:#8C8C8C; }
+    .tag-func-transfer { background:#FFF7E6; color:#D46B08; }
+    /* 状态标签 */
+    .tag-enabled { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-stopped { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    /* 流程配置器 */
+    .flow-designer { display:flex; border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; height:520px; background:var(--bg-card); }
+    /* 左侧节点面板 */
+    .node-panel { width:180px; min-width:180px; border-right:1px solid var(--border); padding:12px; background:var(--bg-table-header); overflow-y:auto; }
+    .node-panel-title { font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+    .draggable-node { display:flex; align-items:center; gap:8px; padding:8px 12px; margin-bottom:6px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); font-size:13px; cursor:grab; transition:all var(--duration-fast) var(--ease-out); }
+    .draggable-node:hover { border-color:var(--primary); color:var(--primary); box-shadow:0 2px 6px rgba(35,102,236,0.12); }
+    .draggable-node .node-icon { width:24px; height:24px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; flex-shrink:0; }
+    .icon-start { background:var(--success); }
+    .icon-approve { background:var(--primary); }
+    .icon-countersign { background:#722ED1; }
+    .icon-condition { background:var(--warning); }
+    .icon-end { background:var(--error); }
+    /* 中间画布 */
+    .flow-canvas { flex:1; padding:20px; overflow:auto; position:relative; background:linear-gradient(90deg, transparent 99%, var(--border-light) 99%), linear-gradient(0deg, transparent 99%, var(--border-light) 99%); background-size:20px 20px; }
+    .canvas-toolbar { display:flex; gap:8px; margin-bottom:16px; padding:8px 12px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); }
+    .toolbar-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; font-size:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); cursor:pointer; color:var(--text-secondary); transition:all var(--duration-fast); }
+    .toolbar-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .toolbar-btn.active { background:var(--primary-light); border-color:var(--primary); color:var(--primary); }
+    /* 流程图节点 */
+    .flow-chart { display:flex; flex-direction:column; align-items:center; }
+    .flow-node { display:flex; flex-direction:column; align-items:center; }
+    .flow-node-box { padding:10px 20px; border:2px solid var(--primary); border-radius:var(--radius-md); background:var(--bg-card); text-align:center; min-width:160px; cursor:pointer; transition:all var(--duration-fast); position:relative; }
+    .flow-node-box:hover { box-shadow:0 0 0 3px rgba(35,102,236,0.15); }
+    .flow-node-box.selected { box-shadow:0 0 0 3px rgba(35,102,236,0.3); }
+    .flow-node-box .node-title { font-size:13px; font-weight:500; color:var(--text-primary); margin-bottom:2px; }
+    .flow-node-box .node-type { font-size:11px; color:var(--text-description); }
+    .flow-node-box.start-node { border-color:var(--success); background:#F6FFED; }
+    .flow-node-box.start-node .node-title { color:var(--success); }
+    .flow-node-box.end-node { border-color:var(--error); background:#FFF1F0; }
+    .flow-node-box.end-node .node-title { color:var(--error); }
+    .flow-node-box.condition-node { border-color:var(--warning); background:#FFFBE6; border-radius:0; transform:rotate(45deg); min-width:0; width:100px; height:100px; display:flex; align-items:center; justify-content:center; }
+    .flow-node-box.condition-node .node-content { transform:rotate(-45deg); }
+    .flow-node-box.countersign-node { border-color:#722ED1; background:#F9F0FF; }
+    .flow-node-box.countersign-node .node-title { color:#722ED1; }
+    .flow-arrow { display:flex; flex-direction:column; align-items:center; margin:0; }
+    .arrow-line { width:2px; height:20px; background:var(--primary-30); }
+    .arrow-head { width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid var(--primary-50); }
+    .arrow-label { font-size:11px; color:var(--text-description); margin:4px 0; }
+    /* 右侧属性面板 */
+    .prop-panel { width:240px; min-width:240px; border-left:1px solid var(--border); padding:16px; background:var(--bg-card); overflow-y:auto; }
+    .prop-panel-title { font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+    .prop-field { margin-bottom:12px; }
+    .prop-label { font-size:12px; color:var(--text-description); margin-bottom:4px; }
+    .prop-value { font-size:13px; color:var(--text-primary); }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">流程总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">5</div><div class="stat-label">已启用</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">2</div><div class="stat-label">待配置</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">1,256</div><div class="stat-label">本月审批量</div></div>
+  </div>
+
+  <!-- 配置说明 -->
+  <div class="alert alert-info" style="margin-bottom:16px">
+    <strong>配置说明：</strong>审批节点可按角色/组织/指定人员配置；支持跨层级新增审批节点；会签节点需所有人同意才通过。
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('list')">流程定义</div>
+    <div class="tab-item" onclick="switchTab('designer')">流程配置器</div>
+  </div>
+
+  <!-- Tab1 流程定义 -->
+  <div id="tab-list" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索流程名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>已启用</option>
+          <option>草稿</option>
+          <option>已停用</option>
+        </select>
+        <select class="form-input form-select" style="width:160px">
+          <option>全部模块</option>
+          <option>风险管控</option>
+          <option>隐患治理</option>
+          <option>教育培训</option>
+          <option>综合管理</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="switchTab('designer'); activateDesignerTab();">+ 新建流程</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>流程名称</th>
+            <th>适用模块</th>
+            <th>节点数</th>
+            <th>流程功能</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>危险源等级确认审批</td>
+            <td>风险管控</td>
+            <td>5</td>
+            <td>
+              <span class="tag-func tag-func-sign">会签</span>
+              <span class="tag-func tag-func-reject">驳回</span>
+            </td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">配置</button><button class="btn btn-text btn-sm">停用</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>隐患整改验收审批</td>
+            <td>隐患治理</td>
+            <td>4</td>
+            <td>
+              <span class="tag-func tag-func-reject">驳回</span>
+              <span class="tag-func tag-func-transfer">转派</span>
+            </td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">配置</button><button class="btn btn-text btn-sm">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)">删除</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>培训计划审批</td>
+            <td>教育培训</td>
+            <td>3</td>
+            <td>
+              <span class="tag-func tag-func-reject">驳回</span>
+              <span class="tag-func tag-func-abandon">废弃</span>
+            </td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">配置</button><button class="btn btn-text btn-sm">停用</button><button class="btn btn-text btn-sm" style="color:var(--danger)">删除</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>信息发布审批</td>
+            <td>综合管理</td>
+            <td>2</td>
+            <td>
+              <span class="tag-func tag-func-reject">驳回</span>
+              <span class="tag-func tag-func-jump">跳转</span>
+            </td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td><button class="btn btn-text btn-sm">配置</button><button class="btn btn-text btn-sm">启用</button><button class="btn btn-text btn-sm" style="color:var(--danger)">删除</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 流程配置器 -->
+  <div id="tab-designer" class="tab-content">
+    <div class="flow-designer">
+      <!-- 左侧节点面板 -->
+      <div class="node-panel">
+        <div class="node-panel-title">节点类型</div>
+        <div class="draggable-node">
+          <div class="node-icon icon-start">&#9654;</div>
+          <span>开始节点</span>
+        </div>
+        <div class="draggable-node">
+          <div class="node-icon icon-approve">&#10003;</div>
+          <span>审批节点</span>
+        </div>
+        <div class="draggable-node">
+          <div class="node-icon icon-countersign">&#9733;</div>
+          <span>会签节点</span>
+        </div>
+        <div class="draggable-node">
+          <div class="node-icon icon-condition">&#9670;</div>
+          <span>条件节点</span>
+        </div>
+        <div class="draggable-node">
+          <div class="node-icon icon-end">&#9632;</div>
+          <span>结束节点</span>
+        </div>
+      </div>
+
+      <!-- 中间画布 -->
+      <div class="flow-canvas">
+        <div class="canvas-toolbar">
+          <button class="toolbar-btn active">&#10010; 添加节点</button>
+          <button class="toolbar-btn">&#128279; 连线</button>
+          <button class="toolbar-btn">&#128465; 删除</button>
+          <button class="toolbar-btn">&#128190; 保存</button>
+          <button class="toolbar-btn">&#128065; 预览</button>
+        </div>
+        <!-- 危险源审批流程图 -->
+        <div class="flow-chart">
+          <!-- 开始 -->
+          <div class="flow-node">
+            <div class="flow-node-box start-node" onclick="selectFlowNode(this, '开始', '开始节点')">
+              <div class="node-title">开始</div>
+              <div class="node-type">流程发起</div>
+            </div>
+          </div>
+          <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+          <!-- 项目负责人审批 -->
+          <div class="flow-node">
+            <div class="flow-node-box" onclick="selectFlowNode(this, '项目负责人审批', '审批节点')">
+              <div class="node-title">项目负责人审批</div>
+              <div class="node-type">按角色：项目安全负责人</div>
+            </div>
+          </div>
+          <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+          <!-- 公司安办审批 -->
+          <div class="flow-node">
+            <div class="flow-node-box" onclick="selectFlowNode(this, '公司安办审批', '审批节点')">
+              <div class="node-title">公司安办审批</div>
+              <div class="node-type">按组织：公司安全管理部</div>
+            </div>
+          </div>
+          <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+          <!-- 条件判断 -->
+          <div class="flow-node" style="margin:12px 0;">
+            <div class="flow-node-box condition-node" onclick="selectFlowNode(this, '风险等级判断', '条件节点')">
+              <div class="node-content">
+                <div class="node-title" style="font-size:12px;">风险等级</div>
+                <div class="node-type" style="font-size:10px;">条件判断</div>
+              </div>
+            </div>
+          </div>
+          <!-- 条件分支 -->
+          <div style="display:flex; gap:60px; align-items:flex-start; margin-top:8px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="arrow-label">一般风险</div>
+              <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+              <div class="flow-node">
+                <div class="flow-node-box end-node" onclick="selectFlowNode(this, '结束', '结束节点')">
+                  <div class="node-title">结束</div>
+                  <div class="node-type">归档</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="arrow-label">重大/较大风险</div>
+              <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+              <div class="flow-node">
+                <div class="flow-node-box" onclick="selectFlowNode(this, '上级企业审批', '审批节点')">
+                  <div class="node-title">上级企业审批</div>
+                  <div class="node-type">按组织：集团安全管理部</div>
+                </div>
+              </div>
+              <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+              <div class="flow-node">
+                <div class="flow-node-box end-node" onclick="selectFlowNode(this, '结束', '结束节点')">
+                  <div class="node-title">结束</div>
+                  <div class="node-type">归档</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧属性面板 -->
+      <div class="prop-panel">
+        <div class="prop-panel-title">节点属性</div>
+        <div id="prop-content">
+          <div class="prop-field">
+            <div class="prop-label">节点名称</div>
+            <div class="prop-value" id="prop-name">—</div>
+          </div>
+          <div class="prop-field">
+            <div class="prop-label">节点类型</div>
+            <div class="prop-value" id="prop-type">—</div>
+          </div>
+          <div class="prop-field" style="margin-top:12px;">
+            <div class="prop-label">审批人类型</div>
+            <select class="form-input form-select" style="width:100%; margin-top:4px;">
+              <option>按角色</option>
+              <option>按组织</option>
+              <option>指定人员</option>
+            </select>
+          </div>
+          <div class="prop-field">
+            <div class="prop-label">审批人选择</div>
+            <select class="form-input form-select" style="width:100%; margin-top:4px;">
+              <option>项目安全负责人</option>
+              <option>公司安全管理员</option>
+              <option>集团安全管理员</option>
+              <option>检查员</option>
+            </select>
+          </div>
+          <div class="prop-field" style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-light);">
+            <button class="btn btn-primary btn-sm" style="width:100%;">保存属性</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function activateDesignerTab() {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-item')[1].classList.add('active');
+      document.getElementById('tab-designer').classList.add('active');
+    }
+
+    function selectFlowNode(el, name, type) {
+      document.querySelectorAll('.flow-node-box').forEach(n => n.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('prop-name').textContent = name;
+      document.getElementById('prop-type').textContent = type;
+    }
+  </script>
+</body>
+</html>
