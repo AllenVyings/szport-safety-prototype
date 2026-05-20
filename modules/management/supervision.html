@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作督办 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-executing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-feedback { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-confirmed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-overdue { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .source-tag { display:inline-block; padding:1px 8px; border-radius:2px; font-size:11px; font-weight:500; }
+    .source-upper { background:#FFF1F0; color:#CF1322; }
+    .source-local { background:#E6F7FF; color:#0958D9; }
+    .alert-orange { padding:10px 14px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806; margin-bottom:12px; }
+    .priority-tag { display:inline-block; padding:1px 6px; border-radius:2px; font-size:11px; margin-left:4px; }
+    .priority-urgent { background:#FFF1F0; color:#CF1322; }
+    .priority-high { background:#FFF7E6; color:#D48806; }
+    .priority-normal { background:#E6F7FF; color:#0958D9; }
+    .data-table tfoot td { background:var(--bg-table-header); font-weight:600; border-top:2px solid var(--border); }
+    .upload-area { border:1px dashed var(--border-input); border-radius:var(--radius-sm); padding:16px; text-align:center; color:var(--text-description); font-size:13px; cursor:pointer; background:var(--bg-page); transition:border-color 0.15s; }
+    .upload-area:hover { border-color:var(--primary); color:var(--primary); }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">24</div><div class="stat-label">督办总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">3</div><div class="stat-label">待接收</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">8</div><div class="stat-label">执行中</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">6</div><div class="stat-label">已反馈</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">2</div><div class="stat-label">已逾期</div></div>
+  </div>
+
+  <!-- 预警规则说明 -->
+  <div class="alert-orange">&#9888; 到期前3天/1天自动提醒责任人；逾期1天自动催办；逾期7天升级至上级；上级任务逾期1天升级至集团</div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('tasks')">督办任务</div>
+    <div class="tab-item" onclick="switchTab('stats')">统计看板</div>
+  </div>
+
+  <!-- Tab1 督办任务 -->
+  <div id="tab-tasks" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索督办主题..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部来源</option>
+          <option>集团下发</option>
+          <option>本企业发起</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>待接收</option>
+          <option>执行中</option>
+          <option>已反馈</option>
+          <option>已确认</option>
+          <option>已逾期</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="showModal('addTask')">+ 新增督办</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>督办主题</th>
+            <th>督办对象</th>
+            <th>来源</th>
+            <th>截止日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>落实集团安全生产大检查整改要求<span class="priority-tag priority-urgent">紧急</span></td>
+            <td>集装箱码头公司</td>
+            <td><span class="source-tag source-upper">上级</span></td>
+            <td>2026-05-20</td>
+            <td><span class="tag tag-executing">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">催办</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>危化品仓库消防隐患整改<span class="priority-tag priority-high">重要</span></td>
+            <td>危化品储运公司</td>
+            <td><span class="source-tag source-local">本企业</span></td>
+            <td>2026-05-25</td>
+            <td><span class="tag tag-pending">待接收</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">接收</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>安全生产标准化建设达标验收<span class="priority-tag priority-normal">一般</span></td>
+            <td>物流运输公司</td>
+            <td><span class="source-tag source-local">本企业</span></td>
+            <td>2026-05-18</td>
+            <td><span class="tag tag-feedback">已反馈</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--success)">确认</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>上级安全督导检查问题整改<span class="priority-tag priority-urgent">紧急</span></td>
+            <td>物业管理公司</td>
+            <td><span class="source-tag source-upper">上级</span></td>
+            <td>2026-05-10</td>
+            <td><span class="tag tag-overdue">已逾期</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">催办</button><button class="btn btn-text btn-sm" style="color:var(--error)">升级</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>特种设备定期检验整改落实<span class="priority-tag priority-high">重要</span></td>
+            <td>集装箱码头公司</td>
+            <td><span class="source-tag source-local">本企业</span></td>
+            <td>2026-05-30</td>
+            <td><span class="tag tag-confirmed">已确认</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 统计看板 -->
+  <div id="tab-stats" class="tab-content">
+    <div class="card">
+      <div style="margin-bottom:12px; font-size:14px; font-weight:500;">各单位督办完成率/逾期率统计</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>单位名称</th>
+            <th>派发数</th>
+            <th>已完成</th>
+            <th>执行中</th>
+            <th>逾期</th>
+            <th>完成率</th>
+            <th>逾期率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>集装箱码头公司</td>
+            <td>8</td>
+            <td>5</td>
+            <td>2</td>
+            <td>1</td>
+            <td><span style="color:var(--success)">62.5%</span></td>
+            <td><span style="color:var(--error)">12.5%</span></td>
+          </tr>
+          <tr>
+            <td>危化品储运公司</td>
+            <td>6</td>
+            <td>4</td>
+            <td>1</td>
+            <td>1</td>
+            <td><span style="color:var(--success)">66.7%</span></td>
+            <td><span style="color:var(--error)">16.7%</span></td>
+          </tr>
+          <tr>
+            <td>物流运输公司</td>
+            <td>5</td>
+            <td>4</td>
+            <td>1</td>
+            <td>0</td>
+            <td><span style="color:var(--success)">80.0%</span></td>
+            <td><span style="color:var(--success)">0%</span></td>
+          </tr>
+          <tr>
+            <td>物业管理公司</td>
+            <td>5</td>
+            <td>2</td>
+            <td>2</td>
+            <td>1</td>
+            <td><span style="color:var(--warning)">40.0%</span></td>
+            <td><span style="color:var(--error)">20.0%</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>合计</td>
+            <td>24</td>
+            <td>15</td>
+            <td>6</td>
+            <td>3</td>
+            <td><span style="color:var(--success)">62.5%</span></td>
+            <td><span style="color:var(--error)">12.5%</span></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- 新增督办弹窗 -->
+  <div id="addTaskModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; width:640px; max-height:85vh; overflow-y:auto; box-shadow:0 6px 30px rgba(0,0,0,0.15);">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:16px; font-weight:500;">新增督办任务</span>
+        <span style="cursor:pointer; font-size:18px; color:var(--text-description);" onclick="closeModal('addTask')">&times;</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">督办主题 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入督办主题">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">督办对象 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>集装箱码头公司</option>
+              <option>危化品储运公司</option>
+              <option>物流运输公司</option>
+              <option>物业管理公司</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">优先级 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>紧急</option>
+              <option>重要</option>
+              <option>一般</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">截止日期 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" type="date" style="width:100%;">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">督办内容 <span style="color:#CF1322;">*</span></label>
+          <textarea class="form-input" style="width:100%; height:100px; resize:vertical;" placeholder="请输入督办内容..."></textarea>
+        </div>
+        <div style="padding:8px 12px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806;">
+          &#9888; 督办任务派发后，到期前3天/1天自动提醒责任人；逾期1天自动催办（短信/企微）；逾期7天升级至上级；上级任务逾期1天升级至集团
+        </div>
+      </div>
+      <div style="padding:12px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn btn-default" onclick="closeModal('addTask')">取消</button>
+        <button class="btn btn-primary" onclick="closeModal('addTask')">派发督办</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 反馈弹窗 -->
+  <div id="feedbackModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; width:600px; max-height:85vh; overflow-y:auto; box-shadow:0 6px 30px rgba(0,0,0,0.15);">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:16px; font-weight:500;">提交执行反馈</span>
+        <span style="cursor:pointer; font-size:18px; color:var(--text-description);" onclick="closeModal('feedback')">&times;</span>
+      </div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">执行情况说明 <span style="color:#CF1322;">*</span></label>
+          <textarea class="form-input" style="width:100%; height:120px; resize:vertical;" placeholder="请详细描述执行情况..."></textarea>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">佐证材料</label>
+          <div class="upload-area">
+            &#128228; 点击或拖拽上传佐证材料（图片/文档）
+            <div style="font-size:11px; margin-top:4px;">支持 JPG、PNG、PDF 格式</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn btn-default" onclick="closeModal('feedback')">取消</button>
+        <button class="btn btn-primary" onclick="closeModal('feedback')">提交反馈</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) {
+      document.getElementById(id + 'Modal').style.display = 'flex';
+    }
+    function closeModal(id) {
+      document.getElementById(id + 'Modal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
