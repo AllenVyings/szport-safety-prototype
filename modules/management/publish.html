@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>信息发布 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-reviewing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-published { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-offline { background:#F5F5F5; color:#595959; border:1px solid #BFBFBF; }
+    .scroll-badge { display:inline-block; padding:1px 6px; border-radius:2px; font-size:11px; background:#E6F7FF; color:#0958D9; margin-left:6px; }
+    .scroll-list-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border-light); }
+    .scroll-list-item:last-child { border-bottom:none; }
+    .scroll-list-item:hover { background:var(--bg-hover); }
+    .sort-handle { cursor:grab; color:var(--text-description); margin-right:8px; font-size:16px; }
+    .upload-area { border:1px dashed var(--border-input); border-radius:var(--radius-sm); padding:20px; text-align:center; color:var(--text-description); font-size:13px; cursor:pointer; background:var(--bg-page); transition:border-color 0.15s; }
+    .upload-area:hover { border-color:var(--primary); color:var(--primary); }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">28</div><div class="stat-label">发布总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">18</div><div class="stat-label">已发布</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">审批中</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">7</div><div class="stat-label">已下线</div></div>
+  </div>
+
+  <!-- 审批流程说明 -->
+  <div class="alert alert-warning" style="margin-bottom:12px">&#9888; 重要信息需二级审批（安全主管 &#8594; 部门负责人）；普通信息发布人直接发布</div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('manage')">信息管理</div>
+    <div class="tab-item" onclick="switchTab('display')">首页展示配置</div>
+  </div>
+
+  <!-- Tab1 信息管理 -->
+  <div id="tab-manage" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索信息标题..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部信息类型</option>
+          <option>通知公告</option>
+          <option>工作通报</option>
+          <option>应急通知</option>
+          <option>安全提示</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>草稿</option>
+          <option>审批中</option>
+          <option>已发布</option>
+          <option>已下线</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="showModal('addInfo')">+ 新增信息</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>信息标题</th>
+            <th>信息类型</th>
+            <th>发布人</th>
+            <th>审批状态</th>
+            <th>发布日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>关于开展2026年"安全生产月"活动的通知<span class="scroll-badge">首页滚动</span></td>
+            <td>通知公告</td>
+            <td>张安全</td>
+            <td><span class="tag tag-published">已通过</span></td>
+            <td>2026-05-10</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>台风"海葵"防御工作应急通知</td>
+            <td>应急通知</td>
+            <td>李应急</td>
+            <td><span class="tag tag-reviewing">二级审批中</span></td>
+            <td>-</td>
+            <td><span class="tag tag-reviewing">审批中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>5月份安全隐患排查工作通报</td>
+            <td>工作通报</td>
+            <td>王通报</td>
+            <td><span class="tag tag-draft">免审批</span></td>
+            <td>2026-05-14</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>高温天气作业安全提示</td>
+            <td>安全提示</td>
+            <td>赵提示</td>
+            <td>-</td>
+            <td>-</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">发布</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 首页展示配置 -->
+  <div id="tab-display" class="tab-content">
+    <div class="card">
+      <div style="margin-bottom:12px; font-size:14px; font-weight:500;">首页滚动展示信息</div>
+      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">拖拽调整展示顺序，可手动下线已发布的信息</div>
+      <div style="border:1px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden;">
+        <div class="scroll-list-item">
+          <div style="display:flex; align-items:center;">
+            <span class="sort-handle">&#9776;</span>
+            <span style="font-size:13px;">1.</span>
+            <span style="font-size:13px; margin-left:8px;">关于开展2026年"安全生产月"活动的通知</span>
+            <span style="font-size:11px; color:var(--text-description); margin-left:8px;">通知公告</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8593;</button>
+            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8595;</button>
+            <button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button>
+          </div>
+        </div>
+        <div class="scroll-list-item">
+          <div style="display:flex; align-items:center;">
+            <span class="sort-handle">&#9776;</span>
+            <span style="font-size:13px;">2.</span>
+            <span style="font-size:13px; margin-left:8px;">5月份安全隐患排查工作通报</span>
+            <span style="font-size:11px; color:var(--text-description); margin-left:8px;">工作通报</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8593;</button>
+            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8595;</button>
+            <button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button>
+          </div>
+        </div>
+        <div class="scroll-list-item">
+          <div style="display:flex; align-items:center;">
+            <span class="sort-handle">&#9776;</span>
+            <span style="font-size:13px;">3.</span>
+            <span style="font-size:13px; margin-left:8px;">消防安全知识宣传通知</span>
+            <span style="font-size:11px; color:var(--text-description); margin-left:8px;">安全提示</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8593;</button>
+            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8595;</button>
+            <button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增信息弹窗 -->
+  <div id="addInfoModal" class="modal-overlay">
+    <div class="modal" style="width:700px;">
+      <div class="modal-header">
+        <h3>新增信息</h3>
+        <button class="btn btn-text btn-sm" onclick="closeModal('addInfo')" style="font-size:18px; color:var(--text-description);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">信息标题 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入信息标题">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">信息类型 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>通知公告</option>
+              <option>工作通报</option>
+              <option>应急通知</option>
+              <option>安全提示</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">定时发布时间</label>
+            <input class="form-input" type="datetime-local" style="width:100%;" placeholder="不选择则立即发布">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">信息内容 <span style="color:#CF1322;">*</span></label>
+          <!-- 模拟富文本编辑器 -->
+          <div style="border:1px solid var(--border-input); border-radius:var(--radius-sm); overflow:hidden;">
+            <div style="display:flex; gap:4px; padding:6px 8px; border-bottom:1px solid var(--border-light); background:var(--bg-table-header);">
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">B</button>
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; font-style:italic;">I</button>
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; text-decoration:underline;">U</button>
+              <span style="color:var(--border); margin:0 2px;">|</span>
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H1</button>
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H2</button>
+              <span style="color:var(--border); margin:0 2px;">|</span>
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128206; 链接</button>
+              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128221; 图片</button>
+            </div>
+            <textarea class="form-input" style="width:100%; height:160px; resize:vertical; border:none; border-radius:0;" placeholder="请输入信息内容（富文本编辑区域）..."></textarea>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="scrollCheck" onchange="toggleScrollOption()">
+            <span>首页滚动展示</span>
+          </label>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">附件上传</label>
+          <div class="upload-area">
+            &#128228; 点击或拖拽文件到此处上传
+            <div style="font-size:11px; margin-top:4px;">支持 PDF、Word、图片等格式，单个文件不超过 20MB</div>
+          </div>
+        </div>
+        <!-- 审批流程说明 -->
+        <div class="alert alert-warning">
+          &#9888; 重要信息（应急通知、重要通知公告）需二级审批：安全主管 &#8594; 部门负责人；普通信息由发布人直接发布
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addInfo')">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary" onclick="closeModal('addInfo')">提交发布</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) {
+      document.getElementById(id + 'Modal').classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById(id + 'Modal').classList.remove('show');
+    }
+    document.getElementById('addInfoModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addInfo'); });
+    function toggleScrollOption() {
+      // 首页滚动选项切换
+    }
+  </script>
+</body>
+</html>
