@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>组织保障 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-normal { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-adjusting { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-revoked { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .org-tree { width:260px; border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; flex-shrink:0; background:var(--bg-card); }
+    .org-tree-title { padding:12px 16px; font-weight:500; font-size:14px; background:var(--bg-table-header); border-bottom:1px solid var(--border); }
+    .org-tree-list { padding:8px 0; }
+    .org-tree-item { display:flex; align-items:center; padding:8px 16px 8px 24px; font-size:13px; color:var(--text-secondary); cursor:pointer; transition:all var(--duration-fast) var(--ease-out); }
+    .org-tree-item:hover { background:var(--bg-hover); color:var(--primary); }
+    .org-tree-item.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .org-tree-item.group { font-weight:500; color:var(--text-primary); padding-left:16px; }
+    .org-tree-item .tree-arrow { margin-right:6px; font-size:10px; transition:transform var(--duration-fast) var(--ease-out); }
+    .org-tree-item.expanded .tree-arrow { transform:rotate(90deg); }
+    .prd-footer { margin-top:20px; padding:10px 16px; background:#F5F5F5; border-radius:var(--radius-sm); font-size:12px; color:var(--text-description); text-align:center; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">安委会数量</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">2</div><div class="stat-label">安委办数量</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">8</div><div class="stat-label">已配置岗位</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">24</div><div class="stat-label">已分配人员</div></div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('committee')">安委会配置</div>
+    <div class="tab-item" onclick="switchTab('office')">安委办配置</div>
+    <div class="tab-item" onclick="switchTab('position')">岗位与人员</div>
+  </div>
+
+  <!-- Tab1 安委会配置 -->
+  <div id="tab-committee" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索机构名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部级别</option>
+          <option>集团级</option>
+          <option>公司级</option>
+          <option>部门级</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>正常运行</option>
+          <option>调整中</option>
+          <option>已撤销</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-primary" onclick="showModal('addOrgModal')">+ 新增</button>
+      <button class="btn btn-default">导出</button>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>机构名称</th>
+            <th>级别</th>
+            <th>负责人</th>
+            <th>成立日期</th>
+            <th>成员数</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集团安全生产委员会</td>
+            <td><span class="tag tag-info">集团级</span></td>
+            <td>张董事长</td>
+            <td>2020-01-01</td>
+            <td>15</td>
+            <td><span class="tag tag-normal">正常运行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>集装箱码头安委会</td>
+            <td><span class="tag tag-success">公司级</span></td>
+            <td>李总经理</td>
+            <td>2020-03-15</td>
+            <td>10</td>
+            <td><span class="tag tag-normal">正常运行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>油品码头安委会</td>
+            <td><span class="tag tag-success">公司级</span></td>
+            <td>王总经理</td>
+            <td>2020-06-01</td>
+            <td>8</td>
+            <td><span class="tag tag-adjusting">调整中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 安委办配置 -->
+  <div id="tab-office" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索办公室名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>正常运行</option>
+          <option>调整中</option>
+          <option>已撤销</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>办公室名称</th>
+            <th>所属安委会</th>
+            <th>主任</th>
+            <th>联系方式</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集团安委办</td>
+            <td>集团安全生产委员会</td>
+            <td>赵部长</td>
+            <td>0755-2668-1001</td>
+            <td><span class="tag tag-normal">正常运行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>集装箱码头安委办</td>
+            <td>集装箱码头安委会</td>
+            <td>钱副主任</td>
+            <td>0755-2668-2001</td>
+            <td><span class="tag tag-normal">正常运行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 2 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab3 岗位与人员 -->
+  <div id="tab-position" class="tab-content">
+    <div style="display:flex; gap:16px;">
+      <!-- 左侧组织树 -->
+      <div class="org-tree">
+        <div class="org-tree-title">组织架构</div>
+        <div class="org-tree-list">
+          <div class="org-tree-item group expanded" onclick="toggleTreeItem(this)">
+            <span class="tree-arrow">&#9654;</span>深圳港集团
+          </div>
+          <div class="org-tree-item active" onclick="selectTreeItem(this, '集团本部')">集团本部</div>
+          <div class="org-tree-item" onclick="selectTreeItem(this, '集装箱码头公司')">集装箱码头公司</div>
+          <div class="org-tree-item" onclick="selectTreeItem(this, '油品码头公司')">油品码头公司</div>
+          <div class="org-tree-item" onclick="selectTreeItem(this, '散杂货码头公司')">散杂货码头公司</div>
+        </div>
+      </div>
+      <!-- 右侧岗位表格 -->
+      <div style="flex:1; min-width:0;">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-size:14px; font-weight:500;">集团本部 — 岗位与人员配置</div>
+            <button class="btn btn-primary btn-sm" onclick="showModal('addPositionModal')">+ 新增岗位</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>岗位名称</th>
+                <th>人员</th>
+                <th>职责</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>安全生产第一责任人</td>
+                <td>张董事长</td>
+                <td>全面负责集团安全生产工作</td>
+                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>安全生产分管领导</td>
+                <td>刘副总经理</td>
+                <td>协助主要负责人，统筹安全生产日常工作</td>
+                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>安全管理部门负责人</td>
+                <td>赵部长</td>
+                <td>组织实施安全检查、隐患排查、教育培训等工作</td>
+                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>安全管理人员</td>
+                <td>孙主管、周安全员</td>
+                <td>日常安全巡查、隐患登记、台账管理</td>
+                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <span>共 4 条</span>
+            <div class="pagination-page active">1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增安委会弹窗 -->
+  <div id="addOrgModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); border-radius:var(--radius-lg); width:600px; max-height:80vh; overflow:auto; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="margin:0; font-size:16px;">新增安委会</h3>
+        <button class="btn btn-text" onclick="hideModal('addOrgModal')">&#10005;</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 机构名称</label>
+          <input class="form-input" style="width:100%" placeholder="请输入机构名称">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 级别</label>
+          <select class="form-input form-select" style="width:100%">
+            <option>请选择</option>
+            <option>集团级</option>
+            <option>公司级</option>
+            <option>部门级</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 负责人</label>
+          <input class="form-input" style="width:100%" placeholder="请输入负责人姓名">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 成立日期</label>
+          <input class="form-input" type="date" style="width:100%">
+        </div>
+        <div style="grid-column:span 2">
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">职责描述</label>
+          <textarea class="form-input" style="width:100%; height:80px" placeholder="请描述该机构职责"></textarea>
+        </div>
+      </div>
+      <div style="margin-top:12px; padding:10px 12px; background:var(--primary-5); border:1px solid var(--primary-10); border-radius:var(--radius-sm); font-size:12px; color:var(--primary);">
+        数据权限：集团配置集团级安委会，各企业配置本单位级安委会
+      </div>
+      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-default" onclick="hideModal('addOrgModal')">取消</button>
+        <button class="btn btn-primary" onclick="hideModal('addOrgModal')">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增岗位弹窗 -->
+  <div id="addPositionModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); border-radius:var(--radius-lg); width:560px; max-height:80vh; overflow:auto; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="margin:0; font-size:16px;">新增岗位</h3>
+        <button class="btn btn-text" onclick="hideModal('addPositionModal')">&#10005;</button>
+      </div>
+      <div style="display:grid; gap:16px;">
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 岗位名称</label>
+          <input class="form-input" style="width:100%" placeholder="请输入岗位名称">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 人员</label>
+          <input class="form-input" style="width:100%" placeholder="请输入人员姓名，多人用顿号分隔">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">职责</label>
+          <textarea class="form-input" style="width:100%; height:80px" placeholder="请描述该岗位职责"></textarea>
+        </div>
+      </div>
+      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-default" onclick="hideModal('addPositionModal')">取消</button>
+        <button class="btn btn-primary" onclick="hideModal('addPositionModal')">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prd-footer">对应PRD章节 3.12.1 组织保障 | 关联模块：目标职责-机构与职责</div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleTreeItem(el) {
+      el.classList.toggle('expanded');
+    }
+    function selectTreeItem(el, name) {
+      document.querySelectorAll('.org-tree-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      // 更新右侧标题
+      var titleEl = document.querySelector('#tab-position .card div[style*="font-weight:500"]');
+      if (titleEl) titleEl.textContent = name + ' — 岗位与人员配置';
+    }
+  </script>
+</body>
+</html>
