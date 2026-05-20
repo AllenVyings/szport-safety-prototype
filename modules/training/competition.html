@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识竞赛中心 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-easy { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-medium { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-hard { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-single { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-multi { background:#F9F0FF; color:#722ED1; border:1px solid #D3ADF7; }
+    .tag-judge { background:#F0F5FF; color:#2F54EB; border:1px solid #ADC6FF; }
+    .tag-notstarted { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-ongoing { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-ended { background:#F0F5FF; color:#2F54EB; border:1px solid #ADC6FF; }
+    .tag-enabled { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-disabled { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .rank-panel { display:flex; gap:16px; margin-top:16px; }
+    .rank-card { flex:1; background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border-light); padding:16px; }
+    .rank-card h4 { font-size:14px; font-weight:500; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+    .rank-item { display:flex; align-items:center; padding:6px 0; font-size:13px; border-bottom:1px solid var(--border-light); }
+    .rank-item:last-child { border-bottom:none; }
+    .rank-no { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; margin-right:8px; flex-shrink:0; }
+    .rank-no.gold { background:#FFF1F0; color:#D48806; }
+    .rank-no.silver { background:#F0F5FF; color:#595959; }
+    .rank-no.bronze { background:#FFF7E6; color:#AD6800; }
+    .rank-no.normal { background:#F5F5F5; color:#8C8C8C; }
+    .rank-name { flex:1; }
+    .rank-score { font-weight:600; color:var(--primary); }
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--bg-card); border-radius:var(--radius-lg); width:680px; max-height:80vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-light); }
+    .modal-header h3 { font-size:16px; margin:0; }
+    .modal-body { padding:20px; }
+    .modal-footer { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; justify-content:flex-end; gap:8px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
+    .form-group .form-input, .form-group .form-textarea, .form-group .form-select { width:100%; }
+    .form-textarea { min-height:80px; resize:vertical; }
+    .radio-group { display:flex; gap:16px; flex-wrap:wrap; margin-top:6px; }
+    .radio-group label { display:flex; align-items:center; gap:4px; font-size:13px; color:var(--text-primary); cursor:pointer; margin-bottom:0; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('question')">题库管理</div>
+    <div class="tab-item" onclick="switchTab('config')">竞赛配置</div>
+    <div class="tab-item" onclick="switchTab('record')">竞赛记录</div>
+  </div>
+
+  <!-- Tab1 题库管理 -->
+  <div id="tab-question" class="tab-content active">
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num">526</div><div class="stat-label">题目总数</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">218</div><div class="stat-label">单选题</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:#722ED1">156</div><div class="stat-label">多选题</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:#2F54EB">152</div><div class="stat-label">判断题</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--success)">480</div><div class="stat-label">已启用</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索题目内容..." style="width:200px">
+        <select class="form-input form-select" style="width:120px">
+          <option>全部题型</option>
+          <option>单选题</option>
+          <option>多选题</option>
+          <option>判断题</option>
+        </select>
+        <select class="form-input form-select" style="width:120px">
+          <option>全部难度</option>
+          <option>简单</option>
+          <option>中等</option>
+          <option>困难</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部知识点</option>
+          <option>消防安全</option>
+          <option>危化品安全</option>
+          <option>机械安全</option>
+          <option>电气安全</option>
+          <option>高处作业</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary btn-sm" onclick="showModal('addQuestion')">+ 新增题目</button>
+        <button class="btn btn-default btn-sm">批量导入</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-default">导出</button>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>题号</th>
+            <th>题型</th>
+            <th>题目内容</th>
+            <th>难度</th>
+            <th>知识点</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Q001</td>
+            <td><span class="tag tag-single">单选</span></td>
+            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">灭火器应放置在什么位置？</td>
+            <td><span class="tag tag-easy">简单</span></td>
+            <td>消防安全</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">停用</button></td>
+          </tr>
+          <tr>
+            <td>Q002</td>
+            <td><span class="tag tag-multi">多选</span></td>
+            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">以下属于特种作业的是？</td>
+            <td><span class="tag tag-medium">中等</span></td>
+            <td>机械安全</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">停用</button></td>
+          </tr>
+          <tr>
+            <td>Q003</td>
+            <td><span class="tag tag-judge">判断</span></td>
+            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">高处作业人员必须持证上岗。</td>
+            <td><span class="tag tag-easy">简单</span></td>
+            <td>高处作业</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">停用</button></td>
+          </tr>
+          <tr>
+            <td>Q004</td>
+            <td><span class="tag tag-single">单选</span></td>
+            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">危化品泄漏时应首先采取什么措施？</td>
+            <td><span class="tag tag-hard">困难</span></td>
+            <td>危化品安全</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>Q005</td>
+            <td><span class="tag tag-multi">多选</span></td>
+            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">电气设备检修前应执行的安全措施有？</td>
+            <td><span class="tag tag-medium">中等</span></td>
+            <td>电气安全</td>
+            <td><span class="tag tag-disabled">已停用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">启用</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 526 条</span>
+        <div class="pagination-page active">1</div>
+        <div class="pagination-page">2</div>
+        <div class="pagination-page">3</div>
+        <div class="pagination-page">...</div>
+        <div class="pagination-page">53</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 竞赛配置 -->
+  <div id="tab-config" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索竞赛名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>未开始</option>
+          <option>进行中</option>
+          <option>已结束</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary btn-sm" onclick="showModal('addCompetition')">+ 新增竞赛</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>竞赛名称</th>
+            <th>组卷方式</th>
+            <th>竞赛时间</th>
+            <th>答题时长</th>
+            <th>奖励设置</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>2026年安全生产月知识竞赛</td>
+            <td>随机选题</td>
+            <td>2026-06-15 09:00 ~ 2026-06-15 17:00</td>
+            <td>60分钟</td>
+            <td>一等奖1名/二等奖3名/三等奖5名</td>
+            <td><span class="tag tag-notstarted">未开始</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">取消</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Q1消防安全知识竞赛</td>
+            <td>千人千卷</td>
+            <td>2026-03-20 09:00 ~ 2026-03-20 17:00</td>
+            <td>45分钟</td>
+            <td>积分奖励+实物奖品</td>
+            <td><span class="tag tag-ended">已结束</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">成绩统计</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>新员工安全知识闯关赛</td>
+            <td>手动选题</td>
+            <td>2026-04-08 10:00 ~ 2026-04-08 16:00</td>
+            <td>30分钟</td>
+            <td>通关积分</td>
+            <td><span class="tag tag-ended">已结束</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">成绩统计</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>危化品安全知识竞赛</td>
+            <td>随机选题</td>
+            <td>2026-07-10 09:00 ~ 2026-07-10 17:00</td>
+            <td>60分钟</td>
+            <td>积分奖励</td>
+            <td><span class="tag tag-notstarted">未开始</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab3 竞赛记录 -->
+  <div id="tab-record" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索竞赛名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>未开始</option>
+          <option>进行中</option>
+          <option>已结束</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>竞赛名称</th>
+            <th>竞赛时间</th>
+            <th>参与人数</th>
+            <th>平均分</th>
+            <th>最高分</th>
+            <th>及格率</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>2026年安全生产月知识竞赛</td>
+            <td>2026-06-15</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="tag tag-notstarted">未开始</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Q1消防安全知识竞赛</td>
+            <td>2026-03-20</td>
+            <td>256</td>
+            <td>78.5</td>
+            <td>98</td>
+            <td>82%</td>
+            <td><span class="tag tag-ended">已结束</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">排名</button><button class="btn btn-text btn-sm">统计</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>新员工安全知识闯关赛</td>
+            <td>2026-04-08</td>
+            <td>42</td>
+            <td>85.2</td>
+            <td>100</td>
+            <td>95%</td>
+            <td><span class="tag tag-ended">已结束</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">排名</button><button class="btn btn-text btn-sm">统计</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+
+    <!-- 排名面板 -->
+    <div class="rank-panel">
+      <div class="rank-card">
+        <h4>个人排行 — Q1消防安全知识竞赛</h4>
+        <div class="rank-item">
+          <div class="rank-no gold">1</div>
+          <div class="rank-name">张明（集装箱码头公司）</div>
+          <div class="rank-score">98分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no silver">2</div>
+          <div class="rank-name">李华（油品码头公司）</div>
+          <div class="rank-score">96分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no bronze">3</div>
+          <div class="rank-name">王刚（散货码头公司）</div>
+          <div class="rank-score">95分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no normal">4</div>
+          <div class="rank-name">赵强（物流公司）</div>
+          <div class="rank-score">93分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no normal">5</div>
+          <div class="rank-name">孙丽（物业公司）</div>
+          <div class="rank-score">91分</div>
+        </div>
+      </div>
+      <div class="rank-card">
+        <h4>部门排行 — Q1消防安全知识竞赛</h4>
+        <div class="rank-item">
+          <div class="rank-no gold">1</div>
+          <div class="rank-name">油品码头公司</div>
+          <div class="rank-score">平均86.5分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no silver">2</div>
+          <div class="rank-name">集装箱码头公司</div>
+          <div class="rank-score">平均83.2分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no bronze">3</div>
+          <div class="rank-name">散货码头公司</div>
+          <div class="rank-score">平均80.1分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no normal">4</div>
+          <div class="rank-name">物流公司</div>
+          <div class="rank-score">平均78.6分</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-no normal">5</div>
+          <div class="rank-name">物业公司</div>
+          <div class="rank-score">平均75.3分</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增题目弹窗 -->
+  <div class="modal-overlay" id="modal-addQuestion">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>新增题目</h3>
+        <button class="btn btn-text" onclick="closeModal('addQuestion')">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1">
+            <label>题型 <span style="color:var(--error)">*</span></label>
+            <select class="form-input form-select">
+              <option>单选题</option>
+              <option>多选题</option>
+              <option>判断题</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>难度 <span style="color:var(--error)">*</span></label>
+            <select class="form-input form-select">
+              <option>简单</option>
+              <option>中等</option>
+              <option>困难</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>知识点 <span style="color:var(--error)">*</span></label>
+          <select class="form-input form-select">
+            <option>请选择</option>
+            <option>消防安全</option>
+            <option>危化品安全</option>
+            <option>机械安全</option>
+            <option>电气安全</option>
+            <option>高处作业</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>题目内容 <span style="color:var(--error)">*</span></label>
+          <textarea class="form-input form-textarea" placeholder="输入题目内容..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>选项设置</label>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <input type="radio" name="correct" value="A" style="margin:0;"> A
+            <input class="form-input" placeholder="选项A内容" style="flex:1;">
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <input type="radio" name="correct" value="B" style="margin:0;"> B
+            <input class="form-input" placeholder="选项B内容" style="flex:1;">
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <input type="radio" name="correct" value="C" style="margin:0;"> C
+            <input class="form-input" placeholder="选项C内容" style="flex:1;">
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <input type="radio" name="correct" value="D" style="margin:0;"> D
+            <input class="form-input" placeholder="选项D内容" style="flex:1;">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>正确答案 <span style="color:var(--error)">*</span></label>
+          <input class="form-input" placeholder="如：A（多选用逗号分隔，如A,B,D）">
+        </div>
+        <div class="form-group">
+          <label>答案解析</label>
+          <textarea class="form-input form-textarea" placeholder="输入答案解析..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addQuestion')">取消</button>
+        <button class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增竞赛弹窗 -->
+  <div class="modal-overlay" id="modal-addCompetition">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>新增竞赛</h3>
+        <button class="btn btn-text" onclick="closeModal('addCompetition')">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>竞赛名称 <span style="color:var(--error)">*</span></label>
+          <input class="form-input" placeholder="输入竞赛名称">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1">
+            <label>开始时间 <span style="color:var(--error)">*</span></label>
+            <input class="form-input" type="datetime-local">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>结束时间 <span style="color:var(--error)">*</span></label>
+            <input class="form-input" type="datetime-local">
+          </div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1">
+            <label>答题时长（分钟） <span style="color:var(--error)">*</span></label>
+            <input class="form-input" type="number" placeholder="60">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>及格分数</label>
+            <input class="form-input" type="number" placeholder="60">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>组卷方式 <span style="color:var(--error)">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="paper" value="random" checked> 随机选题 — 系统从题库随机抽题</label>
+            <label><input type="radio" name="paper" value="manual"> 手动选题 — 管理员指定题目</label>
+            <label><input type="radio" name="paper" value="unique"> 千人千卷 — 每人题目不同</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>参赛范围</label>
+          <input class="form-input" placeholder="选择参赛部门或人员...">
+        </div>
+        <div class="form-group">
+          <label>奖励设置</label>
+          <textarea class="form-input form-textarea" placeholder="如：一等奖1名/二等奖3名/三等奖5名"></textarea>
+        </div>
+        <div class="form-group">
+          <label>防作弊设置</label>
+          <div style="display:flex; gap:16px; margin-top:6px;">
+            <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; margin-bottom:0;">
+              <input type="checkbox" checked> 切屏检测
+            </label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; margin-bottom:0;">
+              <input type="checkbox" checked> 限时交卷
+            </label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; margin-bottom:0;">
+              <input type="checkbox"> 乱序出题
+            </label>
+            <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; margin-bottom:0;">
+              <input type="checkbox" checked> 选项乱序
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addCompetition')">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary">发布竞赛</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) {
+      document.getElementById('modal-' + id).classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById('modal-' + id).classList.remove('show');
+    }
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
