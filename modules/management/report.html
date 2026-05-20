@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全报表 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-unfilled { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-draft { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-submitted { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-confirmed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-rejected { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-enabled { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-disabled { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .data-table tfoot td { background:var(--bg-table-header); font-weight:600; border-top:2px solid var(--border); }
+    .form-section { padding:12px; background:var(--bg-page); border-radius:var(--radius-sm); border:1px solid var(--border-light); margin-bottom:14px; }
+    .form-section-title { font-size:13px; font-weight:500; margin-bottom:8px; color:var(--primary); }
+    .auto-field { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .auto-field label { width:120px; font-size:12px; color:var(--text-secondary); flex-shrink:0; }
+    .auto-field input { flex:1; }
+    .auto-badge { display:inline-block; padding:1px 6px; border-radius:2px; font-size:10px; background:#E6F7FF; color:#0958D9; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">报表模板</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">4</div><div class="stat-label">待填报</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">12</div><div class="stat-label">已提交</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">2</div><div class="stat-label">逾期未填</div></div>
+  </div>
+
+  <!-- 蓝色预警框 -->
+  <div class="alert alert-info" style="margin-bottom:12px">&#9888; 填报截止前3天自动提醒填报人；逾期未填报标红通知</div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('template')">报表模板</div>
+    <div class="tab-item" onclick="switchTab('fill')">填报管理</div>
+    <div class="tab-item" onclick="switchTab('stats')">填报统计</div>
+  </div>
+
+  <!-- Tab1 报表模板 -->
+  <div id="tab-template" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索模板名称..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部报表类型</option>
+          <option>周报</option>
+          <option>月报</option>
+          <option>季报</option>
+          <option>年报</option>
+          <option>专项</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="showModal('addTemplate')">+ 新增模板</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>模板名称</th>
+            <th>报表类型</th>
+            <th>填报周期</th>
+            <th>填报截止日</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>安全检查周报模板</td>
+            <td>周报</td>
+            <td>每周</td>
+            <td>每周五 17:00</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>隐患排查月报模板</td>
+            <td>月报</td>
+            <td>每月</td>
+            <td>每月5日</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>绩效考核季报模板</td>
+            <td>季报</td>
+            <td>每季度</td>
+            <td>季后10日</td>
+            <td><span class="tag tag-enabled">已启用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 填报管理 -->
+  <div id="tab-fill" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索报表名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>未填写</option>
+          <option>暂存</option>
+          <option>已提交</option>
+          <option>已确认</option>
+          <option>已驳回</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>报表名称</th>
+            <th>填报单位</th>
+            <th>填报周期</th>
+            <th>状态</th>
+            <th>提交日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>安全检查周报（5月第3周）</td>
+            <td>集装箱码头公司</td>
+            <td>2026-W20</td>
+            <td><span class="tag tag-unfilled">未填写</span></td>
+            <td>-</td>
+            <td><button class="btn btn-text btn-sm" style="color:var(--primary)" onclick="showModal('fillReport')">填写</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>隐患排查月报（5月）</td>
+            <td>危化品储运公司</td>
+            <td>2026年5月</td>
+            <td><span class="tag tag-draft">暂存</span></td>
+            <td>-</td>
+            <td><button class="btn btn-text btn-sm" style="color:var(--primary)" onclick="showModal('fillReport')">继续填写</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>安全检查周报（5月第2周）</td>
+            <td>物流运输公司</td>
+            <td>2026-W19</td>
+            <td><span class="tag tag-submitted">已提交</span></td>
+            <td>2026-05-14</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--success)">确认</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>绩效考核季报（Q1）</td>
+            <td>物业管理公司</td>
+            <td>2026年Q1</td>
+            <td><span class="tag tag-confirmed">已确认</span></td>
+            <td>2026-04-12</td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>隐患排查月报（4月）</td>
+            <td>集装箱码头公司</td>
+            <td>2026年4月</td>
+            <td><span class="tag tag-rejected">已驳回</span></td>
+            <td>2026-05-06</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">重新填写</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab3 填报统计 -->
+  <div id="tab-stats" class="tab-content">
+    <div class="card">
+      <div style="margin-bottom:12px; font-size:14px; font-weight:500;">按单位统计填报情况</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>单位名称</th>
+            <th>应填报</th>
+            <th>已填报</th>
+            <th>逾期</th>
+            <th>完成率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>集装箱码头公司</td>
+            <td>8</td>
+            <td>7</td>
+            <td>1</td>
+            <td><span style="color:var(--warning)">87.5%</span></td>
+          </tr>
+          <tr>
+            <td>危化品储运公司</td>
+            <td>8</td>
+            <td>6</td>
+            <td>1</td>
+            <td><span style="color:var(--warning)">75.0%</span></td>
+          </tr>
+          <tr>
+            <td>物流运输公司</td>
+            <td>8</td>
+            <td>8</td>
+            <td>0</td>
+            <td><span style="color:var(--success)">100%</span></td>
+          </tr>
+          <tr>
+            <td>物业管理公司</td>
+            <td>8</td>
+            <td>5</td>
+            <td>2</td>
+            <td><span style="color:var(--error)">62.5%</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>合计</td>
+            <td>32</td>
+            <td>26</td>
+            <td>4</td>
+            <td><span style="color:var(--warning)">81.3%</span></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- 新增模板弹窗 -->
+  <div id="addTemplateModal" class="modal-overlay">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header">
+        <h3>新增报表模板</h3>
+        <button class="btn btn-text btn-sm" onclick="closeModal('addTemplate')" style="font-size:18px; color:var(--text-description);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">模板名称 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入模板名称">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">报表类型 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>周报</option>
+              <option>月报</option>
+              <option>季报</option>
+              <option>年报</option>
+              <option>专项</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报周期 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>每周</option>
+              <option>每月</option>
+              <option>每季度</option>
+              <option>每年</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报截止日 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="如：每周五17:00 / 每月5日">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报说明</label>
+          <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入填报说明..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addTemplate')">取消</button>
+        <button class="btn btn-primary" onclick="closeModal('addTemplate')">确认新增</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 填报弹窗 -->
+  <div id="fillReportModal" class="modal-overlay">
+    <div class="modal" style="width:800px;">
+      <div class="modal-header">
+        <h3>在线填报</h3>
+        <button class="btn btn-text btn-sm" onclick="closeModal('fillReport')" style="font-size:18px; color:var(--text-description);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">报表模板</label>
+            <select class="form-input form-select" style="width:100%;">
+              <option>安全检查周报模板</option>
+              <option>隐患排查月报模板</option>
+              <option>绩效考核季报模板</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报周期</label>
+            <input class="form-input" value="2026-W20" style="width:100%;">
+          </div>
+        </div>
+
+        <!-- 自动带出数据区域 -->
+        <div class="form-section">
+          <div class="form-section-title">&#128279; 系统自动带出数据</div>
+          <div class="auto-field">
+            <label>安全检查次数</label>
+            <input class="form-input" value="12" style="height:32px;" readonly>
+            <span class="auto-badge">自动</span>
+          </div>
+          <div class="auto-field">
+            <label>发现隐患数</label>
+            <input class="form-input" value="5" style="height:32px;" readonly>
+            <span class="auto-badge">自动</span>
+          </div>
+          <div class="auto-field">
+            <label>已整改隐患数</label>
+            <input class="form-input" value="3" style="height:32px;" readonly>
+            <span class="auto-badge">自动</span>
+          </div>
+          <div class="auto-field">
+            <label>培训人次</label>
+            <input class="form-input" value="48" style="height:32px;" readonly>
+            <span class="auto-badge">自动</span>
+          </div>
+        </div>
+
+        <!-- 手动填写区域 -->
+        <div class="form-section">
+          <div class="form-section-title">&#9998; 手动填写内容</div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">本周安全工作总结 <span style="color:#CF1322;">*</span></label>
+            <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入本周安全工作总结..."></textarea>
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">下周安全工作计划 <span style="color:#CF1322;">*</span></label>
+            <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入下周安全工作计划..."></textarea>
+          </div>
+          <div>
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">存在问题及建议</label>
+            <textarea class="form-input" style="width:100%; height:60px; resize:vertical;" placeholder="请输入存在问题及建议..."></textarea>
+          </div>
+        </div>
+
+        <!-- 提示信息 -->
+        <div class="alert alert-info">
+          &#128279; 系统自动带出已有数据（检查记录/隐患数据/培训记录等），周报数据自动归集至月报
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('fillReport')">取消</button>
+        <button class="btn btn-default">暂存</button>
+        <button class="btn btn-primary" onclick="closeModal('fillReport')">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) {
+      document.getElementById(id + 'Modal').classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById(id + 'Modal').classList.remove('show');
+    }
+    document.getElementById('addTemplateModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addTemplate'); });
+    document.getElementById('fillReportModal').addEventListener('click', function(e) { if (e.target === this) closeModal('fillReport'); });
+  </script>
+</body>
+</html>
