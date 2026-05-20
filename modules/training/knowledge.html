@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>培训知识库管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-published { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-offline { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-share { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-private { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .share-tip { padding:10px 14px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-md); font-size:12px; color:#0958D9; line-height:1.6; margin-bottom:16px; }
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--bg-card); border-radius:var(--radius-lg); width:640px; max-height:80vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-light); }
+    .modal-header h3 { font-size:16px; margin:0; }
+    .modal-body { padding:20px; }
+    .modal-footer { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; justify-content:flex-end; gap:8px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
+    .form-group .form-input, .form-group .form-textarea { width:100%; }
+    .form-textarea { min-height:80px; resize:vertical; }
+    .radio-group { display:flex; gap:20px; align-items:center; margin-top:6px; }
+    .radio-group label { display:flex; align-items:center; gap:4px; font-size:13px; color:var(--text-primary); cursor:pointer; margin-bottom:0; }
+    .review-actions { display:flex; gap:8px; }
+  </style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">128</div><div class="stat-label">资源总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">96</div><div class="stat-label">已发布</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">12</div><div class="stat-label">待审核</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">8</div><div class="stat-label">草稿</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">12</div><div class="stat-label">已下线</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">54</div><div class="stat-label">共享资源</div></div>
+  </div>
+
+  <!-- 提示信息 -->
+  <div class="share-tip">
+    共享资源被其他单位引用后，原单位下线该资源不影响引用方的已引用副本。所有上传资源必须经过审核后才能发布。
+  </div>
+
+  <!-- 资源列表 -->
+  <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+    <div class="filter-bar" style="margin-bottom:0;">
+      <input class="form-input" placeholder="搜索关键词..." style="width:200px">
+      <select class="form-input form-select" style="width:160px">
+        <option>全部分类</option>
+        <option>法律法规</option>
+        <option>集团制度</option>
+        <option>标准化库</option>
+        <option>安全课件</option>
+      </select>
+      <select class="form-input form-select" style="width:140px">
+        <option>全部状态</option>
+        <option>草稿</option>
+        <option>待审核</option>
+        <option>已发布</option>
+        <option>已下线</option>
+      </select>
+      <select class="form-input form-select" style="width:140px">
+        <option>全部标签</option>
+        <option>消防安全</option>
+        <option>危化品</option>
+        <option>机械安全</option>
+        <option>高处作业</option>
+        <option>电气安全</option>
+      </select>
+      <button class="btn btn-primary btn-sm">查询</button>
+      <button class="btn btn-default btn-sm">重置</button>
+    </div>
+  </div>
+
+  <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+    <button class="btn btn-primary" onclick="showModal('upload')">上传资源</button>
+    <button class="btn btn-default">导出</button>
+  </div>
+
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>资源名称</th>
+          <th>资源分类</th>
+          <th>标签</th>
+          <th>共享</th>
+          <th>上传者</th>
+          <th>更新时间</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>港口消防应急处置手册</td>
+          <td>安全课件</td>
+          <td><span style="font-size:12px; color:var(--primary);">消防安全</span></td>
+          <td><span class="tag tag-share">共享</span></td>
+          <td>集团安全管理部</td>
+          <td>2026-05-10</td>
+          <td><span class="tag tag-published">已发布</span></td>
+          <td>
+            <button class="btn btn-text btn-sm">预览</button>
+            <button class="btn btn-text btn-sm">收藏</button>
+            <button class="btn btn-text btn-sm">下载</button>
+            <button class="btn btn-text btn-sm" style="color:var(--error)">下线</button>
+          </td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>安全生产法（2021修正）</td>
+          <td>法律法规</td>
+          <td><span style="font-size:12px; color:var(--primary);">综合</span></td>
+          <td><span class="tag tag-share">共享</span></td>
+          <td>集团安全管理部</td>
+          <td>2026-04-22</td>
+          <td><span class="tag tag-published">已发布</span></td>
+          <td>
+            <button class="btn btn-text btn-sm">预览</button>
+            <button class="btn btn-text btn-sm">收藏</button>
+            <button class="btn btn-text btn-sm">下载</button>
+          </td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>起重作业安全操作规程</td>
+          <td>集团制度</td>
+          <td><span style="font-size:12px; color:var(--primary);">机械安全</span></td>
+          <td><span class="tag tag-private">仅本单位</span></td>
+          <td>集装箱码头公司</td>
+          <td>2026-05-01</td>
+          <td><span class="tag tag-pending">待审核</span></td>
+          <td>
+            <button class="btn btn-text btn-sm">预览</button>
+            <div class="review-actions" style="display:inline-flex">
+              <button class="btn btn-text btn-sm" style="color:var(--success)">审核通过</button>
+              <button class="btn btn-text btn-sm" style="color:var(--error)">退回</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>危化品泄漏应急预案</td>
+          <td>安全课件</td>
+          <td><span style="font-size:12px; color:var(--primary);">危化品</span></td>
+          <td><span class="tag tag-share">共享</span></td>
+          <td>油品码头公司</td>
+          <td>2026-05-08</td>
+          <td><span class="tag tag-pending">待审核</span></td>
+          <td>
+            <button class="btn btn-text btn-sm">预览</button>
+            <div class="review-actions" style="display:inline-flex">
+              <button class="btn btn-text btn-sm" style="color:var(--success)">审核通过</button>
+              <button class="btn btn-text btn-sm" style="color:var(--error)">退回</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>安全生产标准化评审规范</td>
+          <td>标准化库</td>
+          <td><span style="font-size:12px; color:var(--primary);">标准化</span></td>
+          <td><span class="tag tag-share">共享</span></td>
+          <td>集团安全管理部</td>
+          <td>2026-05-12</td>
+          <td><span class="tag tag-draft">草稿</span></td>
+          <td>
+            <button class="btn btn-text btn-sm">预览</button>
+            <button class="btn btn-text btn-sm">编辑</button>
+            <button class="btn btn-text btn-sm" style="color:var(--primary)">提交审核</button>
+          </td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>高处作业安全管理规定</td>
+          <td>集团制度</td>
+          <td><span style="font-size:12px; color:var(--primary);">高处作业</span></td>
+          <td><span class="tag tag-private">仅本单位</span></td>
+          <td>散货码头公司</td>
+          <td>2026-03-15</td>
+          <td><span class="tag tag-offline">已下线</span></td>
+          <td>
+            <button class="btn btn-text btn-sm">预览</button>
+            <button class="btn btn-text btn-sm" style="color:var(--primary)">重新发布</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span>共 128 条</span>
+      <div class="pagination-page">1</div>
+      <div class="pagination-page active">2</div>
+      <div class="pagination-page">3</div>
+      <div class="pagination-page">...</div>
+      <div class="pagination-page">13</div>
+    </div>
+  </div>
+
+  <!-- 上传资源弹窗 -->
+  <div class="modal-overlay" id="modal-upload">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>上传资源</h3>
+        <button class="btn btn-text" onclick="closeModal('upload')">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>资源名称 <span style="color:var(--error)">*</span></label>
+          <input class="form-input" placeholder="输入资源名称">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1">
+            <label>资源分类 <span style="color:var(--error)">*</span></label>
+            <select class="form-input form-select">
+              <option>请选择</option>
+              <option>法律法规</option>
+              <option>集团制度</option>
+              <option>标准化库</option>
+              <option>安全课件</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>标签</label>
+            <input class="form-input" placeholder="如：消防安全、危化品">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>上传文件 <span style="color:var(--error)">*</span></label>
+          <div style="padding:20px; border:1px dashed var(--border); border-radius:var(--radius-md); text-align:center; color:var(--text-description); font-size:13px;">
+            点击或拖拽文件至此处上传<br>
+            <span style="font-size:12px; color:var(--text-description)">支持 PDF / Word / PPT / 视频，单文件不超过200MB</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>共享设置 <span style="color:var(--error)">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="share" value="1" checked> 共享 — 其他单位可引用至本单位培训任务</label>
+            <label><input type="radio" name="share" value="0"> 不共享 — 仅本单位可见</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>资源描述</label>
+          <textarea class="form-input form-textarea" placeholder="输入资源描述..."></textarea>
+        </div>
+        <div style="padding:10px 12px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806; line-height:1.6;">
+          上传资源需审核后才能发布，审核由本单位安全管理人员负责。
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('upload')">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary">提交审核</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showModal(id) {
+      document.getElementById('modal-' + id).classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById('modal-' + id).classList.remove('show');
+    }
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
