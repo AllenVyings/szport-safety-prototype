@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全生产责任书 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-signed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-archived { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-overdue { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .progress-bar { height:20px; background:var(--border-light); border-radius:10px; overflow:hidden; position:relative; }
+    .progress-fill { height:100%; border-radius:10px; transition:width var(--duration-normal) var(--ease-out); }
+    .progress-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:500; color:var(--text-primary); }
+    .stat-progress-card { padding:16px; border-radius:var(--radius-md); background:var(--bg-card); border:1px solid var(--border-light); }
+    .stat-progress-card .card-label { font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
+    .stat-progress-card .card-value { font-size:20px; font-weight:600; margin-bottom:8px; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">256</div><div class="stat-label">应签订</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">218</div><div class="stat-label">已签订</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">85.2%</div><div class="stat-label">签订率</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">28</div><div class="stat-label">待签订</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">10</div><div class="stat-label">逾期</div></div>
+  </div>
+
+  <!-- 预警提示 -->
+  <div class="alert alert-warning" style="margin-bottom:16px;">
+    <strong>预警规则</strong> — 7天未签订自动提醒责任人；14天升级至上级；30天标记逾期并通知安全管理部门
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('manage')">责任书管理</div>
+    <div class="tab-item" onclick="switchTab('stats')">签订率统计</div>
+    <div class="tab-item" onclick="switchTab('template')">责任书模板</div>
+  </div>
+
+  <!-- Tab1 责任书管理 -->
+  <div id="tab-manage" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索责任书名称/签订人..." style="width:220px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>待签订</option>
+          <option>已签订</option>
+          <option>已归档</option>
+          <option>逾期</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部岗位类别</option>
+          <option>管理岗位</option>
+          <option>技术岗位</option>
+          <option>操作岗位</option>
+          <option>辅助岗位</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部组织层级</option>
+          <option>集团</option>
+          <option>二级企业</option>
+          <option>下属企业</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openModal()">+ 发起签订</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>责任书名称</th>
+            <th>签订年度</th>
+            <th>签订人</th>
+            <th>岗位类别</th>
+            <th>组织层级</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>2026年度安全生产责任书</td>
+            <td>2026</td>
+            <td>张明</td>
+            <td><span class="tag tag-info">管理岗位</span></td>
+            <td>集团</td>
+            <td><span class="tag tag-signed">已签订</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>2026年度安全生产责任书</td>
+            <td>2026</td>
+            <td>李强</td>
+            <td><span class="tag tag-info">技术岗位</span></td>
+            <td>二级企业</td>
+            <td><span class="tag tag-signed">已签订</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>2026年度安全生产责任书</td>
+            <td>2026</td>
+            <td>王磊</td>
+            <td><span class="tag tag-info">操作岗位</span></td>
+            <td>下属企业</td>
+            <td><span class="tag tag-pending">待签订</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">提醒</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>2026年度安全生产责任书</td>
+            <td>2026</td>
+            <td>赵芳</td>
+            <td><span class="tag tag-info">辅助岗位</span></td>
+            <td>二级企业</td>
+            <td><span class="tag tag-pending">待签订</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">提醒</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>2026年度安全生产责任书</td>
+            <td>2026</td>
+            <td>周涛</td>
+            <td><span class="tag tag-info">管理岗位</span></td>
+            <td>下属企业</td>
+            <td><span class="tag tag-overdue">逾期</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error)">催办</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 签订率统计 -->
+  <div id="tab-stats" class="tab-content">
+    <!-- 签订率进度条卡片 -->
+    <div style="display:flex; gap:16px; margin-bottom:16px;">
+      <div class="stat-progress-card" style="flex:1;">
+        <div class="card-label">集团签订率</div>
+        <div class="card-value" style="color:var(--success);">92.3%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:92.3%; background:var(--success);"></div><div class="progress-text">36/39</div></div>
+      </div>
+      <div class="stat-progress-card" style="flex:1;">
+        <div class="card-label">二级企业平均</div>
+        <div class="card-value" style="color:var(--primary);">86.5%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:86.5%; background:var(--primary);"></div><div class="progress-text">121/140</div></div>
+      </div>
+      <div class="stat-progress-card" style="flex:1;">
+        <div class="card-label">下属企业平均</div>
+        <div class="card-value" style="color:var(--warning);">76.8%</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:76.8%; background:var(--warning);"></div><div class="progress-text">61/77</div></div>
+      </div>
+    </div>
+    <!-- 按单位统计表 -->
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>单位名称</th>
+            <th>应签数</th>
+            <th>已签数</th>
+            <th>未签数</th>
+            <th>签订率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>集团本部</td>
+            <td>39</td>
+            <td>36</td>
+            <td>3</td>
+            <td><span style="color:var(--success); font-weight:500;">92.3%</span></td>
+          </tr>
+          <tr>
+            <td>港口物流公司</td>
+            <td>45</td>
+            <td>40</td>
+            <td>5</td>
+            <td><span style="color:var(--primary); font-weight:500;">88.9%</span></td>
+          </tr>
+          <tr>
+            <td>危化品仓储公司</td>
+            <td>38</td>
+            <td>35</td>
+            <td>3</td>
+            <td><span style="color:var(--success); font-weight:500;">92.1%</span></td>
+          </tr>
+          <tr>
+            <td>港口运营公司</td>
+            <td>57</td>
+            <td>46</td>
+            <td>11</td>
+            <td><span style="color:var(--warning); font-weight:500;">80.7%</span></td>
+          </tr>
+          <tr>
+            <td>航运服务公司</td>
+            <td>77</td>
+            <td>61</td>
+            <td>16</td>
+            <td><span style="color:var(--warning); font-weight:500;">79.2%</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--bg-table-header); font-weight:500;">
+            <td>合计</td>
+            <td>256</td>
+            <td>218</td>
+            <td>38</td>
+            <td><span style="color:var(--primary); font-weight:600;">85.2%</span></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab3 责任书模板 -->
+  <div id="tab-template" class="tab-content">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="font-size:14px; color:var(--text-secondary);">内置模板按岗位类别和适用层级自动匹配推送</div>
+        <button class="btn btn-primary btn-sm">+ 新增模板</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>模板名称</th>
+            <th>适用岗位</th>
+            <th>适用层级</th>
+            <th>版本</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集团管理人员安全生产责任书</td>
+            <td>管理岗位</td>
+            <td>集团</td>
+            <td>V2.0</td>
+            <td><button class="btn btn-text btn-sm">预览</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>技术人员安全生产责任书</td>
+            <td>技术岗位</td>
+            <td>二级企业/下属企业</td>
+            <td>V2.0</td>
+            <td><button class="btn btn-text btn-sm">预览</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>操作岗位安全生产责任书</td>
+            <td>操作岗位/辅助岗位</td>
+            <td>下属企业</td>
+            <td>V1.5</td>
+            <td><button class="btn btn-text btn-sm">预览</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 发起签订弹窗 -->
+  <div class="modal-overlay" id="modal-add">
+    <div class="modal">
+      <div class="modal-header"><h3>发起责任书签订</h3><button class="btn btn-text btn-sm" onclick="closeModal()" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>签订年度</div>
+        <div class="form-content">
+          <select class="form-input form-select">
+            <option>2026</option>
+            <option>2025</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>适用模板</div>
+        <div class="form-content">
+          <select class="form-input form-select">
+            <option>请选择模板</option>
+            <option>集团管理人员安全生产责任书</option>
+            <option>技术人员安全生产责任书</option>
+            <option>操作岗位安全生产责任书</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>推送范围</div>
+        <div class="form-content">
+          <select class="form-input form-select">
+            <option>按岗位+层级自动推送</option>
+            <option>指定人员</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">签订截止日期</div>
+        <div class="form-content"><input class="form-input" type="date" value="2026-06-30"></div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary">确认发起</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function openModal() {
+      document.getElementById('modal-add').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-add').classList.remove('show');
+    }
+
+    document.getElementById('modal-add').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+</body>
+</html>
