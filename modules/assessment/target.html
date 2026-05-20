@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考核对象与管控分级 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .area-title {
+      font-size: var(--font-size-16);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-4);
+      padding-bottom: var(--spacing-2);
+      border-bottom: 1px solid var(--border-divider);
+    }
+    .stat-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-5);
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-5);
+      text-align: center;
+    }
+    .stat-card .stat-value {
+      font-size: 32px;
+      font-weight: var(--font-weight-bold);
+      line-height: 1.2;
+    }
+    .stat-card .stat-card.total .stat-value { color: var(--primary); }
+    .stat-card.level-a .stat-value { color: var(--risk-major); }
+    .stat-card.level-b .stat-value { color: var(--risk-significant); }
+    .stat-card.level-c .stat-value { color: var(--risk-low); }
+    .distribution-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--spacing-5);
+    }
+    .pie-placeholder {
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--risk-major) 0deg 72deg,
+        var(--risk-significant) 72deg 180deg,
+        var(--risk-low) 180deg 360deg
+      );
+      margin: 0 auto var(--spacing-4);
+      position: relative;
+    }
+    .pie-placeholder::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px; height: 100px;
+      background: var(--bg-card);
+      border-radius: 50%;
+    }
+    .pie-legend {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-2);
+      font-size: var(--font-size-13);
+    }
+    .pie-legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+    .pie-legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .level-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-12);
+      font-weight: var(--font-weight-semibold);
+    }
+    .level-tag-a { background: rgba(209,0,0,0.1); color: var(--risk-major); }
+    .level-tag-b { background: rgba(233,124,0,0.1); color: var(--risk-significant); }
+    .level-tag-c { background: rgba(35,102,236,0.1); color: var(--risk-low); }
+    .duty-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-12);
+    }
+    .duty-status.signed { color: var(--success); }
+    .duty-status.unsigned { color: var(--error); }
+    .duty-status.pending { color: var(--warning); }
+  </style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 区域一：考核对象列表 -->
+  <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+    <div class="filter-bar" style="margin-bottom:0;">
+      <input class="form-input" placeholder="搜索单位名称..." style="width:200px">
+      <select class="form-input form-select" style="width:160px">
+        <option>全部分类</option>
+        <option>一类考核部室</option>
+        <option>二类考核部室</option>
+        <option>二级企业</option>
+      </select>
+      <select class="form-input form-select" style="width:160px">
+        <option>全部管控级别</option>
+        <option>A级管控</option>
+        <option>B级管控</option>
+        <option>C级管控</option>
+      </select>
+      <select class="form-input form-select" style="width:160px">
+        <option>全部责任书状态</option>
+        <option>已签订</option>
+        <option>未签订</option>
+        <option>待续签</option>
+      </select>
+      <button class="btn btn-primary btn-sm">查询</button>
+      <button class="btn btn-default btn-sm">重置</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="area-title">考核对象列表</div>
+
+    <!-- 统计卡片 -->
+    <div class="stat-cards">
+      <div class="stat-card total">
+        <div class="stat-value">30</div>
+        <div class="stat-label">考核对象总数</div>
+      </div>
+      <div class="stat-card level-a">
+        <div class="stat-value">5</div>
+        <div class="stat-label">A级管控</div>
+      </div>
+      <div class="stat-card level-b">
+        <div class="stat-value">10</div>
+        <div class="stat-label">B级管控</div>
+      </div>
+      <div class="stat-card level-c">
+        <div class="stat-value">15</div>
+        <div class="stat-label">C级管控</div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-primary">+ 新增考核对象</button>
+      <button class="btn btn-default">导出</button>
+    </div>
+
+    <!-- 数据列表 -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>单位名称</th>
+          <th>分类</th>
+          <th>管控级别</th>
+          <th>纳管时间</th>
+          <th>责任书状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>安全管理部</td>
+          <td><span class="tag tag-info">一类考核部室</span></td>
+          <td><span class="level-tag level-tag-a">A级管控</span></td>
+          <td>2025-01-01</td>
+          <td><span class="duty-status signed">已签订</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">调整级别</button></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>人力资源部</td>
+          <td><span class="tag tag-warning">二类考核部室</span></td>
+          <td><span class="level-tag level-tag-b">B级管控</span></td>
+          <td>2025-01-01</td>
+          <td><span class="duty-status signed">已签订</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">调整级别</button></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>集装箱码头公司</td>
+          <td><span class="tag tag-success">二级企业</span></td>
+          <td><span class="level-tag level-tag-a">A级管控</span></td>
+          <td>2025-01-01</td>
+          <td><span class="duty-status signed">已签订</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">调整级别</button></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>散货码头公司</td>
+          <td><span class="tag tag-success">二级企业</span></td>
+          <td><span class="level-tag level-tag-b">B级管控</span></td>
+          <td>2025-01-01</td>
+          <td><span class="duty-status signed">已签订</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">调整级别</button></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>物流运输公司</td>
+          <td><span class="tag tag-success">二级企业</span></td>
+          <td><span class="level-tag level-tag-c">C级管控</span></td>
+          <td>2025-03-15</td>
+          <td><span class="duty-status signed">已签订</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">调整级别</button></td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>港航建设公司</td>
+          <td><span class="tag tag-success">二级企业</span></td>
+          <td><span class="level-tag level-tag-b">B级管控</span></td>
+          <td>2025-01-01</td>
+          <td><span class="duty-status pending">待续签</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">调整级别</button></td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>新设子公司</td>
+          <td><span class="tag tag-success">二级企业</span></td>
+          <td><span class="level-tag level-tag-c">C级管控</span></td>
+          <td>2026-05-01</td>
+          <td><span class="duty-status unsigned">未签订</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">签订责任书</button><button class="btn btn-text btn-sm">移除</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span>共 30 条</span>
+      <div class="pagination-page active">1</div>
+      <div class="pagination-page">2</div>
+      <div class="pagination-page">3</div>
+    </div>
+  </div>
+
+  <!-- 区域二：管控级别分布图 -->
+  <div class="card">
+    <div class="area-title">管控级别分布</div>
+    <div class="distribution-grid">
+      <!-- 饼图区域 -->
+      <div>
+        <div class="pie-placeholder"></div>
+        <div class="pie-legend">
+          <div class="pie-legend-item">
+            <span class="pie-legend-dot" style="background:var(--risk-major)"></span>
+            <span>A级管控 - 5家 (16.7%)</span>
+          </div>
+          <div class="pie-legend-item">
+            <span class="pie-legend-dot" style="background:var(--risk-significant)"></span>
+            <span>B级管控 - 10家 (33.3%)</span>
+          </div>
+          <div class="pie-legend-item">
+            <span class="pie-legend-dot" style="background:var(--risk-low)"></span>
+            <span>C级管控 - 15家 (50.0%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 各单位级别一览表 -->
+      <div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>管控级别</th>
+              <th>单位数量</th>
+              <th>考核频次</th>
+              <th>包含单位</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="level-tag level-tag-a">A级管控</span></td>
+              <td>5家</td>
+              <td>每月检查，每季度考核</td>
+              <td>集装箱码头公司、散货码头公司、...</td>
+            </tr>
+            <tr>
+              <td><span class="level-tag level-tag-b">B级管控</span></td>
+              <td>10家</td>
+              <td>每季度考核一次</td>
+              <td>物流运输公司、港航建设公司、...</td>
+            </tr>
+            <tr>
+              <td><span class="level-tag level-tag-c">C级管控</span></td>
+              <td>15家</td>
+              <td>每半年考核一次</td>
+              <td>仓储服务公司、物业运营公司、...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
