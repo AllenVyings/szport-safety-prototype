@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>相关方管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+    .stat-card { background:var(--bg-card); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); }
+    .stat-card-label { font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
+    .stat-card-value { font-size:28px; font-weight:700; color:var(--text-primary); }
+    .stat-card-sub { font-size:12px; color:var(--text-description); margin-top:4px; }
+    .stat-card.highlight .stat-card-value { color:var(--primary); }
+    .stat-card.success .stat-card-value { color:var(--success); }
+    .stat-card.warning .stat-card-value { color:var(--warning); }
+    .stat-card.error .stat-card-value { color:var(--error); }
+    .detail-panel { border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; margin-top:16px; background:var(--bg-table-stripe); }
+    .detail-panel h4 { font-size:14px; font-weight:600; margin-bottom:12px; color:var(--text-primary); }
+    .detail-row { display:flex; gap:24px; margin-bottom:8px; font-size:13px; }
+    .detail-label { color:var(--text-secondary); min-width:80px; }
+    .detail-value { color:var(--text-primary); }
+    .record-section { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; background:#fff; }
+    .record-section h5 { font-size:14px; font-weight:600; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+    .record-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0; color:var(--text-secondary); }
+    .expire-warn { color:var(--error) !important; font-weight:600; }
+    .expire-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border-radius:3px; font-size:11px; }
+    .expire-tag.expired { background:rgba(209,0,0,0.1); color:var(--error); }
+    .expire-tag.expiring { background:rgba(233,124,0,0.1); color:var(--warning); }
+    .expire-tag.normal { background:rgba(0,177,94,0.1); color:var(--success); }
+    .shared-badge { display:inline-flex; align-items:center; gap:2px; padding:1px 6px; border-radius:3px; font-size:11px; background:rgba(35,102,236,0.1); color:var(--primary); }
+    .alert-panel { background:rgba(233,124,0,0.08); border:1px solid rgba(233,124,0,0.3); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
+    .alert-panel h4 { color:var(--warning); font-size:14px; margin-bottom:8px; }
+    .alert-item { display:flex; justify-content:space-between; padding:6px 0; font-size:13px; border-bottom:1px dashed rgba(233,124,0,0.2); }
+    .cell-actions { display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; }
+  </style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <div class="card">
+    <!-- Tab切换 -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('unit')">相关方单位</div>
+      <div class="tab-item" onclick="switchTab('person')">人员管理</div>
+      <div class="tab-item" onclick="switchTab('property')">物业代管</div>
+    </div>
+
+    <!-- Tab1: 相关方单位 -->
+    <div id="tab-unit" class="tab-content active">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card highlight">
+          <div class="stat-card-label">单位总数</div>
+          <div class="stat-card-value">32</div>
+          <div class="stat-card-sub">工程施工 12 / 安保服务 8 / 设备检修 7 / 其他 5</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card-label">已准入</div>
+          <div class="stat-card-value">25</div>
+          <div class="stat-card-sub">当前服务中</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card-label">待准入</div>
+          <div class="stat-card-value">4</div>
+          <div class="stat-card-sub">审批中</div>
+        </div>
+        <div class="stat-card error">
+          <div class="stat-card-label">已退场</div>
+          <div class="stat-card-value">3</div>
+          <div class="stat-card-sub">合同到期/终止</div>
+        </div>
+      </div>
+
+      <div class="alert-panel">
+        <h4>证件到期提醒</h4>
+        <div class="alert-item"><div><span style="color:var(--text-primary);">华能检修公司</span><span style="color:var(--text-secondary);margin-left:12px;">营业执照即将到期（2026-04-15）</span></div><span class="expire-tag expiring">即将到期</span></div>
+        <div class="alert-item"><div><span style="color:var(--text-primary);">李伟（架子工）</span><span style="color:var(--text-secondary);margin-left:12px;">高处作业证已过期（2026-05-10）</span></div><span class="expire-tag expired">已过期</span></div>
+        <div class="alert-item"><div><span style="color:var(--text-primary);">王建军（电工）</span><span style="color:var(--text-secondary);margin-left:12px;">账号即将到期（2026-06-30）</span></div><span class="expire-tag expiring">即将到期</span></div>
+      </div>
+
+      <!-- 筛选条件 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" id="ct-query-name" placeholder="搜索单位名称..." style="width:200px">
+          <select class="form-input form-select" style="width:160px">
+            <option>全部准入状态</option>
+            <option>待准入</option>
+            <option>已准入</option>
+            <option>已退场</option>
+          </select>
+          <select class="form-input form-select" style="width:160px">
+            <option>全部合同状态</option>
+            <option>有效</option>
+            <option>即将到期</option>
+            <option>已到期</option>
+          </select>
+          <select class="form-input form-select" style="width:140px">
+            <option>全部服务类型</option>
+            <option>工程施工</option>
+            <option>安保服务</option>
+            <option>设备检修</option>
+            <option>物业管理</option>
+            <option>其他</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openNewUnitModal()">+ 新增单位</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+
+      <!-- 数据列表 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>单位名称</th>
+            <th>资质状态</th>
+            <th>合同起止</th>
+            <th>准入状态</th>
+            <th>服务项目数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中交二航局 <span class="shared-badge">集团共享</span></td>
+            <td><span class="tag tag-success">有效</span></td>
+            <td>2026-01-01 ~ 2026-12-31</td>
+            <td><span class="tag tag-success">已准入</span></td>
+            <td>3</td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('unit')">查看详情</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>海盾安防</td>
+            <td><span class="tag tag-success">有效</span></td>
+            <td>2026-03-01 ~ 2026-09-30</td>
+            <td><span class="tag tag-success">已准入</span></td>
+            <td>2</td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('unit')">查看详情</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>华能检修公司</td>
+            <td><span class="tag tag-warning">即将到期</span></td>
+            <td>2025-10-01 ~ 2026-04-15</td>
+            <td><span class="tag tag-success">已准入</span></td>
+            <td>1</td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('unit')">查看详情</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>鹏程建设工程</td>
+            <td><span class="tag tag-info">审核中</span></td>
+            <td>-</td>
+            <td><span class="tag tag-warning">待准入</span></td>
+            <td>0</td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('unit')">查看详情</button><button class="btn btn-text btn-sm">审批</button></td>
+          </tr>
+          <tr>
+            <td>远达物流</td>
+            <td><span class="tag tag-error">已过期</span></td>
+            <td>2025-01-01 ~ 2025-12-31</td>
+            <td><span class="tag tag-error">已退场</span></td>
+            <td>0</td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('unit')">查看详情</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-bar"><div class="pagination-info">共 32 条</div><div class="pagination"><div class="pagination-page active">1</div><div class="pagination-page">2</div></div></div>
+
+      <!-- 单位详情面板 -->
+      <div id="detail-unit" class="detail-panel" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h4 style="margin:0;">单位详情 - 中交二航局</h4>
+          <button class="btn btn-default btn-sm" onclick="document.getElementById('detail-unit').style.display='none'">关闭</button>
+        </div>
+        <div class="detail-row">
+          <div><span class="detail-label">单位名称：</span><span class="detail-value">中交二航局</span></div>
+          <div><span class="detail-label">资质状态：</span><span class="detail-value"><span class="tag tag-success">有效</span></span></div>
+          <div><span class="detail-label">准入状态：</span><span class="detail-value"><span class="tag tag-success">已准入</span></span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;">
+          <div class="record-section">
+            <h5>服务项目</h5>
+            <div class="record-item">3号泊位改造工程</div>
+            <div class="record-item">散货码头扩建项目</div>
+            <div class="record-item">港区道路修复工程</div>
+          </div>
+          <div class="record-section">
+            <h5>合同信息</h5>
+            <div class="record-item">合同起止：2026-01-01 ~ 2026-12-31</div>
+            <div class="record-item">服务范围：港口工程施工</div>
+            <div class="record-item">合同附件：施工合同.pdf</div>
+          </div>
+          <div class="record-section">
+            <h5>安全记录</h5>
+            <div class="record-item">安全检查：8次</div>
+            <div class="record-item">隐患整改：3项（已销号2项）</div>
+            <div class="record-item">违章行为：1次</div>
+            <div class="record-item">事故信息：0次</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab2: 人员管理 -->
+    <div id="tab-person" class="tab-content">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card highlight">
+          <div class="stat-card-label">人员总数</div>
+          <div class="stat-card-value">186</div>
+          <div class="stat-card-sub">涉及 25 家相关方单位</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card-label">已准入</div>
+          <div class="stat-card-value">152</div>
+          <div class="stat-card-sub">当前在场</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card-label">待准入</div>
+          <div class="stat-card-value">8</div>
+          <div class="stat-card-sub">审核中</div>
+        </div>
+        <div class="stat-card error">
+          <div class="stat-card-label">已离场/账号到期</div>
+          <div class="stat-card-value">26</div>
+          <div class="stat-card-sub">已离场 22 / 账号到期 4</div>
+        </div>
+      </div>
+
+      <!-- 筛选条件 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索姓名/手机号..." style="width:200px">
+          <select class="form-input form-select" style="width:160px">
+            <option>全部准入状态</option>
+            <option>待准入</option>
+            <option>已准入</option>
+            <option>已离场</option>
+          </select>
+          <select class="form-input form-select" style="width:140px">
+            <option>全部所属单位</option>
+            <option>中交二航局</option>
+            <option>海盾安防</option>
+            <option>华能检修公司</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="openBatchImportModal()">批量导入</button>
+        </div>
+      </div>
+
+      <!-- 人员列表（含账号到期日） -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>岗位</th>
+            <th>证书</th>
+            <th>准入状态</th>
+            <th>项目关联</th>
+            <th>账号到期日</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>张磊</td>
+            <td>焊工</td>
+            <td><span class="tag tag-success">焊接作业证（有效）</span></td>
+            <td><span class="tag tag-success">已准入</span></td>
+            <td>3号泊位改造工程</td>
+            <td>2026-12-31 <span class="expire-tag normal">正常</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('person')">查看详情</button></td>
+          </tr>
+          <tr>
+            <td>王建军</td>
+            <td>电工</td>
+            <td><span class="tag tag-success">电工作业证（有效）</span></td>
+            <td><span class="tag tag-success">已准入</span></td>
+            <td>港区道路修复</td>
+            <td>2026-06-30 <span class="expire-tag expiring">即将到期</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('person')">查看详情</button></td>
+          </tr>
+          <tr>
+            <td>李伟</td>
+            <td>架子工</td>
+            <td><span class="tag tag-error">高处作业证（过期）</span></td>
+            <td><span class="tag tag-success">已准入</span></td>
+            <td>散货码头扩建</td>
+            <td class="expire-warn">2026-05-10 <span class="expire-tag expired">已到期</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('person')">查看详情</button></td>
+          </tr>
+          <tr>
+            <td>赵东</td>
+            <td>安全员</td>
+            <td><span class="tag tag-success">安全管理人员证（有效）</span></td>
+            <td><span class="tag tag-warning">待准入</span></td>
+            <td>-</td>
+            <td>-</td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('person')">查看详情</button><button class="btn btn-text btn-sm">审批</button></td>
+          </tr>
+          <tr>
+            <td>刘强</td>
+            <td>普工</td>
+            <td>-</td>
+            <td><span class="tag tag-error">已离场</span></td>
+            <td>-</td>
+            <td class="expire-warn">2026-03-31 <span class="expire-tag expired">已到期</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('person')">查看详情</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-bar"><div class="pagination-info">共 186 条</div><div class="pagination"><div class="pagination-page active">1</div><div class="pagination-page">2</div><div class="pagination-page">3</div></div></div>
+
+      <!-- 人员详情面板 -->
+      <div id="detail-person" class="detail-panel" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h4 style="margin:0;">人员详情 - 张磊</h4>
+          <button class="btn btn-default btn-sm" onclick="document.getElementById('detail-person').style.display='none'">关闭</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div class="record-section">
+            <h5>证件管理</h5>
+            <div class="record-item">焊接作业证 - 有效至2027-06</div>
+            <div class="record-item" style="color:var(--primary);cursor:pointer;">查看证件扫描件</div>
+            <div style="font-size:12px;color:var(--text-description);margin-top:4px;">
+              系统根据发证日期和有效期自动计算到期时间，提前一个月提醒，到期前7天再次提醒
+            </div>
+          </div>
+          <div class="record-section">
+            <h5>培训记录</h5>
+            <div class="record-item">2026-03-15 入场安全培训（合格）</div>
+            <div class="record-item">2026-04-20 消防安全专项培训（合格）</div>
+            <div class="record-item" style="color:var(--primary);cursor:pointer;">查看全部培训记录</div>
+          </div>
+          <div class="record-section">
+            <h5>作业记录</h5>
+            <div class="record-item">参与动火作业 3 次</div>
+            <div class="record-item">参与高处作业 1 次</div>
+            <div class="record-item">违章记录：0 次</div>
+            <div class="record-item" style="color:var(--primary);cursor:pointer;">查看全量记录</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding:10px 16px;background:rgba(35,102,236,0.06);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);">
+          <strong>账号期限管理：</strong>受限账号绑定使用期限（2026-12-31到期），期限内仅可访问单一关联项目数据，到期自动失效
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab3: 物业代管 -->
+    <div id="tab-property" class="tab-content">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card highlight">
+          <div class="stat-card-label">代管项目总数</div>
+          <div class="stat-card-value">8</div>
+          <div class="stat-card-sub">活跃项目 6</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card-label">进行中</div>
+          <div class="stat-card-value">6</div>
+          <div class="stat-card-sub">正常运营</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card-label">待启动</div>
+          <div class="stat-card-value">1</div>
+          <div class="stat-card-sub">筹备中</div>
+        </div>
+        <div class="stat-card error">
+          <div class="stat-card-label">已结束</div>
+          <div class="stat-card-value">1</div>
+          <div class="stat-card-sub">归档</div>
+        </div>
+      </div>
+
+      <!-- 筛选条件 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索项目名称..." style="width:200px">
+          <select class="form-input form-select" style="width:140px">
+            <option>全部状态</option>
+            <option>进行中</option>
+            <option>待启动</option>
+            <option>已结束</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto;" onclick="openNewProjectModal()">+ 新建代管项目</button>
+        </div>
+      </div>
+
+      <!-- 代管项目列表 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>项目名称</th>
+            <th>甲方（建设单位）</th>
+            <th>代管方（物业单位）</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>港口大厦物业管理</td>
+            <td>集团本部</td>
+            <td>海盾安保物业</td>
+            <td><span class="tag tag-success">进行中</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('property')">项目详情</button></td>
+          </tr>
+          <tr>
+            <td>物流园B区物业管理</td>
+            <td>物流运输公司</td>
+            <td>深港物业</td>
+            <td><span class="tag tag-success">进行中</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('property')">项目详情</button></td>
+          </tr>
+          <tr>
+            <td>散货码头仓储区管理</td>
+            <td>散货码头公司</td>
+            <td>海盾安保物业</td>
+            <td><span class="tag tag-success">进行中</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('property')">项目详情</button></td>
+          </tr>
+          <tr>
+            <td>新港办公区物业管理</td>
+            <td>集装箱码头公司</td>
+            <td>深港物业</td>
+            <td><span class="tag tag-warning">待启动</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="showDetail('property')">项目详情</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-bar"><div class="pagination-info">共 8 条</div><div class="pagination"><div class="pagination-page active">1</div></div></div>
+
+      <!-- 项目详情面板 -->
+      <div id="detail-property" class="detail-panel" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h4 style="margin:0;">项目详情 - 港口大厦物业管理</h4>
+          <button class="btn btn-default btn-sm" onclick="document.getElementById('detail-property').style.display='none'">关闭</button>
+        </div>
+        <div class="detail-row">
+          <div><span class="detail-label">甲方：</span><span class="detail-value">集团本部</span></div>
+          <div><span class="detail-label">代管方：</span><span class="detail-value">海盾安保物业</span></div>
+          <div><span class="detail-label">状态：</span><span class="detail-value"><span class="tag tag-success">进行中</span></span></div>
+        </div>
+        <div style="margin-top:4px;font-size:12px;color:var(--text-description);">
+          权限说明：代管方创建并管理项目，甲方具备查看+编辑权限，数据权限按项目归属过滤
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;">
+          <div class="record-section">
+            <h5>人员体系</h5>
+            <div class="record-item">项目负责：王保安（海盾安保物业）</div>
+            <div class="record-item">安全管理人员：2人</div>
+            <div class="record-item">安保人员：8人</div>
+            <div class="record-item">维修人员：3人</div>
+            <div class="record-item" style="color:var(--primary);cursor:pointer;">查看人员详情</div>
+          </div>
+          <div class="record-section">
+            <h5>作业记录</h5>
+            <div class="record-item">本月作业单：5次</div>
+            <div class="record-item">进行中作业：1次</div>
+            <div class="record-item">待审批作业：1次</div>
+            <div class="record-item" style="color:var(--primary);cursor:pointer;">查看作业详情</div>
+            <div style="font-size:12px;color:var(--text-description);margin-top:4px;">
+              相关方内部作业审批可简化，甲方项目经理对审批负责
+            </div>
+          </div>
+          <div class="record-section">
+            <h5>检查记录</h5>
+            <div class="record-item">本月安全检查：3次</div>
+            <div class="record-item">发现隐患：2项</div>
+            <div class="record-item">已销号：1项</div>
+            <div class="record-item" style="color:var(--primary);cursor:pointer;">查看检查详情</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== 新增相关方单位弹窗 ==================== -->
+  <div id="modal-new-unit" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:640px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:600;">新增相关方单位</div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-new-unit')">&times;</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>单位名称</label>
+            <div class="form-content"><input class="form-input" id="nu-name" placeholder="请输入单位全称"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>统一社会信用代码</label>
+            <div class="form-content"><input class="form-input" id="nu-credit" placeholder="18位信用代码"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>服务类型</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="nu-type">
+                <option value="">请选择</option>
+                <option>工程施工</option>
+                <option>安保服务</option>
+                <option>设备检修</option>
+                <option>物业管理</option>
+                <option>其他</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>法定代表人</label>
+            <div class="form-content"><input class="form-input" id="nu-legal" placeholder="法定代表人姓名"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>安全负责人</label>
+            <div class="form-content"><input class="form-input" id="nu-safety" placeholder="安全负责人姓名"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">联系电话</label>
+            <div class="form-content"><input class="form-input" id="nu-phone" placeholder="联系电话"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">合同起始日期</label>
+            <div class="form-content"><input class="form-input" id="nu-contract-start" type="date"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">合同结束日期</label>
+            <div class="form-content"><input class="form-input" id="nu-contract-end" type="date"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">资质附件</label>
+          <div class="form-content">
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" onclick="document.getElementById('nu-file').click()">
+              <div style="font-size:13px;color:var(--text-secondary);">点击上传营业执照、资质证书等</div>
+              <input type="file" id="nu-file" style="display:none" accept=".pdf,.jpg,.png">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
+        <button class="btn btn-default btn-sm" onclick="closeModal('modal-new-unit')">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="submitNewUnit()">提交审批</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 审批弹窗 ==================== -->
+  <div id="modal-approval" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:480px;box-shadow:var(--shadow-lg);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:600;">准入审批</div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-approval')">&times;</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="margin-bottom:16px;font-size:13px;color:var(--text-secondary);">审批单位：<strong style="color:var(--text-primary);">鹏程建设工程</strong></div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>审批意见</label>
+          <div class="form-content">
+            <select class="form-input form-select" id="approval-result">
+              <option value="">请选择</option>
+              <option>通过</option>
+              <option>退回</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">审批说明</label>
+          <div class="form-content"><textarea class="form-input" id="approval-note" style="height:80px;padding:8px 12px;resize:vertical;" placeholder="填写审批说明（退回时必填）"></textarea></div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
+        <button class="btn btn-default btn-sm" onclick="closeModal('modal-approval')">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="submitApproval()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 批量导入弹窗 ==================== -->
+  <div id="modal-import" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:480px;box-shadow:var(--shadow-lg);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:600;">批量导入人员</div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-import')">&times;</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="margin-bottom:16px;">
+          <button class="btn btn-default btn-sm" onclick="alert('下载导入模板（原型演示）')">下载导入模板</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">选择所属单位</label>
+          <div class="form-content">
+            <select class="form-input form-select" id="import-unit">
+              <option>中交二航局</option>
+              <option>海盾安防</option>
+              <option>华能检修公司</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">上传文件</label>
+          <div class="form-content">
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" onclick="document.getElementById('import-file').click()">
+              <div style="font-size:13px;color:var(--text-secondary);">点击上传 Excel 文件</div>
+              <div style="font-size:12px;color:var(--text-description);margin-top:4px;">支持 .xlsx 格式，单次最多 200 条</div>
+              <input type="file" id="import-file" style="display:none" accept=".xlsx,.xls">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
+        <button class="btn btn-default btn-sm" onclick="closeModal('modal-import')">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="submitImport()">开始导入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 新建代管项目弹窗 ==================== -->
+  <div id="modal-new-project" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:560px;box-shadow:var(--shadow-lg);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:600;">新建代管项目</div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-new-project')">&times;</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>项目名称</label>
+            <div class="form-content"><input class="form-input" id="np-name" placeholder="代管项目名称"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>甲方（建设单位）</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="np-owner">
+                <option value="">请选择</option>
+                <option>集团本部</option>
+                <option>集装箱码头公司</option>
+                <option>散货码头公司</option>
+                <option>物流运输公司</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>代管方（物业单位）</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="np-property">
+                <option value="">请选择</option>
+                <option>海盾安保物业</option>
+                <option>深港物业</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">项目负责人</label>
+            <div class="form-content"><input class="form-input" id="np-manager" placeholder="项目负责人姓名"></div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
+        <button class="btn btn-default btn-sm" onclick="closeModal('modal-new-project')">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="submitNewProject()">创建项目</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      if (typeof event !== 'undefined' && event.target) {
+        event.target.classList.add('active');
+      }
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showDetail(tab) {
+      var panel = document.getElementById('detail-' + tab);
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+    function openNewUnitModal() {
+      var fields = ['nu-name','nu-credit','nu-type','nu-legal','nu-safety','nu-phone','nu-contract-start','nu-contract-end'];
+      fields.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      openModal('modal-new-unit');
+    }
+    function submitNewUnit() {
+      var name = document.getElementById('nu-name').value.trim();
+      var credit = document.getElementById('nu-credit').value.trim();
+      var type = document.getElementById('nu-type').value;
+      var legal = document.getElementById('nu-legal').value.trim();
+      var safety = document.getElementById('nu-safety').value.trim();
+      if (!name || !credit || !type || !legal || !safety) { alert('请填写所有必填项'); return; }
+      closeModal('modal-new-unit');
+      alert('单位信息已提交审批');
+    }
+    function openApprovalModal() {
+      document.getElementById('approval-result').value = '';
+      document.getElementById('approval-note').value = '';
+      openModal('modal-approval');
+    }
+    function submitApproval() {
+      var result = document.getElementById('approval-result').value;
+      if (!result) { alert('请选择审批意见'); return; }
+      closeModal('modal-approval');
+      alert('审批已' + (result === '通过' ? '通过' : '退回'));
+    }
+    function openBatchImportModal() {
+      openModal('modal-import');
+    }
+    function submitImport() {
+      alert('导入功能（原型演示）');
+      closeModal('modal-import');
+    }
+    function openNewProjectModal() {
+      var fields = ['np-name','np-owner','np-property','np-manager'];
+      fields.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      openModal('modal-new-project');
+    }
+    function submitNewProject() {
+      var name = document.getElementById('np-name').value.trim();
+      var owner = document.getElementById('np-owner').value;
+      var property = document.getElementById('np-property').value;
+      if (!name || !owner || !property) { alert('请填写所有必填项'); return; }
+      closeModal('modal-new-project');
+      alert('代管项目已创建');
+    }
+    function queryUnitList() { alert('查询功能（原型演示）'); }
+    function resetUnitQuery() {
+      var el = document.getElementById('ct-query-name');
+      if (el) el.value = '';
+    }
+  </script>
+</body>
+</html>
