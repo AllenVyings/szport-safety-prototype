@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>职业健康管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
+    .stat-card { background:var(--bg-card); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); }
+    .stat-card-label { font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
+    .stat-card-value { font-size:28px; font-weight:700; color:var(--text-primary); }
+    .stat-card-sub { font-size:12px; color:var(--text-description); margin-top:4px; }
+    .stat-card.highlight .stat-card-value { color:var(--primary); }
+    .stat-card.success .stat-card-value { color:var(--success); }
+    .stat-card.warning .stat-card-value { color:var(--warning); }
+    .stat-card.error .stat-card-value { color:var(--error); }
+    .detail-panel { border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; margin-top:16px; background:var(--bg-table-stripe); }
+    .detail-panel h4 { font-size:14px; font-weight:600; margin-bottom:12px; color:var(--text-primary); }
+    .detail-row { display:flex; gap:24px; margin-bottom:8px; font-size:13px; }
+    .detail-label { color:var(--text-secondary); min-width:80px; }
+    .detail-value { color:var(--text-primary); }
+    .record-section { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; background:#fff; }
+    .record-section h5 { font-size:14px; font-weight:600; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+    .record-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0; color:var(--text-secondary); }
+    .alert-panel { background:rgba(209,0,0,0.06); border:1px solid rgba(209,0,0,0.3); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
+    .alert-panel h4 { color:var(--error); font-size:14px; margin-bottom:8px; }
+    .alert-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:13px; border-bottom:1px dashed rgba(209,0,0,0.15); }
+    .warning-panel { background:rgba(233,124,0,0.06); border:1px solid rgba(233,124,0,0.3); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
+    .warning-panel h4 { color:var(--warning); font-size:14px; margin-bottom:8px; }
+    .abnormal-card { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; background:#fff; margin-bottom:12px; }
+    .abnormal-card .card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .abnormal-card .card-title { font-size:14px; font-weight:600; color:var(--text-primary); }
+    .abnormal-card .card-body { font-size:13px; color:var(--text-secondary); line-height:1.6; }
+    .abnormal-card .card-actions { display:flex; gap:8px; margin-top:8px; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <div class="card">
+    <!-- Tab切换 -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('hazard')">危害因素台账</div>
+      <div class="tab-item" onclick="switchTab('health')">健康检查</div>
+      <div class="tab-item" onclick="switchTab('report')">监测报告</div>
+    </div>
+
+    <!-- Tab1: 危害因素台账 -->
+    <div id="tab-hazard" class="tab-content active">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card highlight">
+          <div class="stat-card-label">危害因素总数（本月）</div>
+          <div class="stat-card-value">28</div>
+          <div class="stat-card-sub">较上月 +2</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--warning);">
+          <div class="stat-card-label">粉尘 / 噪声</div>
+          <div class="stat-card-value" style="color:var(--warning);">14</div>
+          <div class="stat-card-sub">粉尘 8 / 噪声 6 · 超标 3</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--error);">
+          <div class="stat-card-label">化学品 / 高温</div>
+          <div class="stat-card-value" style="color:var(--error);">9</div>
+          <div class="stat-card-sub">化学品 5 / 高温 4 · 超标 1</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--primary);">
+          <div class="stat-card-label">振动 / 辐射 / 其他</div>
+          <div class="stat-card-value" style="color:var(--primary);">5</div>
+          <div class="stat-card-sub">已登记 3 / 待登记 2</div>
+        </div>
+      </div>
+      </div>
+
+      <!-- 筛选条件 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索因素名称..." style="width:200px">
+          <select class="form-input form-select" style="width:160px">
+            <option>全部因素类型</option>
+            <option>粉尘</option>
+            <option>噪声</option>
+            <option>化学品</option>
+            <option>高温</option>
+            <option>振动</option>
+            <option>辐射</option>
+          </select>
+          <select class="form-input form-select" style="width:140px">
+            <option>全部岗位</option>
+            <option>装卸工</option>
+            <option>机修工</option>
+            <option>电焊工</option>
+            <option>仓库管理员</option>
+          </select>
+          <select class="form-input form-select" style="width:140px">
+            <option>全部达标状态</option>
+            <option>达标</option>
+            <option>超标</option>
+            <option>待监测</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary btn-sm" onclick="openHazardModal()">+ 新增危害因素</button>
+        <button class="btn btn-default btn-sm">导出台账</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+
+      <!-- 数据列表 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>因素名称</th>
+            <th>类型</th>
+            <th>接触岗位</th>
+            <th>接触人数</th>
+            <th>防护措施</th>
+            <th>最近监测日期</th>
+            <th>达标状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>粉尘浓度</td>
+            <td>粉尘</td>
+            <td>装卸工、仓库管理员</td>
+            <td>42</td>
+            <td>防尘口罩、湿式作业</td>
+            <td>2026-05-10</td>
+            <td><span class="tag tag-success">达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>噪声强度</td>
+            <td>噪声</td>
+            <td>机修工、装卸工</td>
+            <td>35</td>
+            <td>防噪耳塞、隔音罩</td>
+            <td>2026-04-28</td>
+            <td><span class="tag tag-warning">超标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>化学品挥发</td>
+            <td>化学品</td>
+            <td>仓库管理员</td>
+            <td>12</td>
+            <td>防毒面具、通风设施</td>
+            <td>2026-05-05</td>
+            <td><span class="tag tag-success">达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>电焊烟尘</td>
+            <td>粉尘</td>
+            <td>电焊工</td>
+            <td>8</td>
+            <td>防尘面罩、局部排风</td>
+            <td>2026-05-08</td>
+            <td><span class="tag tag-warning">超标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>高温作业</td>
+            <td>高温</td>
+            <td>装卸工</td>
+            <td>42</td>
+            <td>防暑降温、工间休息</td>
+            <td>-</td>
+            <td><span class="tag tag-info">待登记</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>手传振动</td>
+            <td>振动</td>
+            <td>机修工</td>
+            <td>15</td>
+            <td>减振手套、工间休息</td>
+            <td>2026-04-20</td>
+            <td><span class="tag tag-success">已登记</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-bar"><div class="pagination-info">共 28 条</div><div class="pagination"><div class="pagination-page active">1</div><div class="pagination-page">2</div></div></div>
+    </div>
+
+    <!-- Tab2: 健康检查 -->
+    <div id="tab-health" class="tab-content">
+      <!-- 体检计划状态统计 -->
+      <div class="stat-cards">
+        <div class="stat-card highlight">
+          <div class="stat-card-label">年度体检计划</div>
+          <div class="stat-card-value">4</div>
+          <div class="stat-card-sub">2026年度</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card-label">已完成</div>
+          <div class="stat-card-value">1</div>
+          <div class="stat-card-sub">岗前体检</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card-label">执行中</div>
+          <div class="stat-card-value">2</div>
+          <div class="stat-card-sub">在岗体检 / 离岗体检</div>
+        </div>
+        <div class="stat-card error">
+          <div class="stat-card-label">异常待跟踪</div>
+          <div class="stat-card-value">5</div>
+          <div class="stat-card-sub">禁忌证 2 / 疑似职业病 1 / 复查 2</div>
+        </div>
+      </div>
+
+      <!-- 年度体检计划列表 -->
+      <div class="warning-panel" style="margin-bottom:16px;">
+        <h4>体检到期提醒（30天内）</h4>
+        <div class="alert-item" style="border-color:rgba(233,124,0,0.2);">
+          <span>2026年度在岗职业健康检查 - 截止 2026-06-30</span>
+          <span class="tag tag-warning">30天内到期</span>
+        </div>
+        <div class="alert-item" style="border-color:rgba(233,124,0,0.2);">
+          <span>2026年度离岗职业健康检查 - 截止 2026-05-31</span>
+          <span class="tag tag-error">即将到期</span>
+        </div>
+        <div class="alert-item" style="border:none;">
+          <span>2026年度应急职业健康检查 - 待制定，尚未安排</span>
+          <span class="tag tag-info">待制定</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">年度体检计划列表</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>计划名称</th>
+              <th>检查类型</th>
+              <th>覆盖人数</th>
+              <th>计划时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026年度在岗职业健康检查</td>
+              <td>在岗检查</td>
+              <td>186人</td>
+              <td>2026-04-01 ~ 2026-06-30</td>
+              <td><span class="tag tag-warning">执行中</span></td>
+              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            </tr>
+            <tr>
+              <td>2026年度岗前职业健康检查</td>
+              <td>岗前检查</td>
+              <td>23人</td>
+              <td>2026-01-15 ~ 2026-03-31</td>
+              <td><span class="tag tag-success">已完成</span></td>
+              <td><button class="btn btn-text btn-sm">查看</button></td>
+            </tr>
+            <tr>
+              <td>2026年度离岗职业健康检查</td>
+              <td>离岗检查</td>
+              <td>8人</td>
+              <td>2026-05-01 ~ 2026-05-31</td>
+              <td><span class="tag tag-warning">执行中</span></td>
+              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            </tr>
+            <tr>
+              <td>2026年度应急职业健康检查</td>
+              <td>应急检查</td>
+              <td>12人</td>
+              <td>2026-06-01 ~ 2026-06-30</td>
+              <td><span class="tag tag-success">已审批</span></td>
+              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            </tr>
+            <tr>
+              <td>2026年度特殊岗位健康检查</td>
+              <td>在岗检查</td>
+              <td>-</td>
+              <td>待定</td>
+              <td><span class="tag tag-info">待制定</span></td>
+              <td><button class="btn btn-text btn-sm">制定计划</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 人员体检记录表 -->
+      <div style="margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">人员体检记录</h3>
+        <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+          <div class="filter-bar" style="margin-bottom:0;">
+            <input class="form-input" placeholder="搜索姓名..." style="width:160px">
+            <select class="form-input form-select" style="width:140px">
+              <option>全部检查类型</option>
+              <option>岗前检查</option>
+              <option>在岗检查</option>
+              <option>离岗检查</option>
+              <option>应急检查</option>
+            </select>
+            <select class="form-input form-select" style="width:140px">
+              <option>全部检查结果</option>
+              <option>正常</option>
+              <option>异常</option>
+            </select>
+            <button class="btn btn-primary btn-sm">查询</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>岗位</th>
+              <th>检查类型</th>
+              <th>检查日期</th>
+              <th>检查结果</th>
+              <th>异常项</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>王建国</td>
+              <td>装卸工</td>
+              <td>在岗检查</td>
+              <td>2026-05-10</td>
+              <td><span class="tag tag-success">正常</span></td>
+              <td>-</td>
+              <td><button class="btn btn-text btn-sm">查看</button></td>
+            </tr>
+            <tr>
+              <td>李明辉</td>
+              <td>电焊工</td>
+              <td>在岗检查</td>
+              <td>2026-05-08</td>
+              <td><span class="tag tag-error">异常</span></td>
+              <td>肺功能异常（疑似电焊工尘肺）</td>
+              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error);">跟踪</button></td>
+            </tr>
+            <tr>
+              <td>张海峰</td>
+              <td>机修工</td>
+              <td>在岗检查</td>
+              <td>2026-05-05</td>
+              <td><span class="tag tag-error">异常</span></td>
+              <td>听力下降（噪声禁忌证）</td>
+              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error);">跟踪</button></td>
+            </tr>
+            <tr>
+              <td>赵强</td>
+              <td>仓库管理员</td>
+              <td>岗前检查</td>
+              <td>2026-02-20</td>
+              <td><span class="tag tag-success">正常</span></td>
+              <td>-</td>
+              <td><button class="btn btn-text btn-sm">查看</button></td>
+            </tr>
+            <tr>
+              <td>刘伟</td>
+              <td>装卸工</td>
+              <td>离岗检查</td>
+              <td>2026-05-12</td>
+              <td><span class="tag tag-warning">复查</span></td>
+              <td>血压偏高，需复查</td>
+              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning);">复查提醒</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pagination-bar"><div class="pagination-info">共 112 条</div><div class="pagination"><div class="pagination-page active">1</div><div class="pagination-page">2</div><div class="pagination-page">3</div></div></div>
+      </div>
+
+      <!-- 异常跟踪面板 -->
+      <div>
+        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">异常跟踪面板</h3>
+        <div style="font-size:12px;color:var(--text-description);margin-bottom:12px;">
+          预警规则：体检异常人员7天内未处理提醒 | 疑似职业病即时上报通知
+        </div>
+
+        <!-- 禁忌证调岗 -->
+        <div class="abnormal-card">
+          <div class="card-header">
+            <div class="card-title">听力下降（噪声禁忌证） - 张海峰</div>
+            <span class="tag tag-warning">待处理</span>
+          </div>
+          <div class="card-body">
+            体检日期：2026-05-05 | 岗位：机修工 | 接触噪声因素<br>
+            禁忌证：双耳高频平均听阈>40dB，不宜继续从事噪声作业
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary btn-sm">调岗处理</button>
+            <button class="btn btn-default btn-sm">查看体检报告</button>
+          </div>
+        </div>
+
+        <!-- 疑似职业病上报 -->
+        <div class="abnormal-card" style="border-color:var(--error);">
+          <div class="card-header">
+            <div class="card-title" style="color:var(--error);">疑似电焊工尘肺 - 李明辉</div>
+            <span class="tag tag-error">待上报</span>
+          </div>
+          <div class="card-body">
+            体检日期：2026-05-08 | 岗位：电焊工 | 接触电焊烟尘因素<br>
+            检查结果：肺功能异常，胸片示双肺弥漫性小阴影，疑似电焊工尘肺<br>
+            <strong style="color:var(--error);">需即时上报至职业卫生主管部门</strong>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-danger btn-sm">立即上报</button>
+            <button class="btn btn-default btn-sm">查看体检报告</button>
+            <button class="btn btn-default btn-sm">安排复查</button>
+          </div>
+        </div>
+
+        <!-- 复查提醒 -->
+        <div class="abnormal-card">
+          <div class="card-header">
+            <div class="card-title">血压偏高需复查 - 刘伟</div>
+            <span class="tag tag-info">已复查</span>
+          </div>
+          <div class="card-body">
+            体检日期：2026-05-12 | 岗位：装卸工 | 复查截止：2026-05-26<br>
+            已安排复查，等待复查结果
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-default btn-sm">查看体检报告</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab3: 监测报告 -->
+    <div id="tab-report" class="tab-content">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card highlight">
+          <div class="stat-card-label">报告总数</div>
+          <div class="stat-card-value">15</div>
+          <div class="stat-card-sub">本年度</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card-label">达标</div>
+          <div class="stat-card-value">11</div>
+          <div class="stat-card-sub">达标率 73.3%</div>
+        </div>
+        <div class="stat-card error">
+          <div class="stat-card-label">超标</div>
+          <div class="stat-card-value">4</div>
+          <div class="stat-card-sub">需加强防护</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card-label">即将到期</div>
+          <div class="stat-card-value">3</div>
+          <div class="stat-card-sub">30天内到期</div>
+        </div>
+      </div>
+
+      <!-- 到期提醒 -->
+      <div class="warning-panel">
+        <h4>监测报告到期提醒</h4>
+        <div class="alert-item" style="border-color:rgba(233,124,0,0.2);">
+          <span>散货码头噪声监测报告 - 到期日 2026-06-15</span>
+          <span class="tag tag-warning">30天内到期</span>
+        </div>
+        <div class="alert-item" style="border-color:rgba(233,124,0,0.2);">
+          <span>危化品仓库化学品监测报告 - 到期日 2026-06-20</span>
+          <span class="tag tag-warning">30天内到期</span>
+        </div>
+        <div class="alert-item" style="border:none;">
+          <span>机械车间粉尘监测报告 - 到期日 2026-07-01</span>
+          <span class="tag tag-success">正常</span>
+        </div>
+      </div>
+
+      <!-- 筛选条件 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索报告名称..." style="width:200px">
+          <select class="form-input form-select" style="width:140px">
+            <option>全部达标状态</option>
+            <option>达标</option>
+            <option>超标</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+          <button class="btn btn-primary btn-sm" style="margin-left:auto;">+ 上传报告</button>
+        </div>
+      </div>
+
+      <!-- 报告列表 -->
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>报告名称</th>
+            <th>监测机构</th>
+            <th>监测日期</th>
+            <th>监测结果</th>
+            <th>达标状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>散货码头粉尘浓度监测报告</td>
+            <td>深圳市职业病防治院</td>
+            <td>2026-05-10</td>
+            <td>粉尘浓度 1.2mg/m3（限值4mg/m3）</td>
+            <td><span class="tag tag-success">达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>机械车间噪声强度监测报告</td>
+            <td>深圳市职业病防治院</td>
+            <td>2026-04-28</td>
+            <td>噪声强度 92dB(A)（限值85dB(A)）</td>
+            <td><span class="tag tag-error">超标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>危化品仓库化学品挥发监测报告</td>
+            <td>第三方检测机构</td>
+            <td>2026-05-05</td>
+            <td>各项指标均在限值范围内</td>
+            <td><span class="tag tag-success">达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>电焊作业区烟尘监测报告</td>
+            <td>深圳市职业病防治院</td>
+            <td>2026-05-08</td>
+            <td>电焊烟尘浓度 5.8mg/m3（限值4mg/m3）</td>
+            <td><span class="tag tag-error">超标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>港区高温作业环境监测报告</td>
+            <td>第三方检测机构</td>
+            <td>2026-04-15</td>
+            <td>WBGT指数 28.5（限值33）</td>
+            <td><span class="tag tag-success">达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination-bar"><div class="pagination-info">共 15 条</div><div class="pagination"><div class="pagination-page active">1</div></div></div>
+    </div>
+  </div>
+
+
+  <!-- ==================== 新增/编辑危害因素弹窗 ==================== -->
+  <div id="modal-hazard" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:560px;box-shadow:var(--shadow-lg);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:600;" id="hazard-modal-title">新增危害因素</div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-hazard')">&times;</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>因素名称</label>
+            <div class="form-content"><input class="form-input" id="hz-name" placeholder="如：粉尘浓度"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>因素类型</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="hz-type">
+                <option value="">请选择</option>
+                <option>粉尘</option>
+                <option>噪声</option>
+                <option>化学品</option>
+                <option>高温</option>
+                <option>振动</option>
+                <option>辐射</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>接触岗位</label>
+            <div class="form-content"><input class="form-input" id="hz-post" placeholder="如：装卸工、仓库管理员"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">接触人数</label>
+            <div class="form-content"><input class="form-input" id="hz-count" type="number" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>防护措施</label>
+          <div class="form-content"><textarea class="form-input" id="hz-measure" style="height:80px;padding:8px 12px;resize:vertical;" placeholder="描述现有防护措施"></textarea></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">登记状态</label>
+          <div class="form-content">
+            <select class="form-input form-select" id="hz-status">
+              <option>已登记</option>
+              <option>待监测</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
+        <button class="btn btn-default btn-sm" onclick="closeModal('modal-hazard')">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="submitHazard()">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 新增体检计划弹窗 ==================== -->
+  <div id="modal-plan" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:520px;box-shadow:var(--shadow-lg);">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:600;">新增体检计划</div>
+        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-plan')">&times;</button>
+      </div>
+      <div style="padding:20px 24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>计划名称</label>
+            <div class="form-content"><input class="form-input" id="pl-name" placeholder="如：2026年度在岗职业健康检查"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>检查类型</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="pl-type">
+                <option value="">请选择</option>
+                <option>岗前检查</option>
+                <option>在岗检查</option>
+                <option>离岗检查</option>
+                <option>应急检查</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>覆盖人数</label>
+            <div class="form-content"><input class="form-input" id="pl-count" type="number" placeholder="0"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>计划时间段</label>
+            <div class="form-content"><input class="form-input" id="pl-range" placeholder="如：2026-07-01 ~ 2026-09-30"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <div class="form-content"><textarea class="form-input" id="pl-note" style="height:60px;padding:8px 12px;resize:vertical;" placeholder="计划说明"></textarea></div>
+        </div>
+      </div>
+      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
+        <button class="btn btn-default btn-sm" onclick="closeModal('modal-plan')">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="submitPlan()">提交审批</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      if (typeof event !== 'undefined' && event.target) { event.target.classList.add('active'); }
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openHazardModal() {
+      var fields = ['hz-name','hz-type','hz-post','hz-count','hz-measure','hz-status'];
+      fields.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      document.getElementById('hazard-modal-title').textContent = '新增危害因素';
+      openModal('modal-hazard');
+    }
+    function submitHazard() {
+      var name = document.getElementById('hz-name').value.trim();
+      var type = document.getElementById('hz-type').value;
+      var post = document.getElementById('hz-post').value.trim();
+      var measure = document.getElementById('hz-measure').value.trim();
+      if (!name || !type || !post || !measure) { alert('请填写所有必填项'); return; }
+      closeModal('modal-hazard');
+      alert('危害因素已新增');
+    }
+    function openPlanModal() { openModal('modal-plan'); }
+    function submitPlan() {
+      var name = document.getElementById('pl-name').value.trim();
+      var type = document.getElementById('pl-type').value;
+      var count = document.getElementById('pl-count').value.trim();
+      var range = document.getElementById('pl-range').value.trim();
+      if (!name || !type || !count || !range) { alert('请填写所有必填项'); return; }
+      closeModal('modal-plan');
+      alert('体检计划已提交审批');
+    }
+  </script>
+</body>
+</html>
