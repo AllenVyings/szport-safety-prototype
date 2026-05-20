@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>外来人员培训 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-notlearned { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-learning { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-passed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-failed { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-valid { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-expiring { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-expired { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .alert-block { padding:10px 14px; background:#FFF1F0; border:1px solid #FFA39E; border-radius:var(--radius-md); font-size:12px; color:#CF1322; line-height:1.6; margin-bottom:16px; }
+    .info-block { padding:10px 14px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-md); font-size:12px; color:#0958D9; line-height:1.6; margin-bottom:16px; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('manage')">培训管理</div>
+    <div class="tab-item" onclick="switchTab('record')">培训记录</div>
+  </div>
+
+  <!-- Tab1 培训管理 -->
+  <div id="tab-manage" class="tab-content active">
+    <!-- 统计概览 -->
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num">86</div><div class="stat-label">外来人员总数</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--success)">52</div><div class="stat-label">已通过</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">18</div><div class="stat-label">学习中</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">10</div><div class="stat-label">未学习</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--error)">6</div><div class="stat-label">未通过</div></div>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="info-block">
+      相关方人员准入时系统自动分派必修安全课程。员工可在移动端/小程序完成在线学习和考试。
+    </div>
+    <div class="alert-block">
+      入场未完成必修培训时阻止作业申请。培训未通过人员需重新学习并参加补考。
+    </div>
+
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索姓名/单位..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部学习状态</option>
+          <option>未学习</option>
+          <option>学习中</option>
+          <option>已通过</option>
+          <option>未通过</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部考试状态</option>
+          <option>未考试</option>
+          <option>已通过</option>
+          <option>未通过</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部证书状态</option>
+          <option>有效</option>
+          <option>即将到期</option>
+          <option>已过期</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-default">导出</button>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>姓名</th>
+            <th>所属单位</th>
+            <th>关联项目</th>
+            <th>必修课程</th>
+            <th>学习状态</th>
+            <th>考试状态</th>
+            <th>证书状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>陈建国</td>
+            <td>中建三局</td>
+            <td>集装箱码头扩建工程</td>
+            <td>3门</td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-valid">有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">证书</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>赵伟</td>
+            <td>华泰建设</td>
+            <td>油罐区检修工程</td>
+            <td>4门</td>
+            <td><span class="tag tag-learning">学习中</span></td>
+            <td><span class="tag tag-notlearned">未考试</span></td>
+            <td>—</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">催办</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>刘洋</td>
+            <td>港务工程公司</td>
+            <td>散货码头改造工程</td>
+            <td>3门</td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-failed">未通过</span></td>
+            <td>—</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">安排补考</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>王海</td>
+            <td>中建三局</td>
+            <td>集装箱码头扩建工程</td>
+            <td>3门</td>
+            <td><span class="tag tag-notlearned">未学习</span></td>
+            <td><span class="tag tag-notlearned">未考试</span></td>
+            <td>—</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error)">催办</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>李明</td>
+            <td>华泰建设</td>
+            <td>油罐区检修工程</td>
+            <td>4门</td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-expiring">即将到期</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">证书</button></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>张磊</td>
+            <td>恒通劳务</td>
+            <td>散货码头改造工程</td>
+            <td>2门</td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><span class="tag tag-expired">已过期</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">证书</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 86 条</span>
+        <div class="pagination-page active">1</div>
+        <div class="pagination-page">2</div>
+        <div class="pagination-page">3</div>
+        <div class="pagination-page">...</div>
+        <div class="pagination-page">9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 培训记录 -->
+  <div id="tab-record" class="tab-content">
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num">124</div><div class="stat-label">培训记录总数</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--success)">96</div><div class="stat-label">已通过</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--error)">28</div><div class="stat-label">未通过</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">78</div><div class="stat-label">有效证书</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--warning)">12</div><div class="stat-label">即将到期</div></div>
+    </div>
+
+    <!-- 证书列表 -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:15px; font-weight:500; margin-bottom:12px;">电子培训证书</div>
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索持证人..." style="width:200px">
+          <select class="form-input form-select" style="width:140px">
+            <option>全部证书状态</option>
+            <option>有效</option>
+            <option>即将到期</option>
+            <option>已过期</option>
+          </select>
+          <select class="form-input form-select" style="width:160px">
+            <option>全部证书类型</option>
+            <option>安全培训合格证</option>
+            <option>特种作业培训证</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>证书持有人</th>
+            <th>所属单位</th>
+            <th>证书类型</th>
+            <th>发证日期</th>
+            <th>到期日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>陈建国</td>
+            <td>中建三局</td>
+            <td>安全培训合格证</td>
+            <td>2026-05-12</td>
+            <td>2027-05-12</td>
+            <td><span class="tag tag-valid">有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>李明</td>
+            <td>华泰建设</td>
+            <td>安全培训合格证</td>
+            <td>2025-06-20</td>
+            <td>2026-06-20</td>
+            <td><span class="tag tag-expiring">即将到期</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">续期提醒</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>张磊</td>
+            <td>恒通劳务</td>
+            <td>安全培训合格证</td>
+            <td>2025-03-10</td>
+            <td>2026-03-10</td>
+            <td><span class="tag tag-expired">已过期</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error)">安排复训</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>赵伟</td>
+            <td>华泰建设</td>
+            <td>特种作业培训证</td>
+            <td>2026-01-15</td>
+            <td>2027-01-15</td>
+            <td><span class="tag tag-valid">有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 78 条</span>
+        <div class="pagination-page active">1</div>
+        <div class="pagination-page">2</div>
+        <div class="pagination-page">3</div>
+        <div class="pagination-page">...</div>
+        <div class="pagination-page">8</div>
+      </div>
+    </div>
+
+    <!-- 培训记录列表 -->
+    <div class="card">
+      <div style="font-size:15px; font-weight:500; margin-bottom:12px;">培训记录</div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>人员姓名</th>
+            <th>所属单位</th>
+            <th>培训课程</th>
+            <th>培训日期</th>
+            <th>考试成绩</th>
+            <th>结果</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>陈建国</td>
+            <td>中建三局</td>
+            <td>入场安全教育培训</td>
+            <td>2026-05-12</td>
+            <td>92</td>
+            <td><span class="tag tag-passed">已通过</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>刘洋</td>
+            <td>港务工程公司</td>
+            <td>危化品安全专项培训</td>
+            <td>2026-05-14</td>
+            <td>48</td>
+            <td><span class="tag tag-failed">未通过</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">安排补考</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>赵伟</td>
+            <td>华泰建设</td>
+            <td>入场安全教育培训</td>
+            <td>2026-05-16</td>
+            <td>—</td>
+            <td><span class="tag tag-learning">学习中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 124 条</span>
+        <div class="pagination-page active">1</div>
+        <div class="pagination-page">2</div>
+        <div class="pagination-page">...</div>
+        <div class="pagination-page">13</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+  </script>
+</body>
+</html>
