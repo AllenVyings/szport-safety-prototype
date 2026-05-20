@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐患指引库 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-published { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-disabled { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-reviewing { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .law-link { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:11px; background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; cursor:pointer; }
+    .law-link:hover { background:#BAE7FF; }
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--bg-base); border-radius:var(--radius-lg); width:640px; max-height:80vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-lighter); }
+    .modal-header h3 { font-size:16px; margin:0; }
+    .modal-body { padding:20px; }
+    .modal-footer { padding:12px 20px; border-top:1px solid var(--border-lighter); display:flex; justify-content:flex-end; gap:8px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
+    .form-group .form-input, .form-group .form-textarea, .form-group .form-select { width:100%; }
+    .form-textarea { min-height:80px; resize:vertical; }
+    .law-section { margin-top:16px; padding:12px; background:var(--bg-page); border-radius:var(--radius-md); }
+    .law-section-title { font-size:13px; font-weight:500; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+    .law-item { display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-sm); margin-bottom:4px; font-size:12px; }
+    .law-item .law-name { flex:1; }
+    .law-item .law-remove { color:var(--text-quaternary); cursor:pointer; }
+    .law-item .law-remove:hover { color:var(--color-error); }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">45</div><div class="stat-label">标准/指引总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-success)">32</div><div class="stat-label">已发布</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-warning)">5</div><div class="stat-label">审核中</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-quaternary)">6</div><div class="stat-label">草稿</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-error)">2</div><div class="stat-label">已停用</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">28</div><div class="stat-label">已关联法规</div></div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('standard')">隐患评判标准</div>
+    <div class="tab-item" onclick="switchTab('guide')">排查指引</div>
+    <div class="tab-item" onclick="switchTab('law')">法规关联</div>
+  </div>
+
+  <!-- 隐患评判标准 -->
+  <div id="tab-standard" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索标准名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>草稿</option>
+          <option>审核中</option>
+          <option>已发布</option>
+          <option>已停用</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部隐患类型</option>
+          <option>消防隐患</option>
+          <option>电气隐患</option>
+          <option>机械隐患</option>
+          <option>危化品隐患</option>
+          <option>高处作业隐患</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary btn-sm" onclick="showModal('addStandard')">+ 新增标准</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default">批量导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>标准名称</th>
+            <th>隐患类型</th>
+            <th>评判依据</th>
+            <th>关联法规</th>
+            <th>更新日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>消防设施隐患评判标准</td>
+            <td>消防隐患</td>
+            <td>GB 50140 / 港口消防管理办法</td>
+            <td><span class="law-link">3项</span></td>
+            <td>2026-05-08</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>电气安全隐患评判标准</td>
+            <td>电气隐患</td>
+            <td>GB/T 13869 / DL 5009</td>
+            <td><span class="law-link">5项</span></td>
+            <td>2026-04-20</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>危化品存储隐患评判标准</td>
+            <td>危化品隐患</td>
+            <td>GB 18218 / 危化品管理条例</td>
+            <td><span class="law-link">4项</span></td>
+            <td>2026-05-10</td>
+            <td><span class="tag tag-reviewing">审核中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>高处作业隐患评判标准</td>
+            <td>高处作业隐患</td>
+            <td>GB/T 3608 / JGJ 80</td>
+            <td><span class="law-link">2项</span></td>
+            <td>2026-05-15</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交审核</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>机械伤害隐患评判标准</td>
+            <td>机械隐患</td>
+            <td>GB 12295 / 港口机械安全规程</td>
+            <td><span class="law-link">3项</span></td>
+            <td>2026-03-10</td>
+            <td><span class="tag tag-disabled">已停用</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">重新启用</button></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>港口装卸作业隐患评判标准</td>
+            <td>机械隐患</td>
+            <td>JT/T 1285 / 港口安全管理规定</td>
+            <td><span class="law-link">6项</span></td>
+            <td>2026-05-12</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 6 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 排查指引 -->
+  <div id="tab-guide" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索指引名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部排查类型</option>
+          <option>综合排查</option>
+          <option>专项排查</option>
+          <option>日常排查</option>
+          <option>季节性排查</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>草稿</option>
+          <option>已发布</option>
+          <option>已停用</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary btn-sm" onclick="showModal('addGuide')">+ 新增指引</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default">批量导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>指引名称</th>
+            <th>排查类型</th>
+            <th>适用范围</th>
+            <th>检查项数</th>
+            <th>关联法规</th>
+            <th>更新日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>港口设施安全隐患排查指引</td>
+            <td>综合排查</td>
+            <td>全集团港口设施</td>
+            <td>48项</td>
+            <td><span class="law-link">3项</span></td>
+            <td>2026-04-01</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>消防安全隐患排查指引</td>
+            <td>专项排查</td>
+            <td>油罐区/仓库/办公楼</td>
+            <td>36项</td>
+            <td><span class="law-link">4项</span></td>
+            <td>2026-03-15</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>电气安全隐患排查指引</td>
+            <td>专项排查</td>
+            <td>配电间/控制室/作业区</td>
+            <td>28项</td>
+            <td><span class="law-link">2项</span></td>
+            <td>2026-05-08</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交审核</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>危化品储罐区日常排查指引</td>
+            <td>日常排查</td>
+            <td>油罐区</td>
+            <td>22项</td>
+            <td><span class="law-link">5项</span></td>
+            <td>2026-05-10</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>汛期安全专项排查指引</td>
+            <td>季节性排查</td>
+            <td>全集团</td>
+            <td>32项</td>
+            <td><span class="law-link">2项</span></td>
+            <td>2026-04-20</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>高处作业安全排查指引</td>
+            <td>专项排查</td>
+            <td>建筑施工区域</td>
+            <td>18项</td>
+            <td>—</td>
+            <td>2026-05-15</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 6 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 法规关联 -->
+  <div id="tab-law" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:12px 16px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-md);">
+      <div style="font-size:13px; color:#0958D9;">法规关联管理：建立隐患与法律条文的关联关系，提供初步常用的隐患问题法律清单，各参与方共同完善。支持各单位管理员自主维护。</div>
+    </div>
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索法规名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部法规类型</option>
+          <option>国家标准</option>
+          <option>行业标准</option>
+          <option>地方法规</option>
+          <option>企业规章</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary btn-sm" onclick="showModal('addLaw')">+ 新增法规</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default">批量导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>法规名称</th>
+            <th>法规编号</th>
+            <th>法规类型</th>
+            <th>关联标准数</th>
+            <th>关联指引数</th>
+            <th>发布日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>中华人民共和国安全生产法</td>
+            <td>主席令第88号</td>
+            <td>国家标准</td>
+            <td>5</td>
+            <td>4</td>
+            <td>2021-09-01</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>危险化学品安全管理条例</td>
+            <td>国务院令第591号</td>
+            <td>国家标准</td>
+            <td>3</td>
+            <td>2</td>
+            <td>2011-12-01</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>港口危险货物安全管理规定</td>
+            <td>交通运输部令2019年第23号</td>
+            <td>行业标准</td>
+            <td>4</td>
+            <td>3</td>
+            <td>2019-11-01</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>建筑灭火器配置设计规范</td>
+            <td>GB 50140</td>
+            <td>国家标准</td>
+            <td>2</td>
+            <td>1</td>
+            <td>2005-10-01</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>广东省安全生产条例</td>
+            <td>广东省人大公告第11号</td>
+            <td>地方法规</td>
+            <td>2</td>
+            <td>1</td>
+            <td>2023-10-01</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增标准弹窗 -->
+  <div class="modal-overlay" id="modal-addStandard">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>新增隐患评判标准</h3>
+        <button class="btn btn-text" onclick="closeModal('addStandard')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>标准名称 <span style="color:var(--color-error)">*</span></label>
+          <input class="form-input" placeholder="输入标准名称">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1">
+            <label>隐患类型 <span style="color:var(--color-error)">*</span></label>
+            <select class="form-input form-select">
+              <option>请选择</option>
+              <option>消防隐患</option>
+              <option>电气隐患</option>
+              <option>机械隐患</option>
+              <option>危化品隐患</option>
+              <option>高处作业隐患</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>评判方法</label>
+            <select class="form-input form-select">
+              <option>定性评判</option>
+              <option>定量评判</option>
+              <option>综合评判</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>评判依据</label>
+          <input class="form-input" placeholder="如：GB 50140 / 港口消防管理办法">
+        </div>
+        <div class="form-group">
+          <label>标准描述</label>
+          <textarea class="form-input form-textarea" placeholder="详细描述该评判标准的适用范围和评判规则..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>隐患等级划分规则</label>
+          <textarea class="form-input form-textarea" placeholder="描述各级隐患的评判标准（重大/较大/一般）..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>整改时限建议</label>
+          <input class="form-input" placeholder="如：重大隐患7天，一般隐患30天">
+        </div>
+        <div class="law-section">
+          <div class="law-section-title">关联法规 <button class="btn btn-text btn-sm" style="color:var(--primary)">+ 添加法规</button></div>
+          <div class="law-item">
+            <span class="law-name">中华人民共和国安全生产法</span>
+            <span class="law-remove">✕</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addStandard')">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary">提交审核</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增指引弹窗 -->
+  <div class="modal-overlay" id="modal-addGuide">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>新增排查指引</h3>
+        <button class="btn btn-text" onclick="closeModal('addGuide')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>指引名称 <span style="color:var(--color-error)">*</span></label>
+          <input class="form-input" placeholder="输入指引名称">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="form-group" style="flex:1">
+            <label>排查类型 <span style="color:var(--color-error)">*</span></label>
+            <select class="form-input form-select">
+              <option>请选择</option>
+              <option>综合排查</option>
+              <option>专项排查</option>
+              <option>日常排查</option>
+              <option>季节性排查</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>适用范围</label>
+            <input class="form-input" placeholder="如：全集团/油罐区">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>指引描述</label>
+          <textarea class="form-input form-textarea" placeholder="详细描述该排查指引的排查内容和方法..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>检查项导入</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn btn-default btn-sm">手动添加检查项</button>
+            <button class="btn btn-default btn-sm">Excel批量导入</button>
+            <span style="font-size:12px; color:var(--text-quaternary)">支持xlsx格式</span>
+          </div>
+        </div>
+        <div class="law-section">
+          <div class="law-section-title">关联法规 <button class="btn btn-text btn-sm" style="color:var(--primary)">+ 添加法规</button></div>
+          <div class="law-item">
+            <span class="law-name">港口危险货物安全管理规定</span>
+            <span class="law-remove">✕</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addGuide')">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary">提交审核</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function showModal(id) {
+      document.getElementById('modal-' + id).classList.add('show');
+    }
+
+    function closeModal(id) {
+      document.getElementById('modal-' + id).classList.remove('show');
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
