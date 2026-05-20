@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动态核查 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    .flow-steps { display:flex; align-items:center; gap:4px; padding:12px 0; flex-wrap:wrap; }
+    .flow-node { padding:6px 14px; border-radius:var(--radius-sm); font-size:13px; white-space:nowrap; border:1px solid var(--border); background:var(--bg-base); color:var(--text-secondary); }
+    .flow-node.active { background:var(--primary); color:var(--text-inverse); border-color:var(--primary); }
+    .flow-node.done { background:var(--color-success); color:var(--text-inverse); border-color:var(--color-success); }
+    .flow-arrow { color:var(--text-quaternary); font-size:12px; }
+    .tag-waiting { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-checked { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-verified { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-deleting { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .freq-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:11px; }
+    .freq-month { background:#FFF1F0; color:#CF1322; }
+    .freq-quarter { background:#FFF7E6; color:#D48806; }
+    .freq-half { background:#E6F7FF; color:#0958D9; }
+    .freq-year { background:#F6FFED; color:#389E0D; }
+  </style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">当前视角：集装箱码头公司 | 本单位危险源24个，其中19个已审批/管控中需定期核查</div>
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">需核查危险源</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-warning)">5</div><div class="stat-label">待核查</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-primary)">3</div><div class="stat-label">已核查</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-success)">10</div><div class="stat-label">已审批</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--color-error)">2</div><div class="stat-label">项目待删除</div></div>
+  </div>
+
+  <!-- 流程状态说明 -->
+  <div class="card" style="margin-bottom:16px; padding:12px 16px;">
+    <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">危险源动态核查流程</div>
+    <div class="flow-steps">
+      <div class="flow-node done">系统判断项目是否存在</div><span class="flow-arrow">→</span>
+      <div class="flow-node" style="border-color:var(--color-success); color:var(--color-success)">是：按风险等级发核查通知</div><span class="flow-arrow">→</span>
+      <div class="flow-node active">待核查</div><span class="flow-arrow">→</span>
+      <div class="flow-node">已核查</div><span class="flow-arrow">→</span>
+      <div class="flow-node">已审批</div>
+    </div>
+    <div class="flow-steps" style="padding-top:4px;">
+      <div class="flow-node" style="border-color:var(--color-error); color:var(--color-error)">否：发送删除提醒</div><span class="flow-arrow">→</span>
+      <div class="flow-node">管理员确认</div><span class="flow-arrow">→</span>
+      <div class="flow-node">逻辑删除</div>
+    </div>
+    <div style="font-size:12px; color:var(--text-tertiary); margin-top:4px;">核查频率：重大风险每月 | 较大风险每季度 | 一般风险每半年 | 低风险每年 | 系统每月1号扫描项目存在性</div>
+    <div style="font-size:12px; color:var(--text-secondary); margin-top:6px;">核查方式：线上填报 / 现场核查（支持扫码签到+照片上传）</div>
+  </div>
+
+  <!-- 核查任务说明卡片 -->
+  <div class="card" style="margin-bottom:16px; padding:12px 16px; border-left:3px solid var(--primary);">
+    <div style="font-size:13px; font-weight:500; margin-bottom:4px;">核查任务说明</div>
+    <div style="font-size:12px; color:var(--text-tertiary);">系统按风险等级自动生成核查周期（重大每月/较大每季度/一般每半年/低风险每年），企业可根据实际情况调整核查时间和责任人</div>
+    <div style="font-size:12px; color:var(--color-warning); margin-top:6px;">提醒规则：临近核查日期提前7天在"我的待办"中推送核查提醒；核查超期标红</div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+    <div class="filter-bar" style="margin-bottom:0;">
+      <input class="form-input" placeholder="搜索关键词..." style="width:200px">
+      <select class="form-input form-select" style="width:140px">
+        <option>全部等级</option>
+        <option>重大风险</option>
+        <option>较大风险</option>
+        <option>一般风险</option>
+        <option>低风险</option>
+      </select>
+      <select class="form-input form-select" style="width:140px">
+        <option>全部状态</option>
+        <option>待核查</option>
+        <option>已核查</option>
+        <option>已审批</option>
+        <option>待删除</option>
+      </select>
+      <button class="btn btn-primary btn-sm">查询</button>
+      <button class="btn btn-default btn-sm">重置</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-default">导出</button>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>危险源名称</th>
+          <th>风险等级</th>
+          <th>核查方式</th>
+          <th>核查频率</th>
+          <th>上次核查</th>
+          <th>下次核查</th>
+          <th>状态</th>
+          <th>审批进度</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>原油储罐区</td>
+          <td><span class="tag tag-risk-red">重大风险</span></td>
+          <td><span style="font-size:12px;">现场扫码</span></td>
+          <td><span class="freq-badge freq-month">每月</span></td>
+          <td>2026-04-15</td>
+          <td style="color:var(--color-error)">2026-05-15（已逾期）</td>
+          <td><span class="tag tag-waiting">待核查</span></td>
+          <td><span style="font-size:12px; color:var(--text-quaternary);">未进入审批</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)" onclick="showCheckModal()">核查</button></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>集装箱堆场起重作业</td>
+          <td><span class="tag tag-risk-orange">较大风险</span></td>
+          <td><span style="font-size:12px;">线上</span></td>
+          <td><span class="freq-badge freq-quarter">每季度</span></td>
+          <td>2026-03-20</td>
+          <td>2026-06-20</td>
+          <td><span class="tag tag-checked">已核查</span></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:2px; font-size:12px;">
+              <span style="padding:2px 6px; background:var(--color-success); color:#fff; border-radius:3px;">核查人</span><span style="color:var(--text-quaternary);">→</span>
+              <span style="padding:2px 6px; background:var(--primary); color:#fff; border-radius:3px;">部门负责人</span><span style="color:var(--text-quaternary);">→</span>
+              <span style="padding:2px 6px; background:var(--bg-page); color:var(--text-tertiary); border-radius:3px; border:1px solid var(--border-lighter);">公司安办</span>
+            </div>
+          </td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>办公区用电线路</td>
+          <td><span class="tag tag-risk-yellow">一般风险</span></td>
+          <td><span style="font-size:12px;">线上</span></td>
+          <td><span class="freq-badge freq-half">每半年</span></td>
+          <td>2026-01-10</td>
+          <td>2026-07-10</td>
+          <td><span class="tag tag-verified">已审批</span></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:2px; font-size:12px;">
+              <span style="padding:2px 6px; background:var(--color-success); color:#fff; border-radius:3px;">核查人</span><span style="color:var(--text-quaternary);">→</span>
+              <span style="padding:2px 6px; background:var(--color-success); color:#fff; border-radius:3px;">部门负责人</span>
+            </div>
+          </td>
+          <td><button class="btn btn-text btn-sm">查看</button></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>已拆除临时仓库</td>
+          <td><span class="tag tag-risk-blue">低风险</span></td>
+          <td><span style="font-size:12px;">线上</span></td>
+          <td><span class="freq-badge freq-year">每年</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="tag tag-deleting">待删除确认</span></td>
+          <td><span style="font-size:12px; color:var(--text-quaternary);">等待管理员确认</span></td>
+          <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--color-error)" onclick="showDeleteConfirm()">确认删除</button><button class="btn btn-text btn-sm">保留</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span>共 4 条</span>
+      <div class="pagination-page active">1</div>
+    </div>
+  </div>
+
+  <!-- 核查操作弹窗 -->
+  <div id="checkModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-base); border-radius:var(--radius-lg); width:640px; max-height:85vh; overflow:auto; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="margin:0; font-size:16px;">动态核查</h3>
+        <button class="btn btn-text" onclick="hideCheckModal()">✕</button>
+      </div>
+
+      <!-- 核查方式选择 -->
+      <div style="margin-bottom:16px;">
+        <label class="form-label" style="font-size:13px; color:var(--text-secondary); margin-bottom:8px; display:block;">核查方式</label>
+        <div style="display:flex; gap:16px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+            <input type="radio" name="checkMethod" value="online" checked onchange="toggleCheckMethod()"> 线上填报
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+            <input type="radio" name="checkMethod" value="onsite" onchange="toggleCheckMethod()"> 现场核查
+          </label>
+        </div>
+      </div>
+
+      <!-- 线上填报区域 -->
+      <div id="onlineSection">
+        <div style="padding:16px; border:1px solid var(--border-lighter); border-radius:var(--radius-md);">
+          <div style="display:grid; gap:16px;">
+            <div>
+              <label class="form-label">项目是否存在</label>
+              <div style="display:flex; gap:12px;">
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onlineExist" value="yes"> 是</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onlineExist" value="no"> 否</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">管控措施有效性</label>
+              <div style="display:flex; gap:12px;">
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onlineEffect" value="valid" onchange="toggleRiskAdjust()"> 有效</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onlineEffect" value="partial" onchange="toggleRiskAdjust()"> 部分有效</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onlineEffect" value="invalid" onchange="toggleRiskAdjust()"> 失效</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">核查说明</label>
+              <textarea class="form-input" style="width:100%; height:80px" placeholder="请描述核查情况"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 现场核查区域 -->
+      <div id="onsiteSection" style="display:none;">
+        <div style="padding:16px; border:1px solid var(--border-lighter); border-radius:var(--radius-md);">
+          <div style="display:grid; gap:16px;">
+            <div>
+              <label class="form-label">扫码签到</label>
+              <button class="btn btn-default" style="font-size:13px;">扫码签到</button>
+            </div>
+            <div>
+              <label class="form-label">照片上传（最多3张）</label>
+              <div style="display:flex; gap:8px;">
+                <div style="width:80px; height:80px; border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-quaternary); font-size:24px; cursor:pointer;">+</div>
+                <div style="width:80px; height:80px; border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-quaternary); font-size:24px; cursor:pointer;">+</div>
+                <div style="width:80px; height:80px; border:1px dashed var(--border); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:var(--text-quaternary); font-size:24px; cursor:pointer;">+</div>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">项目是否存在</label>
+              <div style="display:flex; gap:12px;">
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onsiteExist" value="yes"> 是</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onsiteExist" value="no"> 否</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">管控措施有效性</label>
+              <div style="display:flex; gap:12px;">
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onsiteEffect" value="valid" onchange="toggleRiskAdjust()"> 有效</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onsiteEffect" value="partial" onchange="toggleRiskAdjust()"> 部分有效</label>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="onsiteEffect" value="invalid" onchange="toggleRiskAdjust()"> 失效</label>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">核查说明</label>
+              <textarea class="form-input" style="width:100%; height:80px" placeholder="请描述现场核查情况"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 动态风险等级调整面板 -->
+      <div id="riskAdjustPanel" style="display:none; margin-top:16px; padding:12px 16px; background:#FFFBE6; border:1px solid #FFE58F; border-radius:var(--radius-md);">
+        <div style="font-size:13px; color:#D48806; font-weight:500; margin-bottom:10px;">管控措施有效性异常时，建议调整现实风险等级</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+          <div>
+            <label class="form-label">当前现实风险等级</label>
+            <div style="padding:6px 0; font-size:14px; font-weight:500; color:var(--color-warning);">较大</div>
+          </div>
+          <div>
+            <label class="form-label">建议调整为</label>
+            <select class="form-input form-select" style="width:100%">
+              <option>请选择</option>
+              <option>重大</option>
+              <option>较大</option>
+              <option>一般</option>
+              <option>低</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">调整原因</label>
+            <input class="form-input" style="width:100%" placeholder="请说明调整原因">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-default" onclick="hideCheckModal()">取消</button>
+        <button class="btn btn-primary" onclick="hideCheckModal()">提交核查</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div id="deleteConfirmModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-base); border-radius:var(--radius-lg); width:480px; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:16px; color:var(--color-error);">确认删除危险源</h3>
+        <button class="btn btn-text" onclick="hideDeleteConfirm()">✕</button>
+      </div>
+      <div style="padding:12px 16px; background:#FFF1F0; border:1px solid #FFA39E; border-radius:var(--radius-md); margin-bottom:16px;">
+        <div style="font-size:13px; color:#CF1322; font-weight:500; margin-bottom:8px;">删除范围说明</div>
+        <div style="font-size:12px; color:var(--text-secondary);">系统将对本项目下关联的所有危险源执行<strong>逻辑删除</strong>，删除后数据仍保留在系统中但不再展示在风险管控列表中。</div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">关联数据统计</div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1; text-align:center; padding:10px; background:var(--bg-page); border-radius:var(--radius-sm);">
+            <div style="font-size:20px; font-weight:600; color:var(--color-error)">3</div>
+            <div style="font-size:11px; color:var(--text-tertiary)">关联危险源</div>
+          </div>
+          <div style="flex:1; text-align:center; padding:10px; background:var(--bg-page); border-radius:var(--radius-sm);">
+            <div style="font-size:20px; font-weight:600">5</div>
+            <div style="font-size:11px; color:var(--text-tertiary)">关联管控措施</div>
+          </div>
+          <div style="flex:1; text-align:center; padding:10px; background:var(--bg-page); border-radius:var(--radius-sm);">
+            <div style="font-size:20px; font-weight:600">2</div>
+            <div style="font-size:11px; color:var(--text-tertiary)">核查记录</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">删除原因<span style="color:var(--color-error)">*</span></label>
+        <select class="form-input form-select" style="width:100%">
+          <option>请选择原因</option>
+          <option>项目已拆除/退场</option>
+          <option>项目停用</option>
+          <option>项目合并</option>
+          <option>其他</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-default" onclick="hideDeleteConfirm()">取消</button>
+        <button class="btn" style="background:var(--color-error); color:#fff; border:1px solid var(--color-error)" onclick="hideDeleteConfirm()">确认逻辑删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showCheckModal() { document.getElementById('checkModal').style.display = 'flex'; }
+    function hideCheckModal() { document.getElementById('checkModal').style.display = 'none'; }
+    function showDeleteConfirm() { document.getElementById('deleteConfirmModal').style.display = 'flex'; }
+    function hideDeleteConfirm() { document.getElementById('deleteConfirmModal').style.display = 'none'; }
+    function toggleCheckMethod() {
+      var method = document.querySelector('input[name="checkMethod"]:checked').value;
+      document.getElementById('onlineSection').style.display = method === 'online' ? 'block' : 'none';
+      document.getElementById('onsiteSection').style.display = method === 'onsite' ? 'block' : 'none';
+      document.getElementById('riskAdjustPanel').style.display = 'none';
+    }
+    function toggleRiskAdjust() {
+      var onlineEffect = document.querySelector('input[name="onlineEffect"]:checked');
+      var onsiteEffect = document.querySelector('input[name="onsiteEffect"]:checked');
+      var val = '';
+      if (onlineEffect) val = onlineEffect.value;
+      if (onsiteEffect) val = onsiteEffect.value;
+      if (val === 'partial' || val === 'invalid') {
+        document.getElementById('riskAdjustPanel').style.display = 'block';
+      } else {
+        document.getElementById('riskAdjustPanel').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
