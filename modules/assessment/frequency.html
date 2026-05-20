@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考核频次与执行 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .area-title { font-size: var(--font-size-16);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-4);
+      padding-bottom: var(--spacing-2);
+      border-bottom: 1px solid var(--border-divider); }
+    .stat-cards { display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-5); }
+    .stat-card { background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-5);
+      text-align: center; }
+    .stat-card .stat-value { font-size: 32px;
+      font-weight: var(--font-weight-bold);
+      line-height: 1.2; }
+    .stat-card .stat-card.total .stat-value { color: var(--primary); }
+    .stat-card.active .stat-value { color: var(--warning); }
+    .stat-card.done .stat-value { color: var(--success); }
+    .stat-card.pending .stat-value { color: var(--text-description); }
+    .frequency-notice { background: #FFF7E6;
+      border: 1px solid #FFE58F;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #8C6D1F;
+      line-height: 1.8; }
+    .frequency-notice .notice-title { font-weight: 600; margin-bottom: 4px; }
+    .frequency-notice ul { margin: 4px 0; padding-left: 20px; }
+    .frequency-notice li { margin: 2px 0; }
+    .level-tag { display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-12);
+      font-weight: var(--font-weight-semibold); }
+    .level-tag-a { background: rgba(209,0,0,0.1); color: var(--risk-major); }
+    .level-tag-b { background: rgba(233,124,0,0.1); color: var(--risk-significant); }
+    .level-tag-c { background: rgba(35,102,236,0.1); color: var(--risk-low); }
+    .level-tag-dept1 { background: rgba(35,102,236,0.1); color: var(--primary); }
+    .level-tag-dept2 { background: rgba(233,124,0,0.1); color: var(--risk-significant); }
+    .flow-panel { background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-4) var(--spacing-5);
+      margin-bottom: var(--spacing-4); }
+    .flow-panel .flow-title { font-size: var(--font-size-14);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-3); }
+    .flow-steps { display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+      flex-wrap: wrap; }
+    .flow-step { display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-size-12); }
+    .flow-step .step-box { padding: var(--spacing-2) var(--spacing-4);
+      border-radius: var(--radius-sm);
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: var(--font-weight-semibold);
+      text-align: center;
+      min-width: 80px; }
+    .flow-step .step-box.step-done { background: var(--success-light);
+      color: var(--success); }
+    .flow-step .step-box.step-current { background: var(--primary);
+      color: #fff; }
+    .flow-arrow { color: var(--text-description); font-size: 18px; }
+    .execution-panel { background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-4) var(--spacing-5);
+      margin-top: var(--spacing-4);
+      border: 2px solid var(--primary); }
+    .execution-panel .panel-title { font-size: var(--font-size-14);
+      font-weight: var(--font-weight-semibold);
+      color: var(--primary);
+      margin-bottom: var(--spacing-3); }
+    .execution-steps { display: flex;
+      align-items: center;
+      gap: var(--spacing-3); }
+    .execution-step { display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px; }
+    .execution-step .step-circle { width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-14);
+      font-weight: var(--font-weight-bold);
+      border: 2px solid var(--border);
+      color: var(--text-description); }
+    .execution-step .step-circle.done { border-color: var(--success); background: var(--success); color: #fff; }
+    .execution-step .step-circle.current { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .execution-step .step-label { font-size: var(--font-size-12); color: var(--text-secondary); }
+    .execution-step .step-label.active { color: var(--primary); font-weight: var(--font-weight-semibold); }
+    .exec-arrow { color: var(--text-description); font-size: 20px; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 差异化考核频次说明 -->
+  <div class="frequency-notice">
+    <div class="notice-title">差异化考核频次：</div>
+    <ul>
+      <li><strong>A级管控：</strong>每月检查，每季度考核一次</li>
+      <li><strong>B级管控：</strong>每季度考核一次</li>
+      <li><strong>C级管控：</strong>每半年考核一次</li>
+      <li><strong>二类考核部室：</strong>年底一次性考核评分</li>
+      <li><strong>安全管理部：</strong>由集团分管安全领导直接考评</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <!-- Tab切换 -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab('plan')">考核计划</div>
+      <div class="tab-item" onclick="switchTab('execution')">考核执行</div>
+    </div>
+
+    <!-- Tab1: 考核计划 -->
+    <div id="tab-plan" class="tab-content active">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card total">
+          <div class="stat-value">30</div>
+          <div class="stat-label">年度考核计划数</div>
+        </div>
+        <div class="stat-card active">
+          <div class="stat-value">8</div>
+          <div class="stat-label">执行中</div>
+        </div>
+        <div class="stat-card done">
+          <div class="stat-value">12</div>
+          <div class="stat-label">已完成</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-value">10</div>
+          <div class="stat-label">待执行</div>
+        </div>
+      </div>
+
+      <!-- 筛选栏 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索单位名称..." style="width:200px">
+          <select class="form-input form-select" style="width:160px">
+            <option>全部管控级别</option>
+            <option>A级管控</option>
+            <option>B级管控</option>
+            <option>C级管控</option>
+            <option>二类考核部室</option>
+            <option>一类考核部室</option>
+          </select>
+          <select class="form-input form-select" style="width:140px">
+            <option>全部状态</option>
+            <option>待执行</option>
+            <option>执行中</option>
+            <option>已完成</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+        </div>
+      </div>
+
+      <!-- 年度考核计划列表 -->
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary">自动生成考核计划</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>考核对象</th>
+            <th>管控级别</th>
+            <th>考核频次</th>
+            <th>本年已考核</th>
+            <th>下次考核日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集装箱码头公司</td>
+            <td><span class="level-tag level-tag-a">A级管控</span></td>
+            <td>每季度</td>
+            <td>1/4</td>
+            <td>2026-07-01</td>
+            <td><span class="tag tag-info">待执行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>散货码头公司</td>
+            <td><span class="level-tag level-tag-a">A级管控</span></td>
+            <td>每季度</td>
+            <td>1/4</td>
+            <td>2026-07-01</td>
+            <td><span class="tag tag-info">待执行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>物流运输公司</td>
+            <td><span class="level-tag level-tag-b">B级管控</span></td>
+            <td>每季度</td>
+            <td>1/4</td>
+            <td>2026-07-01</td>
+            <td><span class="tag tag-warning">执行中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>物业运营公司</td>
+            <td><span class="level-tag level-tag-c">C级管控</span></td>
+            <td>每半年</td>
+            <td>0/2</td>
+            <td>2026-07-01</td>
+            <td><span class="tag tag-info">待执行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>人力资源部</td>
+            <td><span class="level-tag level-tag-dept2">二类考核部室</span></td>
+            <td>年底一次性</td>
+            <td>0/1</td>
+            <td>2026-12-31</td>
+            <td><span class="tag tag-info">待执行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>安全管理部</td>
+            <td><span class="level-tag level-tag-dept1">一类考核部室</span></td>
+            <td>集团领导直接考评</td>
+            <td>0/1</td>
+            <td>2026-12-31</td>
+            <td><span class="tag tag-info">待执行</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 30 条</span>
+        <div class="pagination-page active">1</div>
+        <div class="pagination-page">2</div>
+        <div class="pagination-page">3</div>
+      </div>
+
+      <!-- 考核指标下达流程面板 -->
+      <div class="flow-panel" style="margin-top:var(--spacing-4)">
+        <div class="flow-title">考核指标下达流程</div>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="step-box step-done">集团安委办提出方案</div>
+          </div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">
+            <div class="step-box step-done">征求意见</div>
+          </div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">
+            <div class="step-box step-current">修订后报集团公司审定</div>
+          </div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">
+            <div class="step-box">签订安全管理责任书</div>
+          </div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-step">
+            <div class="step-box">全员签订员工承诺书和安全责任书</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab2: 考核执行 -->
+    <div id="tab-execution" class="tab-content active" style="display:none">
+      <!-- 统计卡片 -->
+      <div class="stat-cards">
+        <div class="stat-card total">
+          <div class="stat-value">8</div>
+          <div class="stat-label">当前考核周期数</div>
+        </div>
+        <div class="stat-card active">
+          <div class="stat-value">5</div>
+          <div class="stat-label">扣分确认中</div>
+        </div>
+        <div class="stat-card done">
+          <div class="stat-value">3</div>
+          <div class="stat-label">加分确认中</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-value">2</div>
+          <div class="stat-label">待评定</div>
+        </div>
+      </div>
+
+      <!-- 当前考核周期列表 -->
+      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+        <div class="filter-bar" style="margin-bottom:0;">
+          <input class="form-input" placeholder="搜索单位名称..." style="width:200px">
+          <select class="form-input form-select" style="width:160px">
+            <option>全部管控级别</option>
+            <option>A级管控</option>
+            <option>B级管控</option>
+            <option>C级管控</option>
+          </select>
+          <select class="form-input form-select" style="width:140px">
+            <option>全部状态</option>
+            <option>检查计划</option>
+            <option>扣分确认</option>
+            <option>加分确认</option>
+            <option>评定</option>
+            <option>已完成</option>
+          </select>
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button>
+        </div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>单位名称</th>
+            <th>管控级别</th>
+            <th>考核频次</th>
+            <th>本周期扣分</th>
+            <th>本周期加分</th>
+            <th>考核季度</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集装箱码头公司</td>
+            <td><span class="level-tag level-tag-a">A级管控</span></td>
+            <td>每季度</td>
+            <td><strong style="color:var(--error)">-8</strong></td>
+            <td><strong style="color:var(--success)">+5</strong></td>
+            <td>2026年Q2</td>
+            <td><span class="tag tag-warning">扣分确认</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">确认扣分</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>散货码头公司</td>
+            <td><span class="level-tag level-tag-a">A级管控</span></td>
+            <td>每季度</td>
+            <td><strong style="color:var(--error)">-3</strong></td>
+            <td><strong style="color:var(--success)">+2</strong></td>
+            <td>2026年Q2</td>
+            <td><span class="tag tag-info">加分确认</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">确认加分</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>物流运输公司</td>
+            <td><span class="level-tag level-tag-b">B级管控</span></td>
+            <td>每季度</td>
+            <td><strong style="color:var(--error)">-15</strong></td>
+            <td><strong style="color:var(--success)">+3</strong></td>
+            <td>2026年Q2</td>
+            <td><span class="tag tag-warning">扣分确认</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">确认扣分</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>港航建设公司</td>
+            <td><span class="level-tag level-tag-b">B级管控</span></td>
+            <td>每季度</td>
+            <td><strong style="color:var(--error)">-5</strong></td>
+            <td><strong style="color:var(--success)">+2</strong></td>
+            <td>2026年Q2</td>
+            <td><span class="tag" style="color:var(--success);background:var(--success-light)">评定</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">执行评定</button></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>物业运营公司</td>
+            <td><span class="level-tag level-tag-c">C级管控</span></td>
+            <td>每半年</td>
+            <td><strong style="color:var(--error)">-2</strong></td>
+            <td><strong style="color:var(--success)">+1</strong></td>
+            <td>2026年H1</td>
+            <td><span class="tag tag-info">检查计划</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">制定检查计划</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 8 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+
+      <!-- 执行面板 -->
+      <div class="execution-panel">
+        <div class="panel-title">考核执行流程（当前：集装箱码头公司 Q2考核）</div>
+        <div class="execution-steps">
+          <div class="execution-step">
+            <div class="step-circle done">1</div>
+            <span class="step-label">检查计划</span>
+          </div>
+          <span class="exec-arrow">&rarr;</span>
+          <div class="execution-step">
+            <div class="step-circle current">2</div>
+            <span class="step-label active">扣分确认</span>
+          </div>
+          <span class="exec-arrow">&rarr;</span>
+          <div class="execution-step">
+            <div class="step-circle">3</div>
+            <span class="step-label">加分确认</span>
+          </div>
+          <span class="exec-arrow">&rarr;</span>
+          <div class="execution-step">
+            <div class="step-circle">4</div>
+            <span class="step-label">评定</span>
+          </div>
+        </div>
+        <div style="margin-top:var(--spacing-3);font-size:var(--font-size-12);color:var(--text-secondary)">
+          考核依据系统量化数据生成，杜绝线下主观录入，确保公平公正
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+  </script>
+</body>
+</html>
