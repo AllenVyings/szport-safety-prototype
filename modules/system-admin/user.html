@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>
+    /* 左侧组织树面板扩展 */
+    .split-left-title { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--border-divider); margin-bottom:12px; }
+    .split-left-title span { font-size:14px; font-weight:600; color:var(--text-primary); }
+    .split-left .src-search { width:100%; height:28px; font-size:12px; margin-bottom:8px; padding:0 8px; border:1px solid var(--border); border-radius:var(--radius-sm); }
+    .split-left-tree { overflow-y:auto; flex:1; min-height:0; }
+
+    /* 树节点 */
+    .src-node { padding:4px 6px; border-radius:var(--radius-sm); font-size:13px; cursor:pointer; color:var(--text-primary); display:flex; align-items:center; gap:4px; }
+    .src-node:hover { background:var(--bg-hover); }
+    .src-node.selected { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .src-node .arrow { font-size:9px; color:var(--text-description); width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform var(--duration-fast); }
+    .src-node .arrow.open { transform:rotate(90deg); }
+    .src-node .arrow.empty { visibility:hidden; }
+    .src-children { padding-left:14px; }
+    .src-children.collapsed { display:none; }
+
+    /* 右侧面板扩展 — 操作列冻结 + 字段区滚动 */
+    .table-wrap { flex:1; min-height:0; overflow:auto; padding:0 20px; }
+    .table-wrap .data-table { table-layout:fixed; min-width:1100px; border:1px solid var(--border); border-radius:var(--radius-sm); }
+    .table-wrap .data-table thead th { position:sticky; top:0; z-index:3; background:var(--bg-table-header); }
+    /* 操作列冻结在右侧 */
+    .table-wrap .data-table th:last-child,
+    .table-wrap .data-table td:last-child { position:sticky; right:0; z-index:2; background:var(--bg-card); text-align:center; }
+    .table-wrap .data-table thead th:last-child { background:var(--bg-table-header); z-index:4; }
+    .table-wrap .data-table tbody td:last-child { overflow:hidden; }
+    .table-wrap .data-table tbody td:last-child > div { display:flex; gap:4px; white-space:nowrap; justify-content:center; }
+    .table-wrap .data-table tbody tr:nth-child(even) td:last-child { background:var(--bg-card); }
+    .table-wrap .data-table tbody tr:hover td:last-child { background:#fff; box-shadow:-4px 0 8px rgba(0,0,0,0.06); }
+    .table-wrap .data-table th:last-child,
+    .table-wrap .data-table td:last-child { border-left:1px solid var(--border); }
+
+    /* 角色标签 pill */
+    .role-pills { display:flex; gap:4px; flex-wrap:wrap; }
+    .role-pill { display:inline-flex; align-items:center; padding:1px 8px; border-radius:var(--radius-full); font-size:11px; background:var(--primary-light); color:var(--primary); white-space:nowrap; }
+
+    /* 编辑弹窗 */
+    .readonly-field { display:flex; align-items:center; height:var(--input-height); font-size:13px; background:var(--bg-page); border-radius:var(--radius-sm); padding:0 12px; color:var(--text-primary); font-weight:500; }
+    .readonly-field.readonly-sm { height:30px; font-size:12px; }
+    .gender-radio-group { display:flex; align-items:center; gap:16px; height:var(--input-height); }
+    .gender-radio-item { display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; }
+    .gender-radio-item input[type="radio"] { accent-color:var(--primary); }
+    .status-switch-row { display:flex; align-items:center; gap:12px; height:var(--input-height); }
+    .status-switch-row .current-status { font-size:13px; font-weight:500; }
+
+    /* 多账号标记 */
+    .multi-account-badge { display:inline-flex; align-items:center; gap:2px; padding:1px 6px; border-radius:var(--radius-full); font-size:10px; background:var(--warning-light); color:var(--warning); white-space:nowrap; cursor:pointer; }
+
+    /* 角色选择 checkbox 组 */
+    .role-checkbox-group { display:flex; flex-wrap:wrap; gap:8px 16px; }
+    .role-checkbox-item { display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; padding:4px 0; }
+    .role-checkbox-item input[type="checkbox"] { accent-color:var(--primary); }
+
+    /* 多账号弹窗 */
+    .account-list { margin-top:12px; }
+    .account-item { display:flex; align-items:center; gap:12px; padding:10px 12px; border:1px solid var(--border-light); border-radius:var(--radius-sm); margin-bottom:8px; }
+    .account-item .acc-login { font-size:13px; color:var(--text-primary); font-weight:500; font-family:monospace; min-width:80px; }
+    .account-item .acc-org { font-size:12px; color:var(--text-description); flex:1; }
+  </style>
+</head>
+<body style="padding:20px 20px 0 20px; background:var(--bg-page); height:100vh; display:flex; flex-direction:column; overflow:hidden;">
+  <div class="card" style="padding:0; overflow:hidden; flex:1; display:flex; flex-direction:column; min-height:0;">
+    <div class="split-layout" style="padding:0; flex:1; min-height:0;">
+      <!-- 左侧：组织架构树 -->
+      <div class="split-left">
+        <div class="split-left-title"><span>组织架构</span></div>
+        <label class="switch-label" style="margin-bottom:8px;">查看选中单位本级数据<span class="switch"><input type="checkbox" id="local-only-toggle" onchange="applyFilters()"><span class="switch-slider"></span></span></label>
+        <input class="src-search" id="org-tree-search" placeholder="搜索组织..." oninput="filterLeftTree(this.value)">
+        <div class="split-left-tree" id="org-tree-container"></div>
+      </div>
+
+      <!-- 右侧：查询 + 列表 -->
+      <div class="split-right">
+        <!-- 查询栏 -->
+        <div class="query-bar">
+          <div class="query-item">
+            <span class="query-label">姓名/账号</span>
+            <input class="form-input" id="filter-keyword" placeholder="请输入" style="width:160px;">
+          </div>
+          <div class="query-item">
+            <span class="query-label">状态</span>
+            <select class="form-input form-select" id="filter-status" style="width:160px;">
+              <option value="">全部</option>
+              <option value="启用">启用</option>
+              <option value="停用">停用</option>
+              <option value="待激活">待激活</option>
+            </select>
+          </div>
+          <div class="query-item">
+            <span class="query-label">角色</span>
+            <select class="form-input form-select" id="filter-role" style="width:160px;">
+              <option value="">全部角色</option>
+              <option value="系统管理员">系统管理员</option>
+              <option value="安全管理员">安全管理员</option>
+              <option value="安全主管">安全主管</option>
+              <option value="检查员">检查员</option>
+              <option value="施工负责人">施工负责人</option>
+              <option value="普通用户">普通用户</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary query-btn" onclick="currentPage=1;applyFilters()">查询</button>
+            <button class="btn btn-default query-btn" onclick="resetFilters()">重置</button>
+          </div>
+          <div class="query-actions">
+            <button class="btn btn-default" onclick="syncUsers()">同步</button>
+          </div>
+        </div>
+
+        <!-- 单一表格：sticky 表头 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <colgroup>
+              <col style="width:50px;"><col style="width:110px;"><col style="width:100px;"><col style="width:100px;"><col style="width:120px;"><col style="width:200px;"><col style="width:180px;"><col style="width:70px;"><col style="width:180px;"><col style="width:180px;">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>用户编号</th>
+                <th>用户账号</th>
+                <th>用户姓名</th>
+                <th>手机号码</th>
+                <th>组织机构</th>
+                <th>原OA组织机构</th>
+                <th>状态</th>
+                <th>角色类型</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="user-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">&#128100;</div>
+            <div>未找到匹配的用户</div>
+          </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination-bar">
+          <span class="pagination-info" id="page-info">共 0 条</span>
+          <select id="page-size" class="pagination-size" onchange="changePageSize()">
+            <option value="10" selected>10条/页</option>
+            <option value="20">20条/页</option>
+            <option value="50">50条/页</option>
+            <option value="100">100条/页</option>
+          </select>
+          <div class="pagination" id="pagination"></div>
+          <div class="pagination-jump">
+            前往<input id="jump-page" type="number" min="1" class="pagination-jump-input" onkeydown="if(event.key==='Enter')jumpToPage()">页
+            <button class="btn btn-default btn-sm" style="height:26px;font-size:12px;padding:0 8px;" onclick="jumpToPage()">跳转</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑用户弹窗 -->
+  <div class="modal-overlay" id="modal-user">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header" id="modal-user-title"><h3>编辑用户</h3><button class="btn btn-text btn-sm" onclick="closeModal('modal-user')" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 20px;">
+          <!-- 1. 用户编号（只读） -->
+          <div class="form-group">
+            <label class="form-label">用户编号</label>
+            <div class="form-content"><div class="readonly-field" id="user-no"></div></div>
+          </div>
+          <!-- 2. 用户账号（只读） -->
+          <div class="form-group">
+            <label class="form-label">用户账号</label>
+            <div class="form-content"><div class="readonly-field" id="user-login-display"></div></div>
+          </div>
+          <!-- 3. 用户姓名 -->
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>用户姓名</label>
+            <div class="form-content"><input class="form-input" id="user-name" placeholder="请输入姓名"></div>
+          </div>
+          <!-- 4. 手机号码 -->
+          <div class="form-group">
+            <label class="form-label">手机号码</label>
+            <div class="form-content"><input class="form-input" id="user-phone" placeholder="请输入手机号"></div>
+          </div>
+          <!-- 5. 用户性别 -->
+          <div class="form-group">
+            <label class="form-label">用户性别</label>
+            <div class="form-content">
+              <div class="gender-radio-group">
+                <label class="gender-radio-item"><input type="radio" name="user-gender" value="男"> 男</label>
+                <label class="gender-radio-item"><input type="radio" name="user-gender" value="女"> 女</label>
+              </div>
+            </div>
+          </div>
+          <!-- 6. 状态 -->
+          <div class="form-group">
+            <label class="form-label">状态</label>
+            <div class="form-content">
+              <div class="status-switch-row">
+                <span class="current-status" id="user-current-status">启用</span>
+                <label class="switch-label" style="margin:0;"><span class="switch"><input type="checkbox" id="user-status-toggle"><span class="switch-slider"></span></span></label>
+                <span style="font-size:12px; color:var(--text-description);" id="user-status-hint">关闭则停用</span>
+              </div>
+            </div>
+          </div>
+          <!-- 7. 组织机构（只读） -->
+          <div class="form-group">
+            <label class="form-label">组织机构</label>
+            <div class="form-content"><div class="readonly-field" id="user-org-display"></div></div>
+          </div>
+          <!-- 8. 原OA组织机构（只读） -->
+          <div class="form-group">
+            <label class="form-label">原OA组织机构</label>
+            <div class="form-content"><div class="readonly-field" id="user-oa-org"></div></div>
+          </div>
+          <!-- 9. 角色类型 -->
+          <div class="form-group" style="grid-column:span 2;">
+            <label class="form-label"><span class="required">*</span>角色类型</label>
+            <div class="form-content">
+              <div class="role-checkbox-group" id="user-roles">
+                <label class="role-checkbox-item"><input type="checkbox" value="系统管理员"> 系统管理员</label>
+                <label class="role-checkbox-item"><input type="checkbox" value="安全管理员"> 安全管理员</label>
+                <label class="role-checkbox-item"><input type="checkbox" value="安全主管"> 安全主管</label>
+                <label class="role-checkbox-item"><input type="checkbox" value="检查员"> 检查员</label>
+                <label class="role-checkbox-item"><input type="checkbox" value="施工负责人"> 施工负责人</label>
+                <label class="role-checkbox-item"><input type="checkbox" value="普通用户"> 普通用户</label>
+              </div>
+            </div>
+          </div>
+          <!-- 10. 入职时间（只读） -->
+          <div class="form-group">
+            <label class="form-label">入职时间</label>
+            <div class="form-content"><div class="readonly-field" id="user-hire-date-display"></div></div>
+          </div>
+          <!-- 占位保持对齐 -->
+          <div></div>
+          <!-- 11. 备注 -->
+          <div class="form-group" style="grid-column:span 2;">
+            <label class="form-label">备注</label>
+            <div class="form-content"><textarea class="form-input" id="user-remark" style="height:72px; padding:8px 12px; resize:none;" placeholder="请输入备注信息"></textarea></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-user')">取消</button>
+        <button class="btn btn-primary" id="modal-user-confirm" onclick="submitUserForm()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 多账号查看弹窗 -->
+  <div class="modal-overlay" id="modal-accounts">
+    <div class="modal" style="width:560px;">
+      <div class="modal-header" id="accounts-title"><h3>关联账号</h3><button class="btn btn-text btn-sm" onclick="closeModal('modal-accounts')" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-body">
+        <div class="account-list" id="accounts-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-accounts')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作确认弹窗 -->
+  <div class="modal-overlay" id="modal-confirm">
+    <div class="modal" style="width:440px;">
+      <div class="modal-header"><h3 id="confirm-title">操作确认</h3><button class="btn btn-text btn-sm" onclick="closeModal('modal-confirm')" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-body">
+        <div id="confirm-message" style="font-size:14px; color:var(--text-primary); line-height:1.6;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('modal-confirm')">取消</button>
+        <button class="btn btn-primary" id="confirm-ok">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== 组织架构数据（与组织架构模块一致） =====
+    var orgList = [
+      { id:'group', name:'深圳港集团', type:'单位', children:[
+        { id:'d01', name:'安全管理与环保部', type:'部门' },
+        { id:'d02', name:'办公室', type:'部门' },
+        { id:'d03', name:'党群工作部', type:'部门' },
+        { id:'d04', name:'纪检监察室', type:'部门' },
+        { id:'d05', name:'人力资源部', type:'部门' },
+        { id:'d06', name:'财务管理部', type:'部门' },
+        { id:'d07', name:'审计部', type:'部门' },
+        { id:'d08', name:'战略发展部', type:'部门' },
+        { id:'d09', name:'投资与资本运营部', type:'部门' },
+        { id:'d10', name:'企业管理部', type:'部门' },
+        { id:'d11', name:'合规部', type:'部门' },
+        { id:'d12', name:'建设管理部', type:'部门' },
+        { id:'d13', name:'数字化创新中心', type:'部门' },
+        { id:'d14', name:'港航事业部', type:'部门' },
+        { id:'d15', name:'海洋产业事业部', type:'部门' },
+        { id:'d16', name:'盐田港建设指挥部办公室', type:'部门' },
+        { id:'u01', name:'深圳市盐田港股份有限公司', type:'单位', children:[
+          { id:'u01-d01', name:'安全管理与环保部', type:'部门' },
+          { id:'u01-d02', name:'运营管理部', type:'部门' }
+        ]},
+        { id:'u02', name:'深圳市深圳港海洋发展有限公司', type:'单位', children:[
+          { id:'u02-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u03', name:'深圳市深圳港物流集团有限公司', type:'单位', children:[
+          { id:'u03-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u04', name:'深圳市华舟海洋发展股份有限公司', type:'单位', children:[
+          { id:'u04-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u05', name:'深圳市深圳港能源发展有限公司', type:'单位', children:[
+          { id:'u05-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u06', name:'深圳市深圳港资本有限公司', type:'单位', children:[
+          { id:'u06-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u07', name:'深圳市深圳港港口服务集团有限公司', type:'单位', children:[
+          { id:'u07-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u08', name:'盐田港国际资讯有限公司', type:'单位', children:[
+          { id:'u08-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u09', name:'深圳市深圳港港口联运有限公司', type:'单位', children:[
+          { id:'u09-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u10', name:'深圳市平盐疏港铁路有限公司', type:'单位', children:[
+          { id:'u10-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u11', name:'深圳市深汕海洋发展有限公司', type:'单位', children:[
+          { id:'u11-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u12', name:'深圳市盐田港保税产业发展有限公司', type:'单位', children:[
+          { id:'u12-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u13', name:'深圳市盐田东港区码头有限公司', type:'单位', children:[
+          { id:'u13-d01', name:'安全管理与环保部', type:'部门' }
+        ]},
+        { id:'u14', name:'江西省深赣港产城发展有限公司', type:'单位', children:[
+          { id:'u14-d01', name:'安全管理与环保部', type:'部门' }
+        ]}
+      ]}
+    ];
+
+    // ===== 用户数据 =====
+    var userList = [
+      { id:1, userNo:'U20230001', name:'陈国安', login:'chenga', org:'安全管理与环保部', orgId:'d01', oaOrg:'集团安全管理与环保部', gender:'男', hireDate:'2019-03-15', roles:['系统管理员','安全管理员'], status:'启用', phone:'13800138001', remark:'' },
+      { id:2, userNo:'U20230002', name:'林检查', login:'linjc', org:'安全管理与环保部', orgId:'d01', oaOrg:'集团安全管理与环保部', gender:'男', hireDate:'2020-06-01', roles:['安全主管'], status:'启用', phone:'', remark:'' },
+      { id:3, userNo:'U20230003', name:'王海波', login:'wanghb', org:'深圳市盐田港股份有限公司', orgId:'u01', oaOrg:'盐田港股份公司', gender:'男', hireDate:'2018-09-10', roles:['安全管理员'], status:'启用', phone:'13900139002', remark:'' },
+      { id:4, userNo:'U20230004', name:'赵明远', login:'zhaomy', org:'深圳市深圳港海洋发展有限公司', orgId:'u02', oaOrg:'海洋发展公司', gender:'男', hireDate:'2021-01-20', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:5, userNo:'U20230005', name:'刘安全', login:'liuaq', org:'深圳市盐田港股份有限公司', orgId:'u01', oaOrg:'盐田港股份公司', gender:'男', hireDate:'2022-04-12', roles:['检查员'], status:'启用', phone:'13700137003', remark:'' },
+      { id:6, userNo:'U20230006', name:'张建设', login:'zhangjs', org:'建设管理部', orgId:'d12', oaOrg:'集团建设管理部', gender:'男', hireDate:'2017-11-08', roles:['安全主管'], status:'启用', phone:'', remark:'' },
+      { id:7, userNo:'U20230007', name:'李培训', login:'lipx', org:'人力资源部', orgId:'d05', oaOrg:'集团人力资源部', gender:'女', hireDate:'2019-07-22', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:8, userNo:'U20230008', name:'孙物流', login:'sunwl', org:'深圳市深圳港物流集团有限公司', orgId:'u03', oaOrg:'物流集团公司', gender:'男', hireDate:'2020-03-05', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:9, userNo:'U20230009', name:'周审计', login:'zhousj', org:'审计部', orgId:'d07', oaOrg:'集团审计部', gender:'男', hireDate:'2018-05-18', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:10, userNo:'U20230010', name:'吴能源', login:'wuny', org:'深圳市深圳港能源发展有限公司', orgId:'u05', oaOrg:'能源发展公司', gender:'男', hireDate:'2021-08-30', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:11, userNo:'U20230011', name:'郑船舶', login:'zhengcb', org:'深圳市华舟海洋发展股份有限公司', orgId:'u04', oaOrg:'华舟海洋公司', gender:'男', hireDate:'2020-12-01', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:12, userNo:'U20230012', name:'钱资本', login:'qianzb', org:'深圳市深圳港资本有限公司', orgId:'u06', oaOrg:'资本公司', gender:'男', hireDate:'2019-02-14', roles:['普通用户'], status:'停用', phone:'', remark:'已调离' },
+      { id:13, userNo:'U20230013', name:'冯港口', login:'fenggk', org:'深圳市深圳港港口服务集团有限公司', orgId:'u07', oaOrg:'港口服务集团', gender:'男', hireDate:'2017-06-20', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:14, userNo:'U20230014', name:'陈国安', login:'chenga2', org:'深圳市盐田港股份有限公司', orgId:'u01', oaOrg:'盐田港股份公司', gender:'男', hireDate:'2019-03-15', roles:['安全主管'], status:'启用', phone:'', remark:'一人多岗-兼任盐田港安全主管' },
+      { id:15, userNo:'U20230015', name:'何铁路', login:'hetl', org:'深圳市平盐疏港铁路有限公司', orgId:'u10', oaOrg:'疏港铁路公司', gender:'男', hireDate:'2021-10-11', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:16, userNo:'U20230016', name:'陆深汕', login:'luss', org:'深圳市深汕海洋发展有限公司', orgId:'u11', oaOrg:'深汕海洋公司', gender:'男', hireDate:'2022-01-15', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:17, userNo:'U20230017', name:'方保税', login:'fangbs', org:'深圳市盐田港保税产业发展有限公司', orgId:'u12', oaOrg:'保税产业公司', gender:'男', hireDate:'2020-09-08', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:18, userNo:'U20230018', name:'黄东港', login:'huangdg', org:'深圳市盐田东港区码头有限公司', orgId:'u13', oaOrg:'东港区码头公司', gender:'男', hireDate:'2021-05-20', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:19, userNo:'U20230019', name:'杨赣', login:'yangg', org:'江西省深赣港产城发展有限公司', orgId:'u14', oaOrg:'深赣港产城公司', gender:'男', hireDate:'2022-07-01', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:20, userNo:'U20230020', name:'徐资讯', login:'xuzx', org:'盐田港国际资讯有限公司', orgId:'u08', oaOrg:'国际资讯公司', gender:'男', hireDate:'2018-04-16', roles:['普通用户'], status:'停用', phone:'', remark:'已离职' },
+      { id:21, userNo:'U20230021', name:'马联运', login:'maly', org:'深圳市深圳港港口联运有限公司', orgId:'u09', oaOrg:'港口联运公司', gender:'男', hireDate:'2020-11-25', roles:['安全管理员'], status:'启用', phone:'', remark:'' },
+      { id:22, userNo:'U20240001', name:'朱新员', login:'zhuxy', org:'港航事业部', orgId:'d14', oaOrg:'集团港航事业部', gender:'男', hireDate:'2024-02-26', roles:['普通用户'], status:'待激活', phone:'', remark:'新入职，待激活' },
+      { id:23, userNo:'U20230023', name:'韩办公', login:'hanbg', org:'办公室', orgId:'d02', oaOrg:'集团办公室', gender:'女', hireDate:'2016-08-10', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:24, userNo:'U20230024', name:'曹党群', login:'caodq', org:'党群工作部', orgId:'d03', oaOrg:'集团党群工作部', gender:'男', hireDate:'2017-03-22', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:25, userNo:'U20230025', name:'魏纪检', login:'weijj', org:'纪检监察室', orgId:'d04', oaOrg:'集团纪检监察室', gender:'男', hireDate:'2018-12-05', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:26, userNo:'U20230026', name:'许财务', login:'xucw', org:'财务管理部', orgId:'d06', oaOrg:'集团财务管理部', gender:'女', hireDate:'2019-06-18', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:27, userNo:'U20230027', name:'蒋战略', login:'jiangzl', org:'战略发展部', orgId:'d08', oaOrg:'集团战略发展部', gender:'男', hireDate:'2020-02-10', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:28, userNo:'U20230028', name:'沈投资', login:'shentz', org:'投资与资本运营部', orgId:'d09', oaOrg:'集团投资与资本运营部', gender:'男', hireDate:'2019-09-01', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:29, userNo:'U20230029', name:'曾企管', login:'zengqg', org:'企业管理部', orgId:'d10', oaOrg:'集团企业管理部', gender:'男', hireDate:'2021-04-15', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:30, userNo:'U20230030', name:'彭合规', login:'penghg', org:'合规部', orgId:'d11', oaOrg:'集团合规部', gender:'男', hireDate:'2022-06-08', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:31, userNo:'U20230031', name:'胡数创', login:'husc', org:'数字化创新中心', orgId:'d13', oaOrg:'集团数字化创新中心', gender:'男', hireDate:'2020-08-20', roles:['系统管理员'], status:'启用', phone:'', remark:'' },
+      { id:32, userNo:'U20230032', name:'邓海洋', login:'denghy', org:'海洋产业事业部', orgId:'d15', oaOrg:'集团海洋产业事业部', gender:'男', hireDate:'2021-12-01', roles:['普通用户'], status:'启用', phone:'', remark:'' },
+      { id:33, userNo:'U20230033', name:'任盐建', login:'renyj', org:'盐田港建设指挥部办公室', orgId:'d16', oaOrg:'集团盐田港建设指挥部办公室', gender:'男', hireDate:'2018-10-15', roles:['安全主管'], status:'启用', phone:'', remark:'' },
+      { id:34, userNo:'U20230034', name:'范安环', login:'fanah', org:'安全管理与环保部', orgId:'u01-d01', oaOrg:'盐田港股份安环部', gender:'男', hireDate:'2020-05-12', roles:['安全主管'], status:'启用', phone:'', remark:'盐田港股份安环部' },
+      { id:35, userNo:'U20230035', name:'苏运营', login:'suyy', org:'运营管理部', orgId:'u01-d02', oaOrg:'盐田港股份运营管理部', gender:'女', hireDate:'2019-11-20', roles:['普通用户'], status:'启用', phone:'', remark:'盐田港股份运营部' },
+      { id:36, userNo:'U20230036', name:'鲁安环', login:'luah', org:'安全管理与环保部', orgId:'u02-d01', oaOrg:'海洋发展安环部', gender:'男', hireDate:'2021-07-05', roles:['安全主管'], status:'启用', phone:'', remark:'海洋发展安环部' },
+      { id:37, userNo:'U20230037', name:'汪安环', login:'wangah', org:'安全管理与环保部', orgId:'u03-d01', oaOrg:'物流集团安环部', gender:'男', hireDate:'2020-01-15', roles:['安全管理员'], status:'启用', phone:'', remark:'物流集团安环部' },
+      { id:38, userNo:'U20230038', name:'贺安环', login:'heah', org:'安全管理与环保部', orgId:'u04-d01', oaOrg:'华舟海洋安环部', gender:'男', hireDate:'2022-03-18', roles:['安全管理员'], status:'启用', phone:'', remark:'华舟海洋安环部' },
+      { id:39, userNo:'U20230039', name:'尹安环', login:'yinah', org:'安全管理与环保部', orgId:'u05-d01', oaOrg:'能源发展安环部', gender:'女', hireDate:'2021-09-22', roles:['安全管理员'], status:'启用', phone:'', remark:'能源发展安环部' },
+      { id:40, userNo:'U20230040', name:'卢安环', login:'luah2', org:'安全管理与环保部', orgId:'u06-d01', oaOrg:'资本公司安环部', gender:'男', hireDate:'2020-06-30', roles:['安全管理员'], status:'启用', phone:'', remark:'资本公司安环部' },
+      { id:41, userNo:'U20230041', name:'姚安环', login:'yaoah', org:'安全管理与环保部', orgId:'u07-d01', oaOrg:'港口服务安环部', gender:'男', hireDate:'2019-04-10', roles:['安全管理员'], status:'启用', phone:'', remark:'港口服务安环部' },
+      { id:42, userNo:'U20230042', name:'崔安环', login:'cuiah', org:'安全管理与环保部', orgId:'u08-d01', oaOrg:'国际资讯安环部', gender:'男', hireDate:'2022-08-15', roles:['安全管理员'], status:'启用', phone:'', remark:'国际资讯安环部' },
+      { id:43, userNo:'U20230043', name:'廖安环', login:'liaoah', org:'安全管理与环保部', orgId:'u09-d01', oaOrg:'港口联运安环部', gender:'男', hireDate:'2021-02-28', roles:['安全管理员'], status:'启用', phone:'', remark:'港口联运安环部' },
+      { id:44, userNo:'U20230044', name:'田安环', login:'tianah', org:'安全管理与环保部', orgId:'u10-d01', oaOrg:'疏港铁路安环部', gender:'男', hireDate:'2020-10-12', roles:['安全主管'], status:'启用', phone:'', remark:'疏港铁路安环部' },
+      { id:45, userNo:'U20230045', name:'石安环', login:'shiah', org:'安全管理与环保部', orgId:'u11-d01', oaOrg:'深汕海洋安环部', gender:'男', hireDate:'2022-05-20', roles:['安全管理员'], status:'启用', phone:'', remark:'深汕海洋安环部' },
+      { id:46, userNo:'U20230046', name:'龚安环', login:'gongah', org:'安全管理与环保部', orgId:'u12-d01', oaOrg:'保税产业安环部', gender:'女', hireDate:'2021-11-08', roles:['安全管理员'], status:'启用', phone:'', remark:'保税产业安环部' },
+      { id:47, userNo:'U20230047', name:'罗安环', login:'luoah', org:'安全管理与环保部', orgId:'u13-d01', oaOrg:'东港区码头安环部', gender:'男', hireDate:'2019-08-25', roles:['安全管理员'], status:'启用', phone:'', remark:'东港区码头安环部' },
+      { id:48, userNo:'U20230048', name:'覃安环', login:'qinah', org:'安全管理与环保部', orgId:'u14-d01', oaOrg:'深赣港产城安环部', gender:'男', hireDate:'2023-01-10', roles:['安全管理员'], status:'待激活', phone:'', remark:'深赣港产城安环部-待激活' }
+    ];
+
+    // ===== 一人多岗检测 =====
+    function getMultiAccountMap() {
+      var map = {};
+      userList.forEach(function(u) {
+        if (!map[u.name]) map[u.name] = [];
+        map[u.name].push(u);
+      });
+      return map;
+    }
+
+    // ===== 获取节点及所有子节点 ID =====
+    function getDescendantIds(nodes, id) {
+      var ids = [id];
+      function find(nodes) {
+        for (var i = 0; i < nodes.length; i++) {
+          if (nodes[i].id === id) {
+            collect(nodes[i], ids);
+            return;
+          }
+          if (nodes[i].children) find(nodes[i].children);
+        }
+      }
+      function collect(node, ids) {
+        if (node.children) {
+          node.children.forEach(function(c) {
+            ids.push(c.id);
+            collect(c, ids);
+          });
+        }
+      }
+      find(nodes);
+      return ids;
+    }
+
+    // ===== 左侧组织树 =====
+    var treeExpanded = new Set(['group']);
+    var selectedOrgId = '';
+
+    function renderLeftTree(filter) {
+      var html = buildLeftTreeHTML(orgList, 0, filter);
+      if (!html) html = '<div style="padding:20px; text-align:center; color:var(--text-description); font-size:13px;">无匹配结果</div>';
+      document.getElementById('org-tree-container').innerHTML = html;
+    }
+
+    function buildLeftTreeHTML(nodes, depth, filter) {
+      var html = '';
+      nodes.forEach(function(n) {
+        var nameMatch = !filter || n.name.toLowerCase().indexOf(filter.toLowerCase()) > -1;
+        var hasCh = n.children && n.children.length;
+        var childHasMatch = false;
+        if (filter && hasCh) {
+          (function check(arr) { arr.forEach(function(c) { if (c.name.toLowerCase().indexOf(filter.toLowerCase()) > -1) childHasMatch = true; if (c.children) check(c.children); }); })(n.children);
+        }
+        if (filter && !nameMatch && !childHasMatch) return;
+        var arrowClass = hasCh ? (treeExpanded.has(n.id) ? 'open' : '') : 'empty';
+        var icon = n.type === '单位' ? '单' : '部';
+        var iconClass = n.type === '单位' ? 'unit' : 'dept';
+        var selectedClass = selectedOrgId === n.id ? ' selected' : '';
+        var hlName = filter && nameMatch ? n.name.replace(new RegExp('(' + filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : n.name;
+        var nodeIds = getDescendantIds(orgList, n.id);
+        var userCount = userList.filter(function(u) { return nodeIds.indexOf(u.orgId) > -1; }).length;
+        var countBadge = userCount > 0 ? '<span style="margin-left:auto; font-size:10px; color:var(--text-description); flex-shrink:0;">' + userCount + '</span>' : '';
+        html += '<div class="src-node' + selectedClass + '" style="padding-left:' + (6 + depth * 14) + 'px;" onclick="selectOrgNode(\'' + n.id + '\')">';
+        html += '<span class="arrow ' + arrowClass + '" onclick="event.stopPropagation(); toggleTreeNode(\'' + n.id + '\')">&#9654;</span>';
+        html += '<span class="node-icon ' + iconClass + '">' + icon + '</span> ' + hlName + countBadge;
+        html += '</div>';
+        if (hasCh) {
+          html += '<div class="src-children' + (treeExpanded.has(n.id) ? '' : ' collapsed') + '">';
+          html += buildLeftTreeHTML(n.children, depth + 1, filter);
+          html += '</div>';
+        }
+      });
+      return html;
+    }
+
+    function toggleTreeNode(id) {
+      if (treeExpanded.has(id)) treeExpanded.delete(id); else treeExpanded.add(id);
+      var filter = document.getElementById('org-tree-search').value.trim();
+      renderLeftTree(filter || undefined);
+    }
+
+    function selectOrgNode(id) {
+      if (selectedOrgId === id) {
+        selectedOrgId = '';
+      } else {
+        selectedOrgId = id;
+      }
+      currentPage = 1;
+      var filter = document.getElementById('org-tree-search').value.trim();
+      renderLeftTree(filter || undefined);
+      applyFilters();
+    }
+
+    function filterLeftTree(val) {
+      if (val) {
+        (function expandAll(nodes) { nodes.forEach(function(n) { if (n.children && n.children.length) { treeExpanded.add(n.id); expandAll(n.children); } }); })(orgList);
+      }
+      renderLeftTree(val || undefined);
+    }
+
+    // ===== 分页 =====
+    var currentPage = 1;
+    var pageSize = 10;
+
+    function changePageSize() {
+      pageSize = parseInt(document.getElementById('page-size').value);
+      currentPage = 1;
+      applyFilters();
+    }
+
+    function goToPage(p) {
+      currentPage = p;
+      applyFilters();
+    }
+
+    function jumpToPage() {
+      var input = document.getElementById('jump-page');
+      var p = parseInt(input.value);
+      var totalPages = Math.max(1, Math.ceil(filteredList.length / pageSize));
+      if (isNaN(p) || p < 1) p = 1;
+      if (p > totalPages) p = totalPages;
+      input.value = '';
+      goToPage(p);
+    }
+
+    function renderPagination(total) {
+      var totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var start = (currentPage - 1) * pageSize + 1;
+      var end = Math.min(currentPage * pageSize, total);
+      document.getElementById('page-info').textContent = '共 ' + total + ' 条';
+      document.getElementById('jump-page').max = totalPages;
+      var html = '';
+      if (totalPages > 1) {
+        html += '<div class="pagination-page' + (currentPage === 1 ? '" style="opacity:0.4;pointer-events:none;' : '" onclick="goToPage(' + (currentPage - 1) + ')') + '">‹</div>';
+      }
+      var startP = Math.max(1, currentPage - 2);
+      var endP = Math.min(totalPages, currentPage + 2);
+      if (startP > 1) { html += '<div class="pagination-page" onclick="goToPage(1)">1</div>'; if (startP > 2) html += '<span style="color:var(--text-description);font-size:12px;">...</span>'; }
+      for (var i = startP; i <= endP; i++) {
+        html += '<div class="pagination-page' + (i === currentPage ? ' active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</div>';
+      }
+      if (endP < totalPages) { if (endP < totalPages - 1) html += '<span style="color:var(--text-description);font-size:12px;">...</span>'; html += '<div class="pagination-page" onclick="goToPage(' + totalPages + ')">' + totalPages + '</div>'; }
+      if (totalPages > 1) {
+        html += '<div class="pagination-page' + (currentPage === totalPages ? '" style="opacity:0.4;pointer-events:none;' : '" onclick="goToPage(' + (currentPage + 1) + ')') + '">›</div>';
+      }
+      document.getElementById('pagination').innerHTML = html;
+    }
+
+    // ===== 筛选并渲染 =====
+    var filteredList = [];
+
+    function applyFilters() {
+      var keyword = document.getElementById('filter-keyword').value.toLowerCase();
+      var status = document.getElementById('filter-status').value;
+      var role = document.getElementById('filter-role').value;
+      var localOnly = document.getElementById('local-only-toggle').checked;
+      var orgIds = selectedOrgId ? (localOnly ? [selectedOrgId] : getDescendantIds(orgList, selectedOrgId)) : [];
+
+      filteredList = userList.filter(function(u) {
+        if (keyword && u.name.toLowerCase().indexOf(keyword) === -1 && u.login.toLowerCase().indexOf(keyword) === -1) return false;
+        if (selectedOrgId && orgIds.indexOf(u.orgId) === -1) return false;
+        if (status && u.status !== status) return false;
+        if (role && u.roles.indexOf(role) === -1) return false;
+        return true;
+      });
+
+      var total = filteredList.length;
+      var totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      var start = (currentPage - 1) * pageSize;
+      var pageData = filteredList.slice(start, start + pageSize);
+
+      renderPage(pageData, start);
+      renderPagination(total);
+
+      var startNum = total > 0 ? start + 1 : 0;
+      var endNum = Math.min(start + pageSize, total);
+      document.getElementById('page-info').textContent = '共 ' + total + ' 条，第 ' + startNum + '-' + endNum + ' 条';
+
+      var emptyEl = document.getElementById('empty-state');
+      if (total === 0) { emptyEl.classList.add('show'); } else { emptyEl.classList.remove('show'); }
+    }
+
+    function renderPage(list, offset) {
+      var html = '';
+      var multiMap = getMultiAccountMap();
+      list.forEach(function(u, i) {
+        var idx = offset + i;
+        var statusClass = u.status === '启用' ? 'tag-enabled' : (u.status === '停用' ? 'tag-disabled' : 'tag-pending');
+        var roleHtml = u.roles.map(function(r) { return '<span class="role-pill">' + r + '</span>'; }).join('');
+        var isMulti = multiMap[u.name] && multiMap[u.name].length > 1;
+        var multiBadge = isMulti ? ' <span class="multi-account-badge" title="一人多岗，点击查看关联账号" onclick="showAccounts(\'' + u.name.replace(/'/g, "\\'") + '\')">' + multiMap[u.name].length + '个账号</span>' : '';
+
+        html += '<tr data-name="' + u.name + '" data-login="' + u.login + '" data-orgid="' + u.orgId + '" data-status="' + u.status + '" data-roles="' + u.roles.join(',') + '">';
+        html += '<td>' + (idx + 1) + '</td>';
+        html += '<td style="font-size:12px; color:var(--text-secondary);">' + (u.userNo || '-') + '</td>';
+        html += '<td style="font-family:monospace; font-size:13px; color:var(--text-secondary);">' + u.login + '</td>';
+        html += '<td>' + u.name + multiBadge + '</td>';
+        html += '<td style="font-size:12px;">' + (u.phone || '-') + '</td>';
+        html += '<td>' + u.org + '</td>';
+        html += '<td style="font-size:12px; color:var(--text-description);">' + (u.oaOrg || '-') + '</td>';
+        html += '<td><span class="tag ' + statusClass + '">' + u.status + '</span></td>';
+        html += '<td><div class="role-pills">' + roleHtml + '</div></td>';
+        html += '<td><div class="action-btns">';
+        html += '<button class="btn btn-text btn-sm" onclick="openUserModal(' + u.id + ')">编辑</button>';
+        if (u.status === '启用') {
+          html += '<button class="btn btn-text btn-sm" style="color:var(--warning);" onclick="toggleStatus(' + u.id + ')">停用</button>';
+        } else if (u.status === '停用') {
+          html += '<button class="btn btn-text btn-sm" style="color:var(--success);" onclick="toggleStatus(' + u.id + ')">启用</button>';
+        } else {
+          html += '<button class="btn btn-text btn-sm" style="color:var(--primary);" onclick="activateUser(' + u.id + ')">激活</button>';
+        }
+        html += '<button class="btn btn-text btn-sm" style="color:var(--error);" onclick="resetPwd(' + u.id + ')">重置密码</button>';
+        html += '</div></td>';
+        html += '</tr>';
+      });
+      document.getElementById('user-tbody').innerHTML = html;
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-keyword').value = '';
+      document.getElementById('filter-status').selectedIndex = 0;
+      document.getElementById('filter-role').selectedIndex = 0;
+      selectedOrgId = '';
+      currentPage = 1;
+      var filter = document.getElementById('org-tree-search').value.trim();
+      renderLeftTree(filter || undefined);
+      applyFilters();
+    }
+
+    // ===== 新增/编辑弹窗 =====
+    var editingUserId = null;
+
+    function openUserModal(id) {
+      editingUserId = id || null;
+      var u = userList.find(function(x) { return x.id === editingUserId; });
+      if (!u) return;
+
+      var title = document.getElementById('modal-user-title').querySelector('h3');
+      title.textContent = '编辑';
+
+      // 只读字段
+      document.getElementById('user-no').textContent = u.userNo || '-';
+      document.getElementById('user-login-display').textContent = u.login;
+      document.getElementById('user-org-display').textContent = u.org;
+      document.getElementById('user-oa-org').textContent = u.oaOrg || '-';
+
+      // 可编辑字段
+      document.getElementById('user-name').value = u.name;
+      document.getElementById('user-phone').value = u.phone || '';
+      var genderRadios = document.querySelectorAll('input[name="user-gender"]');
+      genderRadios.forEach(function(r) { r.checked = r.value === (u.gender || '男'); });
+      var statusToggle = document.getElementById('user-status-toggle');
+      statusToggle.checked = u.status === '启用';
+      document.getElementById('user-current-status').textContent = u.status;
+      document.getElementById('user-status-hint').textContent = statusToggle.checked ? '关闭则停用' : '开启则启用';
+      document.querySelectorAll('#user-roles input[type="checkbox"]').forEach(function(cb) {
+        cb.checked = u.roles.indexOf(cb.value) > -1;
+      });
+      document.getElementById('user-hire-date-display').textContent = u.hireDate || '-';
+      document.getElementById('user-remark').value = u.remark || '';
+
+      openModal('modal-user');
+    }
+
+    // ===== 状态切换（含确认弹窗） =====
+    function toggleStatus(id) {
+      var u = userList.find(function(x) { return x.id === id; });
+      if (!u) return;
+      var action = u.status === '启用' ? '停用' : '启用';
+      var msg = action === '停用' ? '确定停用用户「' + u.name + '」？停用后该用户将无法登录系统。' : '确定启用用户「' + u.name + '」？';
+      showConfirm('操作确认', msg, function() {
+        u.status = action;
+        applyFilters();
+      });
+    }
+
+    function activateUser(id) {
+      var u = userList.find(function(x) { return x.id === id; });
+      if (!u) return;
+      showConfirm('操作确认', '确定激活用户「' + u.name + '」？激活后该用户可正常登录系统。', function() {
+        u.status = '启用';
+        applyFilters();
+      });
+    }
+
+    function resetPwd(id) {
+      var u = userList.find(function(x) { return x.id === id; });
+      if (!u) return;
+      showConfirm('重置密码', '确定重置用户「' + u.name + '」的密码？重置后将恢复为默认密码。', function() {
+        showToast('已重置 ' + u.name + ' 的密码为默认密码');
+      });
+    }
+
+    // ===== 多账号查看 =====
+    function showAccounts(name) {
+      var multiMap = getMultiAccountMap();
+      var accounts = multiMap[name] || [];
+      document.getElementById('accounts-title').querySelector('h3').textContent = name + ' 的关联账号';
+      var html = '';
+      accounts.forEach(function(u) {
+        var statusClass = u.status === '启用' ? 'tag-enabled' : (u.status === '停用' ? 'tag-disabled' : 'tag-pending');
+        html += '<div class="account-item">';
+        html += '<span class="acc-login">' + u.login + '</span>';
+        html += '<span class="acc-org">' + u.org + '</span>';
+        html += '<span class="tag ' + statusClass + '">' + u.status + '</span>';
+        html += '</div>';
+      });
+      document.getElementById('accounts-list').innerHTML = html;
+      openModal('modal-accounts');
+    }
+
+    // ===== 同步 =====
+    function syncUsers() {
+      showConfirm('同步用户数据', '将从统一身份认证平台拉取最新用户数据，是否继续？', function() {
+        showToast('用户数据同步成功');
+      });
+    }
+
+    // ===== 弹窗内-机构树形选择器 =====
+    var userOrgExpanded = new Set(['group']);
+    var userOrgValue = '';
+
+    function toggleUserOrg() {
+      var dd = document.getElementById('user-org-dropdown');
+      var trigger = document.getElementById('user-org-trigger');
+      if (dd.classList.contains('show')) {
+        dd.classList.remove('show');
+        trigger.classList.remove('open');
+      } else {
+        var rect = trigger.getBoundingClientRect();
+        var top = rect.bottom + 4;
+        if (window.innerHeight - rect.bottom < 340 && rect.top > 340) top = rect.top - 340 - 4;
+        dd.style.top = top + 'px';
+        dd.style.left = rect.left + 'px';
+        dd.style.width = Math.max(rect.width, 280) + 'px';
+        dd.classList.add('show');
+        trigger.classList.add('open');
+        document.getElementById('user-org-search').value = '';
+        renderUserOrgTree();
+        document.getElementById('user-org-search').focus();
+      }
+    }
+
+    function renderUserOrgTree(filter) {
+      var html = buildModalOrgTreeHTML(orgList, 0, filter);
+      if (!html) html = '<div style="padding:20px; text-align:center; color:var(--text-description); font-size:13px;">无匹配结果</div>';
+      document.getElementById('user-org-list').innerHTML = html;
+    }
+
+    function selectUserOrg(id, name) {
+      userOrgValue = name;
+      var textEl = document.getElementById('user-org-text');
+      textEl.textContent = name;
+      textEl.classList.remove('placeholder');
+      document.getElementById('user-org-dropdown').classList.remove('show');
+      document.getElementById('user-org-trigger').classList.remove('open');
+    }
+
+    function buildModalOrgTreeHTML(nodes, depth, filter) {
+      var html = '';
+      nodes.forEach(function(n) {
+        var nameMatch = !filter || n.name.toLowerCase().indexOf(filter.toLowerCase()) > -1;
+        var hasCh = n.children && n.children.length;
+        var childHasMatch = false;
+        if (filter && hasCh) {
+          (function check(arr) { arr.forEach(function(c) { if (c.name.toLowerCase().indexOf(filter.toLowerCase()) > -1) childHasMatch = true; if (c.children) check(c.children); }); })(n.children);
+        }
+        if (filter && !nameMatch && !childHasMatch) return;
+        var arrowClass = hasCh ? (userOrgExpanded.has(n.id) ? 'open' : '') : 'empty';
+        var icon = n.type === '单位' ? '单' : '部';
+        var iconClass = n.type === '单位' ? 'unit' : 'dept';
+        var hlName = filter && nameMatch ? n.name.replace(new RegExp('(' + filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : n.name;
+        html += '<div class="tree-select-node" style="padding-left:' + (12 + depth * 16) + 'px;" onclick="selectUserOrg(\'' + n.id + '\', \'' + n.name.replace(/'/g, "\\'") + '\')">';
+        html += '<span class="ts-arrow ' + arrowClass + '" onclick="event.stopPropagation(); toggleModalOrgNode(\'' + n.id + '\')">&#9654;</span>';
+        html += '<span class="node-icon ' + iconClass + '">' + icon + '</span> ' + hlName;
+        html += '</div>';
+        if (hasCh) {
+          html += '<div class="tree-select-children' + (userOrgExpanded.has(n.id) ? '' : ' collapsed') + '">';
+          html += buildModalOrgTreeHTML(n.children, depth + 1, filter);
+          html += '</div>';
+        }
+      });
+      return html;
+    }
+
+    function toggleModalOrgNode(id) {
+      if (userOrgExpanded.has(id)) userOrgExpanded.delete(id); else userOrgExpanded.add(id);
+      var filter = document.getElementById('user-org-search').value.trim();
+      renderUserOrgTree(filter || undefined);
+    }
+
+    // ===== 通用弹窗 =====
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+      if (id === 'modal-user') {
+        document.getElementById('user-name').style.borderColor = '';
+        document.getElementById('user-roles').style.outline = '';
+      }
+    }
+
+    // ===== 确认弹窗 =====
+    function showConfirm(title, message, onOk) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      var okBtn = document.getElementById('confirm-ok');
+      var newBtn = okBtn.cloneNode(true);
+      okBtn.parentNode.replaceChild(newBtn, okBtn);
+      newBtn.id = 'confirm-ok';
+      newBtn.addEventListener('click', function() {
+        closeModal('modal-confirm');
+        if (onOk) onOk();
+      });
+      openModal('modal-confirm');
+    }
+
+    // ===== Toast 提示 =====
+    function showToast(msg) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:10px 24px;background:var(--success);color:#fff;border-radius:var(--radius-md);font-size:14px;z-index:9999;box-shadow:var(--shadow-card);';
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(function() { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(function() { el.remove(); }, 300); }, 2000);
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(function(ov) {
+      ov.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
+    });
+
+    // 外部点击关闭树形下拉
+    document.addEventListener('click', function(e) {
+      var dd = document.getElementById('user-org-dropdown');
+      var trigger = document.getElementById('user-org-trigger');
+      if (dd && dd.classList.contains('show') && !trigger.contains(e.target) && !dd.contains(e.target)) {
+        dd.classList.remove('show');
+        trigger.classList.remove('open');
+      }
+    });
+
+    // 状态开关交互
+    document.getElementById('user-status-toggle').addEventListener('change', function() {
+      document.getElementById('user-current-status').textContent = this.checked ? '启用' : '停用';
+      document.getElementById('user-status-hint').textContent = this.checked ? '关闭则停用' : '开启则启用';
+    });
+    function submitUserForm() {
+      var valid = true;
+      var nameVal = document.getElementById('user-name').value.trim();
+      var hasRole = document.querySelector('#user-roles input:checked') !== null;
+
+      if (!nameVal) {
+        document.getElementById('user-name').style.borderColor = 'var(--error)';
+        valid = false;
+      } else {
+        document.getElementById('user-name').style.borderColor = '';
+      }
+      if (!hasRole) {
+        document.getElementById('user-roles').style.outline = '1px solid var(--error)';
+        valid = false;
+      } else {
+        document.getElementById('user-roles').style.outline = '';
+      }
+
+      if (!valid) return;
+
+      var u = userList.find(function(x) { return x.id === editingUserId; });
+      if (u) {
+        u.name = nameVal;
+        u.phone = document.getElementById('user-phone').value.trim();
+        var genderRadio = document.querySelector('input[name="user-gender"]:checked');
+        u.gender = genderRadio ? genderRadio.value : u.gender;
+        u.status = document.getElementById('user-status-toggle').checked ? '启用' : '停用';
+        u.roles = [];
+        document.querySelectorAll('#user-roles input[type="checkbox"]:checked').forEach(function(cb) { u.roles.push(cb.value); });
+        u.hireDate = u.hireDate; // 只读，不更新
+        u.remark = document.getElementById('user-remark').value.trim();
+      }
+
+      closeModal('modal-user');
+      applyFilters();
+      showToast('用户信息已更新');
+    }
+
+    // 初始化
+    renderLeftTree();
+    applyFilters();
+  </script>
+</body>
+</html>
