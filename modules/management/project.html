@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目信息 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-prepare { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-building { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-operating { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-ended { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .project-layout { display:flex; gap:16px; }
+    .project-list { width:240px; flex-shrink:0; }
+    .project-list-card { background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border-light); overflow:hidden; }
+    .project-list-header { padding:12px 16px; font-size:14px; font-weight:500; border-bottom:1px solid var(--border-light); background:var(--bg-table-header); }
+    .project-list-item { padding:10px 16px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--border-light); color:var(--text-secondary); transition:all 0.15s; }
+    .project-list-item:last-child { border-bottom:none; }
+    .project-list-item:hover { background:var(--bg-hover); color:var(--primary); }
+    .project-list-item.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .project-detail { flex:1; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">项目总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">5</div><div class="stat-label">在建项目</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">5</div><div class="stat-label">在营项目</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">2</div><div class="stat-label">已结束</div></div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="alert alert-info" style="margin-bottom:12px">&#128279; 关联模块：现场管理-作业安全、隐患排查治理（可查看项目关联安全记录）</div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('ledger')">项目台账</div>
+    <div class="tab-item" onclick="switchTab('personnel')">项目人员</div>
+  </div>
+
+  <!-- Tab1 项目台账 -->
+  <div id="tab-ledger" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索项目名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部分类</option>
+          <option>在建</option>
+          <option>在营</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>筹建</option>
+          <option>在建</option>
+          <option>运营</option>
+          <option>已结束</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="showModal('addProject')">+ 新增项目</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>项目名称</th>
+            <th>项目分类</th>
+            <th>状态</th>
+            <th>项目负责人</th>
+            <th>安全负责人</th>
+            <th>工期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>盐田港区集装箱码头扩建工程</td>
+            <td>在建</td>
+            <td><span class="tag tag-building">在建</span></td>
+            <td>刘工程</td>
+            <td>赵安全</td>
+            <td>2025-03 ~ 2027-06</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>前海综合枢纽运营项目</td>
+            <td>在营</td>
+            <td><span class="tag tag-operating">运营</span></td>
+            <td>孙管理</td>
+            <td>钱安全</td>
+            <td>2022-01 ~ 长期</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>大铲湾危化品仓储基地建设</td>
+            <td>在建</td>
+            <td><span class="tag tag-prepare">筹建</span></td>
+            <td>周规划</td>
+            <td>吴安全</td>
+            <td>2026-07 ~ 2028-12</td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>蛇口港区旧码头改造工程</td>
+            <td>在建</td>
+            <td><span class="tag tag-ended">已结束</span></td>
+            <td>郑项目</td>
+            <td>冯安全</td>
+            <td>2023-06 ~ 2026-04</td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 项目人员 -->
+  <div id="tab-personnel" class="tab-content">
+    <div class="project-layout">
+      <!-- 左侧项目列表 -->
+      <div class="project-list">
+        <div class="project-list-card">
+          <div class="project-list-header">项目列表</div>
+          <div class="project-list-item active" onclick="selectProject(this, 'p1')">盐田港区集装箱码头扩建工程</div>
+          <div class="project-list-item" onclick="selectProject(this, 'p2')">前海综合枢纽运营项目</div>
+          <div class="project-list-item" onclick="selectProject(this, 'p3')">大铲湾危化品仓储基地建设</div>
+        </div>
+      </div>
+      <!-- 右侧人员台账 -->
+      <div class="project-detail">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-size:14px; font-weight:500;">盐田港区集装箱码头扩建工程 - 人员台账</div>
+            <button class="btn btn-primary btn-sm">+ 添加人员</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>姓名</th>
+                <th>岗位</th>
+                <th>安全资质</th>
+                <th>进场日期</th>
+                <th>退场日期</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>张建国</td>
+                <td>项目经理</td>
+                <td><span class="tag tag-success" style="font-size:11px; margin-left:4px;">注册安全工程师</span></td>
+                <td>2025-03-01</td>
+                <td>-</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">退场</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>李施工</td>
+                <td>现场施工员</td>
+                <td><span class="tag tag-success" style="font-size:11px; margin-left:4px;">安全员证</span></td>
+                <td>2025-04-15</td>
+                <td>-</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">退场</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>王操作</td>
+                <td>塔吊操作员</td>
+                <td><span class="tag tag-error" style="font-size:11px; margin-left:4px;">资质到期</span></td>
+                <td>2025-05-01</td>
+                <td>2026-02-28</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">查看</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+            <span>共 3 条</span>
+            <div class="pagination-page active">1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增项目弹窗 -->
+  <div id="addProjectModal" class="modal-overlay">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header">
+        <h3>新增项目</h3>
+        <button class="btn btn-text btn-sm" onclick="closeModal('addProject')" style="font-size:18px; color:var(--text-description);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目名称 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入项目名称">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目分类 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>在建</option>
+              <option>在营</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">工期 <span style="color:#CF1322;">*</span></label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input class="form-input" type="date" style="flex:1;">
+              <span style="color:var(--text-description);">~</span>
+              <input class="form-input" type="date" style="flex:1;">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目负责人 <span style="color:#CF1322;">*</span></label>
+            <input class="form-input" style="width:100%;" placeholder="请输入项目负责人">
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">安全负责人 <span style="color:#CF1322;">*</span></label>
+            <input class="form-input" style="width:100%;" placeholder="请输入安全负责人">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目说明</label>
+          <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入项目说明..."></textarea>
+        </div>
+        <div class="alert alert-info">
+          &#128279; 项目创建后，可由安全工程师负责维护；关联安全记录可在现场管理-作业安全、隐患排查治理中查看
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addProject')">取消</button>
+        <button class="btn btn-primary" onclick="closeModal('addProject')">确认新增</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) {
+      document.getElementById(id + 'Modal').classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById(id + 'Modal').classList.remove('show');
+    }
+    document.getElementById('addProjectModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addProject'); });
+    function selectProject(el, id) {
+      document.querySelectorAll('.project-list-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+    }
+  </script>
+</body>
+</html>
