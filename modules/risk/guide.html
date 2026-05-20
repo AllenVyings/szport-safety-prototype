@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>风险指引库 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-published { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-revised { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-stopped { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    /* 风险矩阵 */
+    .risk-matrix { border-collapse:collapse; width:100%; margin-top:12px; }
+    .risk-matrix th, .risk-matrix td { border:1px solid var(--border); text-align:center; padding:10px 8px; font-size:13px; }
+    .risk-matrix th { background:var(--bg-secondary); font-weight:500; color:var(--text-secondary); }
+    .risk-matrix .cell-red { background:#FF4D4F; color:#fff; font-weight:500; }
+    .risk-matrix .cell-orange { background:#FA8C16; color:#fff; font-weight:500; }
+    .risk-matrix .cell-yellow { background:#FAAD14; color:#fff; font-weight:500; }
+    .risk-matrix .cell-blue { background:#1890FF; color:#fff; font-weight:500; }
+    .matrix-legend { display:flex; gap:16px; margin-top:12px; font-size:12px; color:var(--text-tertiary); }
+    .legend-item { display:flex; align-items:center; gap:4px; }
+    .legend-dot { width:12px; height:12px; border-radius:2px; }
+    /* 分类树 */
+    .tree-container { border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:16px; min-height:300px; }
+    .tree-node { padding:4px 0; }
+    .tree-node-inner { display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; }
+    .tree-node-inner:hover { background:var(--bg-secondary); }
+    .tree-node-inner.selected { background:var(--primary-light, #E6F7FF); color:var(--primary); }
+    .tree-toggle { width:16px; text-align:center; color:var(--text-quaternary); font-size:10px; }
+    .tree-children { padding-left:20px; }
+    .tree-code { color:var(--text-tertiary); font-size:12px; margin-left:8px; }
+    /* 表单弹窗 */
+    .modal { width:680px; }
+    .form-group { margin-bottom:16px; }
+    .form-label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px; }
+    .form-label .required { color:var(--color-error); margin-left:2px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+
+  <!-- Tab 切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('standard')">风险等级评判标准</div>
+    <div class="tab-item" onclick="switchTab('category')">风险分类体系</div>
+    <div class="tab-item" onclick="switchTab('template')">典型风险清单</div>
+  </div>
+
+  <!-- ====== Tab 1: 风险等级评判标准 ====== -->
+  <div id="tab-standard" class="tab-content active">
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">评判方法</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--color-success)">1</div><div class="stat-label">已发布</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--text-tertiary)">1</div><div class="stat-label">草稿</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索标准名称..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部状态</option>
+          <option>草稿</option>
+          <option>已发布</option>
+          <option>已停用</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default btn-sm">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>标准名称</th>
+            <th>评判方法</th>
+            <th>风险等级数</th>
+            <th>版本</th>
+            <th>状态</th>
+            <th>发布日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>深圳港集团风险等级评判标准（LS法）</td>
+            <td>LS法（风险矩阵法）</td>
+            <td>4级（红/橙/黄/蓝）</td>
+            <td>V2.0</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td>2026-01-15</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">预览矩阵</button>
+              <button class="btn btn-text btn-sm">修订</button>
+              <button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button>
+            </td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>深圳港集团风险等级评判标准（LEC法）</td>
+            <td>LEC法（作业条件危险性评价法）</td>
+            <td>4级（红/橙/黄/蓝）</td>
+            <td>V1.0</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td>—</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">编辑</button>
+              <button class="btn btn-text btn-sm" style="color:var(--primary)">发布</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 风险矩阵预览（LS法） -->
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="font-size:14px; font-weight:500;">LS法风险矩阵预览</div>
+        <button class="btn btn-text btn-sm">全屏预览</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="risk-matrix">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:80px;">可能性 (L)</th>
+              <th colspan="5">严重性 (S)</th>
+            </tr>
+            <tr>
+              <th>1 轻微</th>
+              <th>2 一般</th>
+              <th>3 较重</th>
+              <th>4 严重</th>
+              <th>5 灾难性</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>5 几乎肯定</th>
+              <td class="cell-yellow">一般 (5)</td>
+              <td class="cell-orange">较大 (10)</td>
+              <td class="cell-red">重大 (15)</td>
+              <td class="cell-red">重大 (20)</td>
+              <td class="cell-red">重大 (25)</td>
+            </tr>
+            <tr>
+              <th>4 很可能</th>
+              <td class="cell-blue">低 (4)</td>
+              <td class="cell-yellow">一般 (8)</td>
+              <td class="cell-orange">较大 (12)</td>
+              <td class="cell-red">重大 (16)</td>
+              <td class="cell-red">重大 (20)</td>
+            </tr>
+            <tr>
+              <th>3 可能</th>
+              <td class="cell-blue">低 (3)</td>
+              <td class="cell-yellow">一般 (6)</td>
+              <td class="cell-orange">较大 (9)</td>
+              <td class="cell-orange">较大 (12)</td>
+              <td class="cell-red">重大 (15)</td>
+            </tr>
+            <tr>
+              <th>2 不太可能</th>
+              <td class="cell-blue">低 (2)</td>
+              <td class="cell-blue">低 (4)</td>
+              <td class="cell-yellow">一般 (6)</td>
+              <td class="cell-yellow">一般 (8)</td>
+              <td class="cell-orange">较大 (10)</td>
+            </tr>
+            <tr>
+              <th>1 极不可能</th>
+              <td class="cell-blue">低 (1)</td>
+              <td class="cell-blue">低 (2)</td>
+              <td class="cell-blue">低 (3)</td>
+              <td class="cell-yellow">一般 (4)</td>
+              <td class="cell-yellow">一般 (5)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="matrix-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#FF4D4F"></div>重大风险（≥15分）</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FA8C16"></div>较大风险（9-14分）</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#FAAD14"></div>一般风险（5-8分）</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1890FF"></div>低风险（1-4分）</div>
+      </div>
+    </div>
+
+    <!-- LEC法参数配置 -->
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="font-size:14px; font-weight:500;">LEC法参数配置</div>
+        <span style="font-size:11px; padding:2px 8px; background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; border-radius:10px;">2年修订提醒已配置</span>
+      </div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <!-- L值表 -->
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary);">L值（事故可能性）</div>
+          <table class="data-table" style="font-size:12px;">
+            <thead><tr><th>分值</th><th>含义描述</th></tr></thead>
+            <tbody>
+              <tr><td>10</td><td>完全可以预料</td></tr>
+              <tr><td>6</td><td>相当可能</td></tr>
+              <tr><td>3</td><td>可能但不经常</td></tr>
+              <tr><td>1</td><td>可能性小，完全意外</td></tr>
+              <tr><td>0.5</td><td>很不可能</td></tr>
+              <tr><td>0.2</td><td>极不可能</td></tr>
+              <tr><td>0.1</td><td>实际不可能</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- E值表 -->
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary);">E值（暴露频率）</div>
+          <table class="data-table" style="font-size:12px;">
+            <thead><tr><th>分值</th><th>含义描述</th></tr></thead>
+            <tbody>
+              <tr><td>10</td><td>连续暴露</td></tr>
+              <tr><td>6</td><td>每天工作时间暴露</td></tr>
+              <tr><td>3</td><td>每周一次</td></tr>
+              <tr><td>2</td><td>每月一次</td></tr>
+              <tr><td>1</td><td>每年几次</td></tr>
+              <tr><td>0.5</td><td>非常罕见</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- C值表 -->
+        <div style="flex:1; min-width:200px;">
+          <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary);">C值（后果）</div>
+          <table class="data-table" style="font-size:12px;">
+            <thead><tr><th>分值</th><th>含义描述</th></tr></thead>
+            <tbody>
+              <tr><td>100</td><td>大灾难，许多人死亡</td></tr>
+              <tr><td>40</td><td>灾难，数人死亡</td></tr>
+              <tr><td>15</td><td>非常严重，一人死亡</td></tr>
+              <tr><td>7</td><td>严重，肢体致残</td></tr>
+              <tr><td>3</td><td>重大，伤残</td></tr>
+              <tr><td>1</td><td>轻伤，需救护</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- LEC风险等级划分 -->
+      <div style="margin-top:12px; padding:10px 16px; background:var(--bg-secondary); border-radius:var(--radius-sm); font-size:12px;">
+        <span style="color:var(--text-secondary); font-weight:500;">LEC风险等级划分：</span>
+        <span style="color:#F5222D; margin-left:8px;">≥320 重大</span>
+        <span style="color:#FA8C16; margin-left:12px;">160-319 较大</span>
+        <span style="color:#D4B106; margin-left:12px;">70-159 一般</span>
+        <span style="color:#1890FF; margin-left:12px;">&lt;70 低</span>
+      </div>
+    </div>
+
+    <!-- 标准修订提醒 -->
+    <div class="card" style="margin-top:16px; padding:12px 16px; border-left:3px solid var(--primary); background:#E6F7FF;">
+      <div style="font-size:13px; font-weight:500; color:var(--primary); margin-bottom:4px;">标准修订提醒</div>
+      <div style="font-size:12px; color:var(--text-tertiary);">风险等级评判标准发布满2年后，系统自动发送修订提醒通知；超3年未修订的，标准状态变更为"待修订"（黄色标签）</div>
+    </div>
+  </div>
+
+  <!-- ====== Tab 2: 风险分类体系 ====== -->
+  <div id="tab-category" class="tab-content">
+    <div style="display:flex; gap:16px;">
+      <!-- 左侧分类树 -->
+      <div style="width:360px; flex-shrink:0;">
+        <div class="card" style="height:100%;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-size:14px; font-weight:500;">分类管理</div>
+            <div style="display:flex; gap:4px;">
+              <select class="form-input form-select" style="width:120px; height:28px; font-size:12px;" onchange="switchCategory(this.value)">
+                <option value="source">危险源类型</option>
+                <option value="accident">事故类型</option>
+                <option value="measure">管控措施分类</option>
+              </select>
+              <button class="btn btn-primary btn-sm" style="height:28px; font-size:12px;" onclick="showModal('categoryModal')">+ 新增</button>
+            </div>
+          </div>
+          <div class="tree-container">
+            <!-- 危险源类型树 -->
+            <div id="tree-source">
+              <div class="tree-node">
+                <div class="tree-node-inner selected">
+                  <span class="tree-toggle">▼</span>
+                  <span>人的因素</span><span class="tree-code">A</span>
+                </div>
+                <div class="tree-children">
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>行为错误</span><span class="tree-code">A01</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>健康状况异常</span><span class="tree-code">A02</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>个体防护用品缺失</span><span class="tree-code">A03</span></div></div>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>物的因素</span><span class="tree-code">B</span>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>环境因素</span><span class="tree-code">C</span>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>管理因素</span><span class="tree-code">D</span>
+                </div>
+              </div>
+            </div>
+            <!-- 事故类型树（GB 6441） -->
+            <div id="tree-accident" style="display:none;">
+              <div style="font-size:11px; color:var(--text-quaternary); margin-bottom:8px; padding:4px 8px; background:var(--bg-secondary); border-radius:var(--radius-sm);">参照 GB 6441-1986《企业职工伤亡事故分类》</div>
+              <div class="tree-node">
+                <div class="tree-node-inner selected">
+                  <span class="tree-toggle">▼</span>
+                  <span>事故类型</span><span class="tree-code">A</span>
+                </div>
+                <div class="tree-children">
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>物体打击</span><span class="tree-code">A01</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>车辆伤害</span><span class="tree-code">A02</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>机械伤害</span><span class="tree-code">A03</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>起重伤害</span><span class="tree-code">A04</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>触电</span><span class="tree-code">A05</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>淹溺</span><span class="tree-code">A06</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>灼烫</span><span class="tree-code">A07</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>火灾</span><span class="tree-code">A08</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>高处坠落</span><span class="tree-code">A09</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>坍塌</span><span class="tree-code">A10</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>冒顶片帮</span><span class="tree-code">A11</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>透水</span><span class="tree-code">A12</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>放炮</span><span class="tree-code">A13</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>火药爆炸</span><span class="tree-code">A14</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>瓦斯爆炸</span><span class="tree-code">A15</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>锅炉爆炸</span><span class="tree-code">A16</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>容器爆炸</span><span class="tree-code">A17</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>其他爆炸</span><span class="tree-code">A18</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>中毒和窒息</span><span class="tree-code">A19</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>其他伤害</span><span class="tree-code">A20</span></div></div>
+                </div>
+              </div>
+            </div>
+            <!-- 管控措施分类树 -->
+            <div id="tree-measure" style="display:none;">
+              <div class="tree-node">
+                <div class="tree-node-inner selected">
+                  <span class="tree-toggle">▼</span>
+                  <span>工程技术措施</span><span class="tree-code">A</span>
+                </div>
+                <div class="tree-children">
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>消除</span><span class="tree-code">A01</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>替代</span><span class="tree-code">A02</span></div></div>
+                  <div class="tree-node"><div class="tree-node-inner"><span class="tree-toggle">&nbsp;</span><span>隔离</span><span class="tree-code">A03</span></div></div>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>管理措施</span><span class="tree-code">B</span>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>培训教育措施</span><span class="tree-code">C</span>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>个体防护措施</span><span class="tree-code">D</span>
+                </div>
+              </div>
+              <div class="tree-node">
+                <div class="tree-node-inner">
+                  <span class="tree-toggle">▶</span>
+                  <span>应急处置措施</span><span class="tree-code">E</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <button class="btn btn-default btn-sm" style="font-size:12px;">批量导入</button>
+            <button class="btn btn-default btn-sm" style="font-size:12px;">导出</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧详情 -->
+      <div style="flex:1;">
+        <div class="card">
+          <div id="categoryDetailTitle" style="font-size:14px; font-weight:500; margin-bottom:16px;">分类详情 — 危险源类型</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>编码</th>
+                <th>类型名称</th>
+                <th>上级类型</th>
+                <th>排序</th>
+                <th>子项数</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A</td>
+                <td>人的因素</td>
+                <td>—</td>
+                <td>1</td>
+                <td>3</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">删除</button></td>
+              </tr>
+              <tr style="background:var(--bg-secondary)">
+                <td>A01</td>
+                <td>行为错误</td>
+                <td>人的因素</td>
+                <td>1</td>
+                <td>0</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">删除</button></td>
+              </tr>
+              <tr style="background:var(--bg-secondary)">
+                <td>A02</td>
+                <td>健康状况异常</td>
+                <td>人的因素</td>
+                <td>2</td>
+                <td>0</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">删除</button></td>
+              </tr>
+              <tr style="background:var(--bg-secondary)">
+                <td>A03</td>
+                <td>个体防护用品缺失</td>
+                <td>人的因素</td>
+                <td>3</td>
+                <td>0</td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">删除</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Tab 3: 典型风险清单 ====== -->
+  <div id="tab-template" class="tab-content">
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">行业模板</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--color-success)">3</div><div class="stat-label">已发布</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--color-warning)">2</div><div class="stat-label">草稿</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--color-primary)">14</div><div class="stat-label">企业引用次数</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索模板名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部行业</option>
+          <option>港口运营</option>
+          <option>危化品</option>
+          <option>建筑施工</option>
+          <option>物流运输</option>
+          <option>物业管理</option>
+        </select>
+        <select class="form-input form-select" style="width:120px">
+          <option>全部状态</option>
+          <option>草稿</option>
+          <option>已发布</option>
+          <option>已停用</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+        <button class="btn btn-primary btn-sm" onclick="showModal('templateModal')" style="margin-left:auto">+ 新增模板</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default btn-sm">批量导入</button>
+        <button class="btn btn-default btn-sm">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>模板名称</th>
+            <th>适用行业</th>
+            <th>危险源条目数</th>
+            <th>版本</th>
+            <th>状态</th>
+            <th>引用次数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>港口作业典型风险清单</td>
+            <td>港口运营</td>
+            <td>86</td>
+            <td>V2.0</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td>8</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">预览</button>
+              <button class="btn btn-text btn-sm">修订</button>
+              <button class="btn btn-text btn-sm">版本历史</button>
+              <button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button>
+            </td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>危化品存储典型风险清单</td>
+            <td>危化品</td>
+            <td>52</td>
+            <td>V1.0</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td>4</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">预览</button>
+              <button class="btn btn-text btn-sm">修订</button>
+              <button class="btn btn-text btn-sm">版本历史</button>
+              <button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button>
+            </td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>建筑施工典型风险清单</td>
+            <td>建筑施工</td>
+            <td>73</td>
+            <td>V1.0</td>
+            <td><span class="tag tag-published">已发布</span></td>
+            <td>2</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">预览</button>
+              <button class="btn btn-text btn-sm">修订</button>
+              <button class="btn btn-text btn-sm">版本历史</button>
+              <button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button>
+            </td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>物流运输典型风险清单</td>
+            <td>物流运输</td>
+            <td>41</td>
+            <td>V1.0</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td>0</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">编辑</button>
+              <button class="btn btn-text btn-sm" style="color:var(--primary)">发布</button>
+            </td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>物业管理典型风险清单</td>
+            <td>物业管理</td>
+            <td>35</td>
+            <td>V1.0</td>
+            <td><span class="tag tag-draft">草稿</span></td>
+            <td>0</td>
+            <td>
+              <button class="btn btn-text btn-sm">查看</button>
+              <button class="btn btn-text btn-sm">编辑</button>
+              <button class="btn btn-text btn-sm" style="color:var(--primary)">发布</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 5 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分类新增弹窗 -->
+  <div id="categoryModal" class="modal-overlay">
+    <div class="modal" style="width:480px;">
+      <div class="modal-header"><h3>新增分类</h3><button class="btn btn-text" onclick="hideModal('categoryModal')">✕</button></div>
+      <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">类型编码<span class="required">*</span></label>
+          <input class="form-input" style="width:100%" placeholder="如 A01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">类型名称<span class="required">*</span></label>
+          <input class="form-input" style="width:100%" placeholder="请输入类型名称">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">上级类型</label>
+          <select class="form-input form-select" style="width:100%">
+            <option>无（顶级分类）</option>
+            <option>人的因素 (A)</option>
+            <option>物的因素 (B)</option>
+            <option>环境因素 (C)</option>
+            <option>管理因素 (D)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">排序号</label>
+          <input class="form-input" type="number" style="width:100%" placeholder="数字越小越靠前">
+        </div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="hideModal('categoryModal')">取消</button>
+        <button class="btn btn-primary" onclick="hideModal('categoryModal')">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模板新增弹窗 -->
+  <div id="templateModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header"><h3>新增典型风险清单模板</h3><button class="btn btn-text" onclick="hideModal('templateModal')">✕</button></div>
+      <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">模板名称<span class="required">*</span></label>
+          <input class="form-input" style="width:100%" placeholder="如：港口作业典型风险清单">
+        </div>
+        <div class="form-group">
+          <label class="form-label">适用行业<span class="required">*</span></label>
+          <select class="form-input form-select" style="width:100%">
+            <option>请选择</option>
+            <option>港口运营</option>
+            <option>危化品</option>
+            <option>建筑施工</option>
+            <option>物流运输</option>
+            <option>物业管理</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">模板说明</label>
+        <textarea class="form-input" style="width:100%; height:80px" placeholder="描述该模板的适用范围和内容概要"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">危险源条目</label>
+        <div style="border:1px dashed var(--border); border-radius:var(--radius-md); padding:24px; text-align:center; color:var(--text-tertiary); font-size:13px;">
+          <div>发布后可在模板详情中逐条添加危险源条目</div>
+          <div style="margin-top:8px;">也可通过 Excel 模板批量导入</div>
+          <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
+            <button class="btn btn-default btn-sm">下载导入模板</button>
+            <button class="btn btn-primary btn-sm">选择文件导入</button>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="hideModal('templateModal')">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary" onclick="hideModal('templateModal')">保存并发布</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) { document.getElementById(id).classList.add('show'); }
+    function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+    function switchCategory(val) {
+      // 切换分类类型，显示对应树
+      var trees = ['source', 'accident', 'measure'];
+      trees.forEach(function(t) {
+        var el = document.getElementById('tree-' + t);
+        if (el) el.style.display = t === val ? 'block' : 'none';
+      });
+      // 更新右侧详情标题
+      var names = { source: '危险源类型', accident: '事故类型', measure: '管控措施分类' };
+      var detailTitle = document.getElementById('categoryDetailTitle');
+      if (detailTitle) detailTitle.textContent = '分类详情 — ' + names[val];
+    }
+  </script>
+</body>
+</html>
