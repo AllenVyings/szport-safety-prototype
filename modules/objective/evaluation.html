@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全履职评价 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-not-started { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-in-progress { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-completed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-overdue { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-excellent { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-qualified { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-improve { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .tag-unqualified { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .source-tag { display:inline-flex; align-items:center; padding:1px 8px; border-radius:10px; font-size:11px; white-space:nowrap; }
+    .source-check { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .source-train { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .source-drill { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
+    .source-manual { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .progress-bar { height:6px; background:var(--border-light); border-radius:3px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:3px; transition:width var(--duration-normal) var(--ease-out); }
+    .detail-panel { display:none; margin-top:16px; padding:16px; background:var(--bg-table-stripe); border-radius:var(--radius-md); border:1px solid var(--border-light); }
+    .detail-panel.show { display:block; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">履职岗位数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">78%</div><div class="stat-label">平均完成率</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--error)">3</div><div class="stat-label">逾期履职</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">5</div><div class="stat-label">待评价</div></div>
+  </div>
+
+  <!-- 预警提示 -->
+  <div class="alert alert-warning" style="margin-bottom:16px;">
+    <strong>预警规则</strong> — 履职项临近截止7天/3天/1天自动提醒责任人；逾期标红并通知上级
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('list')">履职清单</div>
+    <div class="tab-item" onclick="switchTab('report')">评价报告</div>
+  </div>
+
+  <!-- Tab1 履职清单 -->
+  <div id="tab-list" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索岗位名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>正常</option>
+          <option>有逾期</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>岗位名称</th>
+            <th>履职项数</th>
+            <th>已完成</th>
+            <th>进行中</th>
+            <th>逾期</th>
+            <th>完成率</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>安全管理部负责人</td>
+            <td>12</td>
+            <td style="color:var(--success)">10</td>
+            <td style="color:var(--primary)">1</td>
+            <td style="color:var(--error)">1</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:60px;"><div class="progress-fill" style="width:83%; background:var(--success);"></div></div>
+                <span style="font-size:13px; font-weight:500;">83%</span>
+              </div>
+            </td>
+            <td><button class="btn btn-text btn-sm" onclick="toggleDetail('detail-1')">查看</button></td>
+          </tr>
+          <tr>
+            <td colspan="8" style="padding:0;">
+              <div class="detail-panel" id="detail-1">
+                <div style="font-size:14px; font-weight:500; margin-bottom:12px; color:var(--text-primary);">安全管理部负责人 — 履职项明细</div>
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>履职项名称</th>
+                      <th>频率</th>
+                      <th>完成次数</th>
+                      <th>应完成次数</th>
+                      <th>状态</th>
+                      <th>来源</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>组织安全检查</td>
+                      <td>每月1次</td>
+                      <td>5</td>
+                      <td>5</td>
+                      <td><span class="tag tag-completed">已完成</span></td>
+                      <td><span class="source-tag source-check">检查记录</span></td>
+                    </tr>
+                    <tr>
+                      <td>参加安全培训</td>
+                      <td>每季度1次</td>
+                      <td>2</td>
+                      <td>2</td>
+                      <td><span class="tag tag-completed">已完成</span></td>
+                      <td><span class="source-tag source-train">培训记录</span></td>
+                    </tr>
+                    <tr>
+                      <td>参与应急演练</td>
+                      <td>每半年1次</td>
+                      <td>1</td>
+                      <td>1</td>
+                      <td><span class="tag tag-completed">已完成</span></td>
+                      <td><span class="source-tag source-drill">演练记录</span></td>
+                    </tr>
+                    <tr>
+                      <td>提交安全月报</td>
+                      <td>每月1次</td>
+                      <td>4</td>
+                      <td>5</td>
+                      <td><span class="tag tag-in-progress">进行中</span></td>
+                      <td><span class="source-tag source-manual">手动填报</span></td>
+                    </tr>
+                    <tr>
+                      <td>隐患整改督办</td>
+                      <td>按需</td>
+                      <td>2</td>
+                      <td>3</td>
+                      <td><span class="tag tag-overdue">逾期</span></td>
+                      <td><span class="source-tag source-check">检查记录</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>港口物流公司安全主管</td>
+            <td>10</td>
+            <td style="color:var(--success)">8</td>
+            <td style="color:var(--primary)">2</td>
+            <td style="color:var(--text-description)">0</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:60px;"><div class="progress-fill" style="width:80%; background:var(--success);"></div></div>
+                <span style="font-size:13px; font-weight:500;">80%</span>
+              </div>
+            </td>
+            <td><button class="btn btn-text btn-sm" onclick="toggleDetail('detail-2')">查看</button></td>
+          </tr>
+          <tr>
+            <td colspan="8" style="padding:0;">
+              <div class="detail-panel" id="detail-2">
+                <div style="font-size:14px; font-weight:500; margin-bottom:12px; color:var(--text-primary);">港口物流公司安全主管 — 履职项明细</div>
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>履职项名称</th>
+                      <th>频率</th>
+                      <th>完成次数</th>
+                      <th>应完成次数</th>
+                      <th>状态</th>
+                      <th>来源</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>组织安全检查</td>
+                      <td>每月2次</td>
+                      <td>9</td>
+                      <td>10</td>
+                      <td><span class="tag tag-in-progress">进行中</span></td>
+                      <td><span class="source-tag source-check">检查记录</span></td>
+                    </tr>
+                    <tr>
+                      <td>参加安全培训</td>
+                      <td>每季度1次</td>
+                      <td>2</td>
+                      <td>2</td>
+                      <td><span class="tag tag-completed">已完成</span></td>
+                      <td><span class="source-tag source-train">培训记录</span></td>
+                    </tr>
+                    <tr>
+                      <td>提交安全周报</td>
+                      <td>每周1次</td>
+                      <td>18</td>
+                      <td>20</td>
+                      <td><span class="tag tag-in-progress">进行中</span></td>
+                      <td><span class="source-tag source-manual">手动填报</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>危化品仓储公司安全员</td>
+            <td>8</td>
+            <td style="color:var(--success)">7</td>
+            <td style="color:var(--primary)">1</td>
+            <td style="color:var(--text-description)">0</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:60px;"><div class="progress-fill" style="width:88%; background:var(--success);"></div></div>
+                <span style="font-size:13px; font-weight:500;">88%</span>
+              </div>
+            </td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>港口运营公司安全总监</td>
+            <td>15</td>
+            <td style="color:var(--success)">9</td>
+            <td style="color:var(--primary)">3</td>
+            <td style="color:var(--error)">3</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="progress-bar" style="width:60px;"><div class="progress-fill" style="width:60%; background:var(--warning);"></div></div>
+                <span style="font-size:13px; font-weight:500; color:var(--warning);">60%</span>
+              </div>
+            </td>
+            <td><button class="btn btn-text btn-sm">查看</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 评价报告 -->
+  <div id="tab-report" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索被评价人..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部等级</option>
+          <option>优秀</option>
+          <option>达标</option>
+          <option>待改进</option>
+          <option>不达标</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部周期</option>
+          <option>2026年Q2</option>
+          <option>2026年Q1</option>
+          <option>2025年Q4</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>被评价人</th>
+            <th>岗位</th>
+            <th>评价周期</th>
+            <th>履职得分</th>
+            <th>等级</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>张明</td>
+            <td>安全管理部负责人</td>
+            <td>2026年Q1</td>
+            <td style="font-weight:500;">95</td>
+            <td><span class="tag tag-excellent">优秀</span></td>
+            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>李强</td>
+            <td>港口物流公司安全主管</td>
+            <td>2026年Q1</td>
+            <td style="font-weight:500;">82</td>
+            <td><span class="tag tag-qualified">达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>王磊</td>
+            <td>港口运营公司安全总监</td>
+            <td>2026年Q1</td>
+            <td style="font-weight:500; color:var(--error);">58</td>
+            <td><span class="tag tag-unqualified">不达标</span></td>
+            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function toggleDetail(id) {
+      var panel = document.getElementById(id);
+      if (panel) {
+        panel.classList.toggle('show');
+      }
+    }
+  </script>
+</body>
+</html>
