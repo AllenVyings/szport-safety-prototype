@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>制度保障 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-effective { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-revised { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-abolished { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .alert-warning { padding:10px 14px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806; margin-bottom:12px; }
+    .alert-info { padding:10px 14px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-sm); font-size:12px; color:#0958D9; margin-bottom:12px; }
+    .prd-footer { margin-top:20px; padding:10px 16px; background:#F5F5F5; border-radius:var(--radius-sm); font-size:12px; color:var(--text-description); text-align:center; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">法律法规总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">18</div><div class="stat-label">规章制度总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">3</div><div class="stat-label">最近更新</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">2</div><div class="stat-label">待修订</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">1</div><div class="stat-label">已废止</div></div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('law')">法律法规台账</div>
+    <div class="tab-item" onclick="switchTab('rule')">规章制度台账</div>
+  </div>
+
+  <!-- Tab1 法律法规台账 -->
+  <div id="tab-law" class="tab-content active">
+    <div class="alert-warning">
+      法律法规更新时，系统自动提醒相关制度修订（在"待修订"状态中标记）
+    </div>
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索法规名称..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部法规类别</option>
+          <option>法律</option>
+          <option>行政法规</option>
+          <option>地方性法规</option>
+          <option>部门规章</option>
+          <option>地方规章</option>
+          <option>其他</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>现行有效</option>
+          <option>已修订</option>
+          <option>已废止</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-primary" onclick="showModal('addRegModal')">+ 新增</button>
+      <button class="btn btn-default">导出</button>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>法规名称</th>
+            <th>法规类别</th>
+            <th>发布机关</th>
+            <th>生效日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>安全生产法</td>
+            <td><span class="tag tag-info">法律</span></td>
+            <td>全国人大常委会</td>
+            <td>2021-09-01</td>
+            <td><span class="tag tag-effective">现行有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>港口危险货物安全管理规定</td>
+            <td><span class="tag tag-warning">部门规章</span></td>
+            <td>交通运输部</td>
+            <td>2023-03-01</td>
+            <td><span class="tag tag-revised">已修订</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>广东省安全生产条例</td>
+            <td><span class="tag tag-success">地方性法规</span></td>
+            <td>广东省人大常委会</td>
+            <td>2023-10-01</td>
+            <td><span class="tag tag-effective">现行有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>深圳经济特区安全生产监督管理条例</td>
+            <td><span class="tag tag-success">地方性法规</span></td>
+            <td>深圳市人大常委会</td>
+            <td>2023-07-01</td>
+            <td><span class="tag tag-effective">现行有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 规章制度台账 -->
+  <div id="tab-rule" class="tab-content">
+    <div class="alert-info">
+      员工可通过培训知识库上传安全知识文件，审核通过后共享至全集团 | 关联模块：教育培训-培训知识库
+    </div>
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索制度名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部制度类型</option>
+          <option>管理制度</option>
+          <option>管理规定</option>
+          <option>操作规程</option>
+          <option>应急预案</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>现行有效</option>
+          <option>待修订</option>
+          <option>已废止</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>制度名称</th>
+            <th>制度类型</th>
+            <th>适用范围</th>
+            <th>生效日期</th>
+            <th>版本</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>安全生产管理办法</td>
+            <td>管理制度</td>
+            <td>全集团</td>
+            <td>2026-01-01</td>
+            <td>V3.0</td>
+            <td><span class="tag tag-effective">现行有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>安全检查管理规定</td>
+            <td>管理规定</td>
+            <td>本单位</td>
+            <td>2026-01-01</td>
+            <td>V2.1</td>
+            <td><span class="tag tag-effective">现行有效</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>隐患排查治理制度</td>
+            <td>管理制度</td>
+            <td>全集团</td>
+            <td>2025-07-01</td>
+            <td>V2.0</td>
+            <td><span class="tag tag-pending-revise">待修订</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增制度弹窗 -->
+  <div id="addRegModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); border-radius:var(--radius-lg); width:640px; max-height:80vh; overflow:auto; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="margin:0; font-size:16px;">新增规章制度</h3>
+        <button class="btn btn-text" onclick="hideModal('addRegModal')">&#10005;</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 制度名称</label>
+          <input class="form-input" style="width:100%" placeholder="请输入制度名称">
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 制度类型</label>
+          <select class="form-input form-select" style="width:100%">
+            <option>请选择</option>
+            <option>管理制度</option>
+            <option>管理规定</option>
+            <option>操作规程</option>
+            <option>应急预案</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 适用范围</label>
+          <select class="form-input form-select" style="width:100%">
+            <option>请选择</option>
+            <option>全集团</option>
+            <option>本单位</option>
+            <option>特定部门</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">关联法规</label>
+          <input class="form-input" style="width:100%" placeholder="请输入关联法规名称">
+        </div>
+        <div style="grid-column:span 2">
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">制度正文</label>
+          <textarea class="form-input" style="width:100%; height:120px" placeholder="请输入制度正文内容"></textarea>
+        </div>
+        <div style="grid-column:span 2">
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">附件上传</label>
+          <div style="border:1px dashed var(--border); border-radius:var(--radius-md); padding:20px; text-align:center; color:var(--text-description); font-size:13px; cursor:pointer;">
+            点击或拖拽上传附件（支持 .doc/.docx/.pdf，单文件不超过20MB）
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn btn-default" onclick="hideModal('addRegModal')">取消</button>
+        <button class="btn btn-primary" onclick="hideModal('addRegModal')">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prd-footer">对应PRD章节 3.12.2 制度保障 | 关联模块：教育培训-培训知识库</div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+  </script>
+</body>
+</html>
