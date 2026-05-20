@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全会议 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-planned { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-held { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-archived { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .detail-section { margin-bottom:20px; }
+    .detail-section-title { font-size:14px; font-weight:500; color:var(--text-primary); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; margin-bottom:8px; font-size:13px; }
+    .detail-label { width:80px; color:var(--text-secondary); flex-shrink:0; }
+    .detail-value { color:var(--text-primary); flex:1; }
+    .attachment-list { display:flex; flex-direction:column; gap:8px; }
+    .attachment-item { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:13px; }
+    .attachment-icon { color:var(--primary); }
+    .photo-grid { display:flex; gap:12px; flex-wrap:wrap; }
+    .photo-placeholder { width:120px; height:90px; border-radius:var(--radius-sm); background:var(--bg-table-header); border:1px dashed var(--border-dark); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:12px; }
+    .modal { width: var(--modal-lg); }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">16</div><div class="stat-label">本年会议数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">12</div><div class="stat-label">已召开</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">待召开</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">1</div><div class="stat-label">已归档</div></div>
+  </div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('ledger')">会议台账</div>
+    <div class="tab-item" onclick="switchTab('detail')">会议详情</div>
+  </div>
+
+  <!-- Tab1 会议台账 -->
+  <div id="tab-ledger" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索会议名称..." style="width:200px">
+        <select class="form-input form-select" style="width:140px">
+          <option>全部类型</option>
+          <option>安委会</option>
+          <option>安全例会</option>
+          <option>专题会</option>
+          <option>培训会</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>计划中</option>
+          <option>已召开</option>
+          <option>已归档</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openModal()">+ 新增会议</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>会议名称</th>
+            <th>会议类型</th>
+            <th>组织部门</th>
+            <th>会议时间</th>
+            <th>参会人数</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>集团安委会季度会议</td>
+            <td><span class="tag tag-info">安委会</span></td>
+            <td>安全管理部</td>
+            <td>2026-04-10</td>
+            <td>28</td>
+            <td><span class="tag tag-held">已召开</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="viewDetail(1)">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>5月安全例会</td>
+            <td><span class="tag tag-info">安全例会</span></td>
+            <td>安全管理部</td>
+            <td>2026-05-08</td>
+            <td>15</td>
+            <td><span class="tag tag-held">已召开</span></td>
+            <td><button class="btn btn-text btn-sm" onclick="viewDetail(2)">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>危化品安全管理专题会</td>
+            <td><span class="tag tag-warning">专题会</span></td>
+            <td>危化品仓储公司</td>
+            <td>2026-05-22</td>
+            <td>—</td>
+            <td><span class="tag tag-planned">计划中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>新员工安全培训会</td>
+            <td><span class="tag tag-success">培训会</span></td>
+            <td>人力资源部</td>
+            <td>2026-05-25</td>
+            <td>—</td>
+            <td><span class="tag tag-planned">计划中</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 会议详情 -->
+  <div id="tab-detail" class="tab-content">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div style="font-size:15px; font-weight:500; color:var(--text-primary);">集团安委会季度会议</div>
+        <button class="btn btn-default btn-sm" onclick="switchTab('ledger')">返回台账</button>
+      </div>
+
+      <!-- 基本信息 -->
+      <div class="detail-section">
+        <div class="detail-section-title">基本信息</div>
+        <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">集团安委会季度会议</div></div>
+        <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">安委会</div></div>
+        <div class="detail-row"><div class="detail-label">会议时间</div><div class="detail-value">2026-04-10 14:00-16:30</div></div>
+        <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集团总部3楼会议室A</div></div>
+        <div class="detail-row"><div class="detail-label">主持人</div><div class="detail-value">刘副总经理</div></div>
+        <div class="detail-row"><div class="detail-label">参会人员</div><div class="detail-value">安全管理部全体、各二级企业安全负责人、集团分管领导等共28人</div></div>
+      </div>
+
+      <!-- 会议纪要 -->
+      <div class="detail-section">
+        <div class="detail-section-title">会议纪要</div>
+        <div style="padding:12px 16px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:13px; line-height:1.8; color:var(--text-primary);">
+          <p><strong>一、Q1安全工作总结</strong></p>
+          <p>1. 一季度集团未发生重大安全事故，一般事故2起，同比下降33%。</p>
+          <p>2. 隐患排查整改率95%，仍有3项重大隐患整改中。</p>
+          <p><strong>二、Q2安全工作部署</strong></p>
+          <p>1. 各单位6月前完成危化品专项检查。</p>
+          <p>2. 推进安全标准化建设，目标年底达标率100%。</p>
+          <p><strong>三、决议事项</strong></p>
+          <p>1. 集团增配应急物资储备，预算20万元。</p>
+          <p>2. 各二级企业5月底前提交安全履职自查报告。</p>
+        </div>
+      </div>
+
+      <!-- 过程资料 -->
+      <div class="detail-section">
+        <div class="detail-section-title">过程资料</div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">附件</div>
+          <div class="attachment-list">
+            <div class="attachment-item">
+              <span class="attachment-icon">PDF</span>
+              <span>集团安委会Q2会议纪要.pdf</span>
+              <span style="color:var(--text-description); margin-left:auto; font-size:12px;">2.3MB</span>
+            </div>
+            <div class="attachment-item">
+              <span class="attachment-icon">XLSX</span>
+              <span>Q1安全工作统计表.xlsx</span>
+              <span style="color:var(--text-description); margin-left:auto; font-size:12px;">156KB</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">现场照片</div>
+          <div class="photo-grid">
+            <div class="photo-placeholder">会议现场1</div>
+            <div class="photo-placeholder">会议现场2</div>
+            <div class="photo-placeholder">会议现场3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增会议弹窗 -->
+  <div class="modal-overlay" id="modal-add">
+    <div class="modal">
+      <div class="modal-header"><h3>新增安全会议</h3><button class="btn btn-text btn-sm" onclick="closeModal()" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>会议名称</div>
+        <div class="form-content"><input class="form-input" placeholder="请输入会议名称"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>会议类型</div>
+        <div class="form-content">
+          <select class="form-input form-select">
+            <option>请选择会议类型</option>
+            <option>安委会</option>
+            <option>安全例会</option>
+            <option>专题会</option>
+            <option>培训会</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label"><span class="required">*</span>会议时间</div>
+        <div class="form-content"><input class="form-input" type="datetime-local"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">会议地点</div>
+        <div class="form-content"><input class="form-input" placeholder="请输入会议地点"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">主持人</div>
+        <div class="form-content"><input class="form-input" placeholder="请输入主持人"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">参会人员</div>
+        <div class="form-content"><textarea class="form-input" style="height:60px; padding:8px 12px;" placeholder="请输入参会人员，多人用逗号分隔"></textarea></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">会议议程</div>
+        <div class="form-content"><textarea class="form-input" style="height:80px; padding:8px 12px;" placeholder="请输入会议议程"></textarea></div>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function viewDetail(id) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-item')[1].classList.add('active');
+      document.getElementById('tab-detail').classList.add('active');
+    }
+
+    function openModal() {
+      document.getElementById('modal-add').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-add').classList.remove('show');
+    }
+
+    document.getElementById('modal-add').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+</body>
+</html>
