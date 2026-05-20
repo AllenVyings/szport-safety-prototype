@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公司台账 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/framework.css">
+  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .tag-normal { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-incomplete { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-submitted { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-confirmed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
+    .tag-rejected { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+</style>
+</head>
+<body style="padding:20px; background:var(--bg-page);">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">企业总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">1,256</div><div class="stat-label">从业人员</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--success)">15</div><div class="stat-label">本年报告</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">3</div><div class="stat-label">信息变更</div></div>
+  </div>
+
+  <!-- 提示框 -->
+  <div class="alert alert-warning" style="margin-bottom:12px">&#9888; 企业信息变更时，系统自动提醒相关模块更新（组织架构/危险源/应急预案）</div>
+  <div class="alert alert-info" style="margin-bottom:12px">&#128279; 关联模块：系统管理-组织架构（企业数据自动同步）</div>
+
+  <!-- Tab切换 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('company')">企业信息</div>
+    <div class="tab-item" onclick="switchTab('archive')">报告档案</div>
+  </div>
+
+  <!-- Tab1 企业信息 -->
+  <div id="tab-company" class="tab-content active">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索企业名称..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部行业类别</option>
+          <option>港口运营</option>
+          <option>危化品</option>
+          <option>建筑施工</option>
+          <option>物流运输</option>
+          <option>物业管理</option>
+        </select>
+        <select class="form-input form-select" style="width:140px">
+          <option>全部状态</option>
+          <option>正常</option>
+          <option>信息待更新</option>
+          <option>待补充</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="showModal('addCompany')">+ 新增企业</button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>企业名称</th>
+            <th>行业类别</th>
+            <th>地址</th>
+            <th>从业人员</th>
+            <th>安全负责人</th>
+            <th>联系电话</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>深圳港集装箱码头有限公司</td>
+            <td>港口运营</td>
+            <td>深圳市南山区蛇口港区</td>
+            <td>320</td>
+            <td>张建国</td>
+            <td>0755-2668XXXX</td>
+            <td><span class="tag tag-normal">正常</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>深圳港危化品储运公司</td>
+            <td>危化品</td>
+            <td>深圳市盐田区盐田港区</td>
+            <td>186</td>
+            <td>李安全</td>
+            <td>0755-2529XXXX</td>
+            <td><span class="tag tag-pending">信息待更新</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>深圳港物流运输有限公司</td>
+            <td>物流运输</td>
+            <td>深圳市福田区保税区</td>
+            <td>245</td>
+            <td>王守卫</td>
+            <td>0755-8356XXXX</td>
+            <td><span class="tag tag-normal">正常</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>深圳港物业管理有限公司</td>
+            <td>物业管理</td>
+            <td>深圳市南山区前海路</td>
+            <td>85</td>
+            <td>陈管理</td>
+            <td>0755-8601XXXX</td>
+            <td><span class="tag tag-incomplete">待补充</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 4 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab2 报告档案 -->
+  <div id="tab-archive" class="tab-content">
+    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+      <div class="filter-bar" style="margin-bottom:0;">
+        <input class="form-input" placeholder="搜索报告名称..." style="width:200px">
+        <select class="form-input form-select" style="width:160px">
+          <option>全部报告类型</option>
+          <option>月度报告</option>
+          <option>季度报告</option>
+          <option>年度报告</option>
+          <option>专项报告</option>
+        </select>
+        <button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button>
+      </div>
+    </div>
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>报告名称</th>
+            <th>报告类型</th>
+            <th>所属企业</th>
+            <th>报告期间</th>
+            <th>提交日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>2026年4月安全生产月度报告</td>
+            <td>月度报告</td>
+            <td>深圳港集装箱码头有限公司</td>
+            <td>2026年4月</td>
+            <td>2026-05-05</td>
+            <td><span class="tag tag-confirmed">已确认</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>2026年第一季度安全生产季报</td>
+            <td>季度报告</td>
+            <td>深圳港危化品储运公司</td>
+            <td>2026年Q1</td>
+            <td>2026-04-12</td>
+            <td><span class="tag tag-confirmed">已确认</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>危化品储运安全专项报告</td>
+            <td>专项报告</td>
+            <td>深圳港危化品储运公司</td>
+            <td>2026年1-5月</td>
+            <td>2026-05-15</td>
+            <td><span class="tag tag-submitted">已提交</span></td>
+            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">确认</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <span>共 3 条</span>
+        <div class="pagination-page active">1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增企业弹窗 -->
+  <div id="addCompanyModal" class="modal-overlay">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header">
+        <h3>新增企业</h3>
+        <button class="btn btn-text btn-sm" onclick="closeModal('addCompany')" style="font-size:18px; color:var(--text-description);">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">企业名称 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入企业名称">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">行业类别 <span style="color:#CF1322;">*</span></label>
+            <select class="form-input form-select" style="width:100%;">
+              <option value="">请选择</option>
+              <option>港口运营</option>
+              <option>危化品</option>
+              <option>建筑施工</option>
+              <option>物流运输</option>
+              <option>物业管理</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">从业人员 <span style="color:#CF1322;">*</span></label>
+            <input class="form-input" type="number" style="width:100%;" placeholder="请输入人数">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">地址 <span style="color:#CF1322;">*</span></label>
+          <input class="form-input" style="width:100%;" placeholder="请输入企业地址">
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:14px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">安全负责人 <span style="color:#CF1322;">*</span></label>
+            <input class="form-input" style="width:100%;" placeholder="请输入安全负责人">
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">联系电话 <span style="color:#CF1322;">*</span></label>
+            <input class="form-input" style="width:100%;" placeholder="请输入联系电话">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">备注</label>
+          <textarea class="form-input" style="width:100%; height:60px; resize:vertical;" placeholder="请输入备注信息..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('addCompany')">取消</button>
+        <button class="btn btn-primary" onclick="closeModal('addCompany')">确认新增</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+    function showModal(id) {
+      document.getElementById(id + 'Modal').classList.add('show');
+    }
+    function closeModal(id) {
+      document.getElementById(id + 'Modal').classList.remove('show');
+    }
+    document.getElementById('addCompanyModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addCompany'); });
+  </script>
+</body>
+</html>
