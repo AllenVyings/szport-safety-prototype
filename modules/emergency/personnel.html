@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>应急人员 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .tag-on-duty { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-off-duty { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-transferred { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-ab-normal { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-ab-activated { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-ab-returned { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .org-tree { width:220px; border-right:1px solid var(--border); padding:12px; flex-shrink:0; overflow-y:auto; }
+    .org-tree-item { padding:6px 8px; font-size:var(--font-size-13); cursor:pointer; border-radius:var(--radius-sm); color:var(--text-secondary); }
+    .org-tree-item:hover { background:var(--bg-hover); color:var(--primary); }
+    .org-tree-item.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .org-tree-group { padding-left:16px; }
+    .layout-row { display:flex; gap:16px; }
+    .layout-main { flex:1; min-width:0; }
+    .detail-panel { width:360px; flex-shrink:0; }
+    .detail-panel .card { height:100%; }
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
+    .detail-row .label { color:var(--text-secondary); }
+    .detail-row .value { color:var(--text-primary); font-weight:500; }
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--bg-card); border-radius:var(--radius-lg); max-height:80vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-light); }
+    .modal-header h3 { font-size:var(--font-size-16); margin:0; }
+    .modal-body { padding:20px; }
+    .modal-footer { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; justify-content:flex-end; gap:8px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:4px; }
+    .alert-info-card { padding:10px 14px; background:var(--tag-info-bg); border-color:var(--tag-info-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-info-color); margin-bottom:12px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">48</div><div class="stat-label">应急人员总数</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">42</div><div class="stat-label">在岗人员</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">3</div><div class="stat-label">AB角已激活</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">资质即将到期</div></div>
+  </div>
+
+  <div class="alert-info-card">&#8505; AB角机制说明：主岗与备岗绑定，主岗不可用时自动通知备岗激活。人员变动时提醒更新预案，资质到期前30天/7天自动提醒。</div>
+
+  <div class="layout-row">
+    <!-- 组织架构树 -->
+    <div class="org-tree card u-mb-0">
+      <div style="font-size:var(--font-size-14); font-weight:600; margin-bottom:12px; color:var(--text-primary);">应急组织架构</div>
+      <div class="org-tree-item active">深圳港集团</div>
+      <div class="org-tree-group">
+        <div class="org-tree-item">应急指挥部</div>
+        <div class="org-tree-item">抢险救援组</div>
+        <div class="org-tree-item">医疗救护组</div>
+        <div class="org-tree-item">通讯联络组</div>
+        <div class="org-tree-item">后勤保障组</div>
+      </div>
+      <div class="org-tree-item">集装箱码头公司</div>
+      <div class="org-tree-group">
+        <div class="org-tree-item">现场处置组</div>
+        <div class="org-tree-item">疏散引导组</div>
+      </div>
+      <div class="org-tree-item">油品码头公司</div>
+      <div class="org-tree-group">
+        <div class="org-tree-item">危化品处置组</div>
+        <div class="org-tree-item">消防应急组</div>
+      </div>
+    </div>
+
+    <!-- 人员列表 -->
+    <div class="layout-main">
+      <div class="card u-content-section">
+        <div class="filter-bar u-mb-0">
+          <div class="filter-field"><span class="filter-label">姓名/岗位</span><input class="form-input" placeholder="请输入"></div>
+          <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select">
+            <option>全部</option><option>在岗</option><option>离岗</option><option>已转岗</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">AB角状态</span><select class="form-input form-select">
+            <option>全部</option><option>正常</option><option>主岗离岗</option><option>主岗回归</option>
+          </select></div>
+          <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterPersonnel">查询</button>
+          <button class="btn btn-default btn-sm" data-action="resetFilter">重置</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="filter-actions-row">
+          <button class="btn btn-primary" data-action="showAddModal">+ 新增人员</button>
+          <button class="btn btn-default" data-action="exportData">导出</button>
+        </div>
+        <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>序号</th><th>姓名</th><th>岗位</th><th>联系方式</th><th>专业资质</th><th>人员状态</th><th>AB角状态</th><th>备岗人员</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>张建国</td><td>应急指挥长</td><td>138****1234</td><td>高级安全工程师</td>
+              <td><span class="tag tag-on-duty">在岗</span></td>
+              <td><span class="tag tag-ab-normal">正常</span></td><td>李卫东</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-1'">查看</button><button class="btn btn-text btn-sm" data-action="showAbModal">AB角配置</button></td>
+            </tr>
+            <tr>
+              <td>2</td><td>李卫东</td><td>副指挥长</td><td>139****5678</td><td>注册安全工程师</td>
+              <td><span class="tag tag-on-duty">在岗</span></td>
+              <td><span class="tag tag-ab-normal">正常</span></td><td>张建国</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-2'">查看</button><button class="btn btn-text btn-sm" data-action="showAbModal">AB角配置</button></td>
+            </tr>
+            <tr>
+              <td>3</td><td>王海涛</td><td>抢险救援组长</td><td>137****9012</td><td>应急救援员（五级）</td>
+              <td><span class="tag tag-off-duty">离岗</span></td>
+              <td><span class="tag tag-ab-activated">主岗离岗</span></td><td>赵勇（已激活）</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-3'">查看</button><button class="btn btn-text btn-sm" data-action="showAbModal">AB角配置</button></td>
+            </tr>
+            <tr>
+              <td>4</td><td>赵勇</td><td>抢险救援副组长</td><td>136****3456</td><td>应急救援员（四级）</td>
+              <td><span class="tag tag-on-duty">在岗</span></td>
+              <td><span class="tag tag-ab-activated">主岗离岗</span></td><td>王海涛（离岗中）</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-4'">查看</button><button class="btn btn-text btn-sm" data-action="showAbModal">AB角配置</button></td>
+            </tr>
+            <tr>
+              <td>5</td><td>陈晓敏</td><td>医疗救护组长</td><td>135****7890</td><td>急救员证</td>
+              <td><span class="tag tag-transferred">已转岗</span></td>
+              <td><span class="tag tag-ab-returned">主岗回归</span></td><td>刘芳</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-5'">查看</button><button class="btn btn-text btn-sm" data-action="showAbModal">AB角配置</button></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+      </div>
+
+      <!-- 案例库列表 -->
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary);">应急案例库</div>
+          <button class="btn btn-primary btn-sm" data-action="showAddCaseModal">+ 新增案例</button>
+        </div>
+        <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>序号</th><th>案例名称</th><th>事件类型</th><th>发生时间</th><th>经验教训</th><th>操作</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>2号泊位危化品泄漏应急处置案例</td><td>危化品泄漏</td><td>2025-08-12</td>
+              <td>快速响应+AB角自动切换保障了处置连续性</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-6'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            </tr>
+            <tr>
+              <td>2</td><td>台风"银杏"防台防汛案例</td><td>台风</td><td>2025-07-15</td>
+              <td>预警2小时内完成全员响应，闭环反馈及时</td>
+              <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'person-7'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AB角配置面板 -->
+    <div class="detail-panel">
+      <div class="card">
+        <div class="detail-section">
+          <div class="detail-section-title">AB角配置说明</div>
+          <div style="font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.6;">
+            <p>主岗与备岗绑定，主岗不可用时自动通知备岗。</p>
+            <p class="u-mt-8"><strong>人员状态：</strong>在岗 / 离岗 / 已转岗</p>
+            <p style="margin-top:4px;"><strong>AB角状态：</strong></p>
+            <p>正常 — 主备岗均在岗</p>
+            <p>主岗离岗 — 备岗自动激活</p>
+            <p>主岗回归 — 恢复主岗职责</p>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">预警规则</div>
+          <div style="font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.6;">
+            <p>1. 应急人员变动时提醒更新预案</p>
+            <p>2. AB角主岗离岗超过阈值时升级提醒</p>
+            <p>3. 应急人员资质到期前提醒</p>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">当前激活的备岗</div>
+          <div class="detail-row"><span class="label">备岗人员</span><span class="value">赵勇</span></div>
+          <div class="detail-row"><span class="label">代理岗位</span><span class="value">抢险救援组长</span></div>
+          <div class="detail-row"><span class="label">激活时间</span><span class="value">2026-05-10</span></div>
+          <div class="detail-row"><span class="label">主岗人员</span><span class="value">王海涛（离岗中）</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="personnel-detail-title" style="font-size:var(--font-size-16);font-weight:600;">人员详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="personnel-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">履历与说明</div><div id="personnel-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">操作记录</div><div id="personnel-detail-timeline" class="timeline"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="personnel-data.js?v=2.0"></script>
+  <script src="personnel-logic.js?v=2.0"></script>
+  <div class="toast" id="toast"></div>
+</body>
+</html>

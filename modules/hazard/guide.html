@@ -4,84 +4,85 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>隐患指引库 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-published { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-disabled { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-reviewing { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .law-link { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:11px; background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; cursor:pointer; }
-    .law-link:hover { background:#BAE7FF; }
+    .tag-disabled { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .law-link { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:10px; font-size:var(--font-size-11); background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); cursor:pointer; }
+    .law-link:hover { background:var(--bg-cyan-light); }
     .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
     .modal-overlay.show { display:flex; }
     .modal { background:var(--bg-base); border-radius:var(--radius-lg); width:640px; max-height:80vh; overflow-y:auto; }
     .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-lighter); }
-    .modal-header h3 { font-size:16px; margin:0; }
+    .modal-header h3 { font-size:var(--font-size-16); margin:0; }
     .modal-body { padding:20px; }
     .modal-footer { padding:12px 20px; border-top:1px solid var(--border-lighter); display:flex; justify-content:flex-end; gap:8px; }
     .form-group { margin-bottom:16px; }
-    .form-group label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
+    .form-group label { display:block; font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:4px; }
     .form-group .form-input, .form-group .form-textarea, .form-group .form-select { width:100%; }
     .form-textarea { min-height:80px; resize:vertical; }
     .law-section { margin-top:16px; padding:12px; background:var(--bg-page); border-radius:var(--radius-md); }
-    .law-section-title { font-size:13px; font-weight:500; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
-    .law-item { display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-sm); margin-bottom:4px; font-size:12px; }
+    .law-section-title { font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+    .law-item { display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-sm); margin-bottom:4px; font-size:var(--font-size-12); }
     .law-item .law-name { flex:1; }
     .law-item .law-remove { color:var(--text-quaternary); cursor:pointer; }
     .law-item .law-remove:hover { color:var(--color-error); }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">45</div><div class="stat-label">标准/指引总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--color-success)">32</div><div class="stat-label">已发布</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">32</div><div class="stat-label">已发布</div></div>
     <div class="stat-item"><div class="stat-num" style="color:var(--color-warning)">5</div><div class="stat-label">审核中</div></div>
     <div class="stat-item"><div class="stat-num" style="color:var(--text-quaternary)">6</div><div class="stat-label">草稿</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--color-error)">2</div><div class="stat-label">已停用</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">28</div><div class="stat-label">已关联法规</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">已停用</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">28</div><div class="stat-label">已关联法规</div></div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('standard')">隐患评判标准</div>
-    <div class="tab-item" onclick="switchTab('guide')">排查指引</div>
-    <div class="tab-item" onclick="switchTab('law')">法规关联</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="standard">隐患评判标准</div>
+      <div class="tab-item" data-action="switchTab" data-param="guide">排查指引</div>
+      <div class="tab-item" data-action="switchTab" data-param="law">法规关联</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- 隐患评判标准 -->
   <div id="tab-standard" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索标准名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">标准名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>草稿</option>
           <option>审核中</option>
           <option>已发布</option>
           <option>已停用</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部隐患类型</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">隐患类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>消防隐患</option>
           <option>电气隐患</option>
           <option>机械隐患</option>
           <option>危化品隐患</option>
           <option>高处作业隐患</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary btn-sm" onclick="showModal('addStandard')">+ 新增标准</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-default">批量导出</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addStandard">+ 新增标准</button>
+        <button class="btn btn-default btn-sm">批量导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -104,7 +105,7 @@
             <td><span class="law-link">3项</span></td>
             <td>2026-05-08</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-1'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-error">停用</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -114,7 +115,7 @@
             <td><span class="law-link">5项</span></td>
             <td>2026-04-20</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-2'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-error">停用</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -124,7 +125,7 @@
             <td><span class="law-link">4项</span></td>
             <td>2026-05-10</td>
             <td><span class="tag tag-reviewing">审核中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-3'">查看</button><button class="btn btn-text btn-sm u-text-primary">审批</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -134,7 +135,7 @@
             <td><span class="law-link">2项</span></td>
             <td>2026-05-15</td>
             <td><span class="tag tag-draft">草稿</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交审核</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-4'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-primary">提交审核</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -144,7 +145,7 @@
             <td><span class="law-link">3项</span></td>
             <td>2026-03-10</td>
             <td><span class="tag tag-disabled">已停用</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">重新启用</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-5'">查看</button><button class="btn btn-text btn-sm u-text-primary">重新启用</button></td>
           </tr>
           <tr>
             <td>6</td>
@@ -154,45 +155,48 @@
             <td><span class="law-link">6项</span></td>
             <td>2026-05-12</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--color-error)">停用</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-6'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-error">停用</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 6 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 6 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- 排查指引 -->
   <div id="tab-guide" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索指引名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部排查类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">指引名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">排查类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>综合排查</option>
           <option>专项排查</option>
           <option>日常排查</option>
           <option>季节性排查</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>草稿</option>
           <option>已发布</option>
           <option>已停用</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary btn-sm" onclick="showModal('addGuide')">+ 新增指引</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-default">批量导出</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addGuide">+ 新增指引</button>
+        <button class="btn btn-default btn-sm">批量导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -217,7 +221,7 @@
             <td><span class="law-link">3项</span></td>
             <td>2026-04-01</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-7'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -228,7 +232,7 @@
             <td><span class="law-link">4项</span></td>
             <td>2026-03-15</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-8'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -239,7 +243,7 @@
             <td><span class="law-link">2项</span></td>
             <td>2026-05-08</td>
             <td><span class="tag tag-draft">草稿</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交审核</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-9'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-primary">提交审核</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -250,7 +254,7 @@
             <td><span class="law-link">5项</span></td>
             <td>2026-05-10</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-10'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -261,7 +265,7 @@
             <td><span class="law-link">2项</span></td>
             <td>2026-04-20</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-11'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>6</td>
@@ -272,42 +276,45 @@
             <td>—</td>
             <td>2026-05-15</td>
             <td><span class="tag tag-draft">草稿</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-12'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 6 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 6 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- 法规关联 -->
   <div id="tab-law" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:12px 16px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-md);">
-      <div style="font-size:13px; color:#0958D9;">法规关联管理：建立隐患与法律条文的关联关系，提供初步常用的隐患问题法律清单，各参与方共同完善。支持各单位管理员自主维护。</div>
+    <div class="card" style="margin-bottom:16px; padding:12px 16px; background:var(--tag-info-bg); border-color:var(--tag-info-border); border-radius:var(--radius-md);">
+      <div style="font-size:var(--font-size-13); color:var(--tag-info-color);">法规关联管理：建立隐患与法律条文的关联关系，提供初步常用的隐患问题法律清单，各参与方共同完善。支持各单位管理员自主维护。</div>
     </div>
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索法规名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部法规类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">法规名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">法规类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>国家标准</option>
           <option>行业标准</option>
           <option>地方法规</option>
           <option>企业规章</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary btn-sm" onclick="showModal('addLaw')">+ 新增法规</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-default">批量导出</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addLaw">+ 新增法规</button>
+        <button class="btn btn-default btn-sm">批量导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -330,7 +337,7 @@
             <td>5</td>
             <td>4</td>
             <td>2021-09-01</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-13'">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -340,7 +347,7 @@
             <td>3</td>
             <td>2</td>
             <td>2011-12-01</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-14'">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -350,7 +357,7 @@
             <td>4</td>
             <td>3</td>
             <td>2019-11-01</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-15'">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -360,7 +367,7 @@
             <td>2</td>
             <td>1</td>
             <td>2005-10-01</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-16'">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -370,32 +377,62 @@
             <td>2</td>
             <td>1</td>
             <td>2023-10-01</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openHazardGuideDetail" data-param="'hazar-17'">查看</button><button class="btn btn-text btn-sm">编辑关联</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 5 条</span>
-        <div class="pagination-page active">1</div>
+      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="hazar-detail-title" style="font-size:var(--font-size-16);font-weight:600;">隐患指引库详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showHazardGuideList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="hazar-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="hazar-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="hazar-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- 新增标准弹窗 -->
   <div class="modal-overlay" id="modal-addStandard">
     <div class="modal">
       <div class="modal-header">
         <h3>新增隐患评判标准</h3>
-        <button class="btn btn-text" onclick="closeModal('addStandard')">✕</button>
+        <button class="btn btn-text" data-action="hideModal" data-param="addStandard">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>标准名称 <span style="color:var(--color-error)">*</span></label>
+          <label>标准名称 <span class="u-text-error">*</span></label>
           <input class="form-input" placeholder="输入标准名称">
         </div>
-        <div style="display:flex; gap:12px;">
-          <div class="form-group" style="flex:1">
-            <label>隐患类型 <span style="color:var(--color-error)">*</span></label>
+        <div class="u-flex u-gap-12">
+          <div class="form-group u-flex-1">
+            <label>隐患类型 <span class="u-text-error">*</span></label>
             <select class="form-input form-select">
               <option>请选择</option>
               <option>消防隐患</option>
@@ -405,7 +442,7 @@
               <option>高处作业隐患</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1">
+          <div class="form-group u-flex-1">
             <label>评判方法</label>
             <select class="form-input form-select">
               <option>定性评判</option>
@@ -431,7 +468,7 @@
           <input class="form-input" placeholder="如：重大隐患7天，一般隐患30天">
         </div>
         <div class="law-section">
-          <div class="law-section-title">关联法规 <button class="btn btn-text btn-sm" style="color:var(--primary)">+ 添加法规</button></div>
+          <div class="law-section-title">关联法规 <button class="btn btn-text btn-sm u-text-primary">+ 添加法规</button></div>
           <div class="law-item">
             <span class="law-name">中华人民共和国安全生产法</span>
             <span class="law-remove">✕</span>
@@ -439,7 +476,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addStandard')">取消</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addStandard">取消</button>
         <button class="btn btn-default">保存草稿</button>
         <button class="btn btn-primary">提交审核</button>
       </div>
@@ -451,16 +488,16 @@
     <div class="modal">
       <div class="modal-header">
         <h3>新增排查指引</h3>
-        <button class="btn btn-text" onclick="closeModal('addGuide')">✕</button>
+        <button class="btn btn-text" data-action="hideModal" data-param="addGuide">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>指引名称 <span style="color:var(--color-error)">*</span></label>
+          <label>指引名称 <span class="u-text-error">*</span></label>
           <input class="form-input" placeholder="输入指引名称">
         </div>
-        <div style="display:flex; gap:12px;">
-          <div class="form-group" style="flex:1">
-            <label>排查类型 <span style="color:var(--color-error)">*</span></label>
+        <div class="u-flex u-gap-12">
+          <div class="form-group u-flex-1">
+            <label>排查类型 <span class="u-text-error">*</span></label>
             <select class="form-input form-select">
               <option>请选择</option>
               <option>综合排查</option>
@@ -469,7 +506,7 @@
               <option>季节性排查</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1">
+          <div class="form-group u-flex-1">
             <label>适用范围</label>
             <input class="form-input" placeholder="如：全集团/油罐区">
           </div>
@@ -483,11 +520,11 @@
           <div style="display:flex; gap:8px; align-items:center;">
             <button class="btn btn-default btn-sm">手动添加检查项</button>
             <button class="btn btn-default btn-sm">Excel批量导入</button>
-            <span style="font-size:12px; color:var(--text-quaternary)">支持xlsx格式</span>
+            <span style="font-size:var(--font-size-12); color:var(--text-quaternary)">支持xlsx格式</span>
           </div>
         </div>
         <div class="law-section">
-          <div class="law-section-title">关联法规 <button class="btn btn-text btn-sm" style="color:var(--primary)">+ 添加法规</button></div>
+          <div class="law-section-title">关联法规 <button class="btn btn-text btn-sm u-text-primary">+ 添加法规</button></div>
           <div class="law-item">
             <span class="law-name">港口危险货物安全管理规定</span>
             <span class="law-remove">✕</span>
@@ -495,7 +532,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addGuide')">取消</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addGuide">取消</button>
         <button class="btn btn-default">保存草稿</button>
         <button class="btn btn-primary">提交审核</button>
       </div>
@@ -509,20 +546,28 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-
-    function showModal(id) {
-      document.getElementById('modal-' + id).classList.add('show');
+    var hazardGuideDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var hazardGuideDetailData = {};
+    function fillHazardGuideDetail(d) {
+      document.getElementById('hazar-detail-title').textContent = d.title;
+      document.getElementById('hazar-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('hazar-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('hazar-detail-timeline', d.timeline);
     }
-
-    function closeModal(id) {
-      document.getElementById('modal-' + id).classList.remove('show');
+    function openHazardGuideDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = hazardGuideDetailData[key] || hazardGuideDetailDataFallback;
+      fillHazardGuideDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
     }
+    window.openHazardGuideDetail = openHazardGuideDetail;
+    function showHazardGuideList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showHazardGuideList = showHazardGuideList;
 
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
-      });
-    });
   </script>
 </body>
 </html>

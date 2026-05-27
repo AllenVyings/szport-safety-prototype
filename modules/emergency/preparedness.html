@@ -4,26 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>应急准备 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-approved { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-expired { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-on-duty { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-off-duty { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-transferred { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-ab-normal { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-ab-activated { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-ab-returned { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-in-stock { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-out-stock { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-consumed { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-scrapped { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-on-duty { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-off-duty { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-transferred { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-ab-normal { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-ab-activated { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-ab-returned { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-in-stock { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-out-stock { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-consumed { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-scrapped { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
     .org-tree { width:220px; border-right:1px solid var(--border); padding:12px; flex-shrink:0; overflow-y:auto; }
-    .org-tree-item { padding:6px 8px; font-size:13px; cursor:pointer; border-radius:var(--radius-sm); color:var(--text-secondary); }
+    .org-tree-item { padding:6px 8px; font-size:var(--font-size-13); cursor:pointer; border-radius:var(--radius-sm); color:var(--text-secondary); }
     .org-tree-item:hover { background:var(--bg-hover); color:var(--primary); }
     .org-tree-item.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
     .org-tree-group { padding-left:16px; }
@@ -32,36 +30,39 @@
     .detail-panel { width:360px; flex-shrink:0; }
     .detail-panel .card { height:100%; }
     .detail-section { margin-bottom:16px; }
-    .detail-section-title { font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
-    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
     .detail-row .label { color:var(--text-secondary); }
     .detail-row .value { color:var(--text-primary); font-weight:500; }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">48</div><div class="stat-label">应急人员总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">42</div><div class="stat-label">在岗人员</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">12</div><div class="stat-label">应急预案</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">2</div><div class="stat-label">预案即将过期</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">356</div><div class="stat-label">应急物资（件）</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--error)">8</div><div class="stat-label">物资低于阈值</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">42</div><div class="stat-label">在岗人员</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">12</div><div class="stat-label">应急预案</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">2</div><div class="stat-label">预案即将过期</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">356</div><div class="stat-label">应急物资（件）</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">8</div><div class="stat-label">物资低于阈值</div></div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('personnel')">应急人员</div>
-    <div class="tab-item" onclick="switchTab('plan')">应急预案</div>
-    <div class="tab-item" onclick="switchTab('resource')">应急资源</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="personnel">应急人员</div>
+      <div class="tab-item" data-action="switchTab" data-param="plan">应急预案</div>
+      <div class="tab-item" data-action="switchTab" data-param="resource">应急资源</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab A: 应急人员 -->
   <div id="tab-personnel" class="tab-content active">
     <div class="layout-row">
       <!-- 组织架构树 -->
-      <div class="org-tree card" style="margin-bottom:0;">
-        <div style="font-size:14px; font-weight:600; margin-bottom:12px; color:var(--text-primary);">应急组织架构</div>
+      <div class="org-tree card u-mb-0">
+        <div style="font-size:var(--font-size-14); font-weight:600; margin-bottom:12px; color:var(--text-primary);">应急组织架构</div>
         <div class="org-tree-item active">深圳港集团</div>
         <div class="org-tree-group">
           <div class="org-tree-item">应急指挥部</div>
@@ -84,30 +85,31 @@
 
       <!-- 人员列表 -->
       <div class="layout-main">
-        <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-          <div class="filter-bar" style="margin-bottom:0;">
-            <input class="form-input" placeholder="搜索姓名/岗位..." style="width:200px">
-            <select class="form-input form-select" style="width:140px">
-              <option>全部状态</option>
+        <div class="card u-content-section">
+          <div class="filter-bar u-mb-0">
+            <div class="filter-field"><span class="filter-label">姓名/岗位</span><input class="form-input" placeholder="请输入" ></div>
+            <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+              <option>全部</option>
               <option>在岗</option>
               <option>离岗</option>
               <option>已转岗</option>
-            </select>
-            <select class="form-input form-select" style="width:140px">
-              <option>AB角状态</option>
+            </select></div>
+            <div class="filter-field"><span class="filter-label">AB角状态</span><select class="form-input form-select" >
+              <option>全部</option>
               <option>正常</option>
               <option>主岗离岗</option>
               <option>主岗回归</option>
-            </select>
-            <button class="btn btn-primary btn-sm">查询</button>
-            <button class="btn btn-default btn-sm">重置</button>
+            </select></div>
+            <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+            <button class="btn btn-default btn-sm">重置</button></div>
           </div>
         </div>
         <div class="card">
-          <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-            <button class="btn btn-primary" onclick="showAddModal()">+ 新增</button>
+          <div class="filter-actions-row">
+            <button class="btn btn-primary" data-action="showAddModal">+ 新增</button>
             <button class="btn btn-default">导出</button>
           </div>
+          <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
@@ -132,7 +134,7 @@
                 <td><span class="tag tag-on-duty">在岗</span></td>
                 <td><span class="tag tag-ab-normal">正常</span></td>
                 <td>李卫东</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-1'">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
               </tr>
               <tr>
                 <td>2</td>
@@ -143,7 +145,7 @@
                 <td><span class="tag tag-on-duty">在岗</span></td>
                 <td><span class="tag tag-ab-normal">正常</span></td>
                 <td>张建国</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-2'">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
               </tr>
               <tr>
                 <td>3</td>
@@ -154,7 +156,7 @@
                 <td><span class="tag tag-off-duty">离岗</span></td>
                 <td><span class="tag tag-ab-activated">主岗离岗</span></td>
                 <td>赵勇（已激活）</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-3'">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
               </tr>
               <tr>
                 <td>4</td>
@@ -165,7 +167,7 @@
                 <td><span class="tag tag-on-duty">在岗</span></td>
                 <td><span class="tag tag-ab-activated">主岗离岗</span></td>
                 <td>王海涛（离岗中）</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-4'">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
               </tr>
               <tr>
                 <td>5</td>
@@ -176,24 +178,26 @@
                 <td><span class="tag tag-transferred">已转岗</span></td>
                 <td><span class="tag tag-ab-returned">主岗回归</span></td>
                 <td>刘芳</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-5'">查看</button><button class="btn btn-text btn-sm">AB角配置</button></td>
               </tr>
             </tbody>
           </table>
-          <div class="pagination">
-            <span>共 48 条</span>
-            <div class="pagination-page active">1</div>
-            <div class="pagination-page">2</div>
-            <div class="pagination-page">3</div>
           </div>
+          <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
         </div>
 
         <!-- 案例库列表 -->
         <div class="card">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-            <div style="font-size:14px; font-weight:600; color:var(--text-primary);">应急案例库</div>
-            <button class="btn btn-primary btn-sm" onclick="showAddCaseModal()">+ 新增案例</button>
+            <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary);">应急案例库</div>
+            <button class="btn btn-primary btn-sm" data-action="showAddCaseModal">+ 新增案例</button>
           </div>
+          <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
@@ -212,7 +216,7 @@
                 <td>危化品泄漏</td>
                 <td>2025-08-12</td>
                 <td>快速响应+AB角自动切换保障了处置连续性</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-6'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
               </tr>
               <tr>
                 <td>2</td>
@@ -220,10 +224,11 @@
                 <td>台风</td>
                 <td>2025-07-15</td>
                 <td>预警2小时内完成全员响应，闭环反馈及时</td>
-                <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-7'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -232,9 +237,9 @@
         <div class="card">
           <div class="detail-section">
             <div class="detail-section-title">AB角配置说明</div>
-            <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
+            <div style="font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.6;">
               <p>主岗与备岗绑定，主岗不可用时自动通知备岗。</p>
-              <p style="margin-top:8px;"><strong>人员状态：</strong>在岗 / 离岗 / 已转岗</p>
+              <p class="u-mt-8"><strong>人员状态：</strong>在岗 / 离岗 / 已转岗</p>
               <p style="margin-top:4px;"><strong>AB角状态：</strong></p>
               <p>正常 — 主备岗均在岗</p>
               <p>主岗离岗 — 备岗自动激活</p>
@@ -243,7 +248,7 @@
           </div>
           <div class="detail-section">
             <div class="detail-section-title">预警规则</div>
-            <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
+            <div style="font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.6;">
               <p>1. 应急人员变动时提醒更新预案</p>
               <p>2. AB角主岗离岗超过阈值时升级提醒</p>
               <p>3. 应急人员资质到期前提醒</p>
@@ -263,27 +268,27 @@
 
   <!-- Tab B: 应急预案 -->
   <div id="tab-plan" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索预案名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">预案名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>综合预案</option>
           <option>专项预案</option>
           <option>现场处置方案</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>编制中</option>
-          <option>审批中</option>
           <option>已备案</option>
           <option>已过期</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -308,7 +313,7 @@
             <td>2027-06-30</td>
             <td>12人</td>
             <td>8项</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-8'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -319,18 +324,18 @@
             <td>2026-12-31</td>
             <td>8人</td>
             <td>15项</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-9'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>3</td>
             <td>火灾应急处置方案</td>
             <td>现场处置方案</td>
             <td>V1.2</td>
-            <td><span class="tag tag-pending">审批中</span></td>
+            <td><span class="tag tag-draft">编制中</span></td>
             <td>--</td>
             <td>6人</td>
             <td>10项</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-10'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">备案</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -341,7 +346,7 @@
             <td>--</td>
             <td>10人</td>
             <td>12项</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-11'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">备案</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -352,36 +357,38 @@
             <td>2026-03-01</td>
             <td>4人</td>
             <td>6项</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error)">修订</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-12'">查看</button><button class="btn btn-text btn-sm u-text-error">修订</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 12 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 2 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
     <!-- 结构化录入说明 -->
     <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">预案结构化录入内容</div>
-      <div style="display:flex; gap:16px;">
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">响应分级</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">I级响应（集团级）/ II级响应（公司级）/ III级响应（现场级）</div>
+      <div class="u-fs14-fw600-title">预案结构化录入内容</div>
+      <div class="u-flex u-gap-16">
+        <div class="u-section-card">
+          <div class="u-fs13-fw600-primary-mb6">响应分级</div>
+          <div class="u-hint-text">I级响应（集团级）/ II级响应（公司级）/ III级响应（现场级）</div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">处置措施</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">按响应级别分解处置步骤、责任人与时限</div>
+        <div class="u-section-card">
+          <div class="u-fs13-fw600-primary-mb6">处置措施</div>
+          <div class="u-hint-text">按响应级别分解处置步骤、责任人与时限</div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">资源清单</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">关联应急资源，物资自动从应急资源模块选取</div>
+        <div class="u-section-card">
+          <div class="u-fs13-fw600-primary-mb6">资源清单</div>
+          <div class="u-hint-text">关联应急资源，物资自动从应急资源模块选取</div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">人员清单</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">关联应急人员，AB角状态自动同步</div>
+        <div class="u-section-card">
+          <div class="u-fs13-fw600-primary-mb6">人员清单</div>
+          <div class="u-hint-text">关联应急人员，AB角状态自动同步</div>
         </div>
       </div>
     </div>
@@ -389,28 +396,36 @@
 
   <!-- Tab C: 应急资源 -->
   <div id="tab-resource" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索物资名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部类别</option>
+    <!-- 资源统计卡片 -->
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num u-text-primary">186</div><div class="stat-label">在库总数</div></div>
+      <div class="stat-item"><div class="stat-num u-text-warning">12</div><div class="stat-label">已出库</div></div>
+      <div class="stat-item"><div class="stat-num u-text-error">5</div><div class="stat-label">即将过期</div></div>
+      <div class="stat-item"><div class="stat-num u-text-error">3</div><div class="stat-label">库存不足</div></div>
+    </div>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">物资名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">类别</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>防护装备类</option>
           <option>救援工具类</option>
           <option>通讯设备类</option>
           <option>医疗急救类</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>在库</option>
           <option>已出库</option>
           <option>已消耗</option>
           <option>已报废</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -435,7 +450,7 @@
             <td>2028-06-30</td>
             <td>李安全</td>
             <td><span class="tag tag-in-stock">在库</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-13'">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -446,7 +461,7 @@
             <td>2027-12-31</td>
             <td>李安全</td>
             <td><span class="tag tag-in-stock">在库</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-14'">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -457,7 +472,7 @@
             <td>长期有效</td>
             <td>王救援</td>
             <td><span class="tag tag-in-stock">在库</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-15'">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -468,7 +483,7 @@
             <td>长期有效</td>
             <td>张通讯</td>
             <td><span class="tag tag-out-stock">已出库</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">入库</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-16'">查看</button><button class="btn btn-text btn-sm">入库</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -479,7 +494,7 @@
             <td>2026-09-30</td>
             <td>刘医护</td>
             <td><span class="tag tag-in-stock">在库</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-17'">查看</button><button class="btn btn-text btn-sm">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
           </tr>
           <tr>
             <td>6</td>
@@ -490,7 +505,7 @@
             <td>长期有效</td>
             <td>刘医护</td>
             <td><span class="tag tag-consumed">已消耗</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-18'">查看</button></td>
           </tr>
           <tr>
             <td>7</td>
@@ -501,24 +516,26 @@
             <td>长期有效</td>
             <td>张通讯</td>
             <td><span class="tag tag-scrapped">已报废</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-19'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 356 件</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
-        <div class="pagination-page">3</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
     <!-- 物资调拨面板 -->
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary);">物资调拨</div>
-        <button class="btn btn-primary btn-sm" onclick="showTransferModal()">+ 发起调拨</button>
+        <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary);">物资调拨</div>
+        <button class="btn btn-primary btn-sm" data-action="showTransferModal">+ 发起调拨</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -539,7 +556,7 @@
             <td>集装箱码头公司</td>
             <td>10</td>
             <td><span class="tag tag-pending">审批中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-20'">查看</button><button class="btn btn-text btn-sm">审批</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -548,32 +565,98 @@
             <td>散货码头公司</td>
             <td>3</td>
             <td><span class="tag tag-approved">已批准</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPreparednessDetail" data-param="'prep-21'">查看</button></td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 标准分类字典说明 -->
     <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">应急物资标准分类字典</div>
-      <div style="display:flex; gap:16px;">
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--risk-major); margin-bottom:4px;">防护装备类</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">防毒面具、空气呼吸器、防护服、安全帽、护目镜</div>
+      <div class="u-fs14-fw600-title">应急物资标准分类字典</div>
+      <div class="u-flex u-gap-16">
+        <div class="u-section-card">
+          <div style="font-size:var(--font-size-13); font-weight:600; color:var(--risk-major); margin-bottom:4px;">防护装备类</div>
+          <div class="u-hint-text">防毒面具、空气呼吸器、防护服、安全帽、护目镜</div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--risk-significant); margin-bottom:4px;">救援工具类</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">液压剪、千斤顶、救生绳、铁锹、撬棍</div>
+        <div class="u-section-card">
+          <div style="font-size:var(--font-size-13); font-weight:600; color:var(--risk-significant); margin-bottom:4px;">救援工具类</div>
+          <div class="u-hint-text">液压剪、千斤顶、救生绳、铁锹、撬棍</div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--risk-low); margin-bottom:4px;">通讯设备类</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">对讲机、卫星电话、应急广播设备</div>
+        <div class="u-section-card">
+          <div style="font-size:var(--font-size-13); font-weight:600; color:var(--risk-low); margin-bottom:4px;">通讯设备类</div>
+          <div class="u-hint-text">对讲机、卫星电话、应急广播设备</div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--success); margin-bottom:4px;">医疗急救类</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">急救箱、担架、止血包、AED除颤仪</div>
+        <div class="u-section-card">
+          <div style="font-size:var(--font-size-13); font-weight:600; color:var(--success); margin-bottom:4px;">医疗急救类</div>
+          <div class="u-hint-text">急救箱、担架、止血包、AED除颤仪</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="prep-detail-title" style="font-size:var(--font-size-16);font-weight:600;">应急准备详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showPrepList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="prep-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="prep-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="prep-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-prep-add" style="display:none;">
+    <div class="modal" style="width:600px;">
+      <div class="modal-header"><h3>新增应急准备记录</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-prep-add">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">名称</label><div class="form-content"><input class="form-input" placeholder="人员/预案/物资名称"></div></div>
+        <div class="form-group"><label class="form-label">类型</label><div class="form-content"><select class="form-input form-select"><option>应急人员</option><option>应急预案</option><option>应急物资</option></select></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-prep-add">取消</button>
+        <button class="btn btn-primary" data-action="savePrepAdd">保存</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-prep-case-add" style="display:none;">
+    <div class="modal" style="width:600px;">
+      <div class="modal-header"><h3>新增应急案例</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-prep-case-add">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">案例标题</label><div class="form-content"><input class="form-input" placeholder="案例名称"></div></div>
+        <div class="form-group"><label class="form-label">案例摘要</label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;"></textarea></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-prep-case-add">取消</button>
+        <button class="btn btn-primary" data-action="saveCaseAdd">保存</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-prep-transfer" style="display:none;">
+    <div class="modal" style="width:600px;">
+      <div class="modal-header"><h3>发起物资调拨</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-prep-transfer">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">物资名称</label><div class="form-content"><input class="form-input" placeholder="如：空气呼吸器"></div></div>
+        <div class="form-group"><label class="form-label">调拨数量</label><div class="form-content"><input class="form-input" type="number" placeholder="数量"></div></div>
+        <div class="form-group"><label class="form-label">目标库点</label><div class="form-content"><select class="form-input form-select"><option>盐田港区应急库</option><option>蛇口港区应急库</option></select></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-prep-transfer">取消</button>
+        <button class="btn btn-primary" data-action="submitTransfer">提交调拨</button>
       </div>
     </div>
   </div>
@@ -585,9 +668,64 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showAddModal() { alert('新增弹窗（开发中）'); }
-    function showAddCaseModal() { alert('新增案例弹窗（开发中）'); }
-    function showTransferModal() { alert('物资调拨弹窗（开发中）'); }
+    function showAddModal() { showModal('modal-prep-add'); }
+    function showAddCaseModal() { showModal('modal-prep-case-add'); }
+    function showTransferModal() { showModal('modal-prep-transfer'); }
+    window.showAddModal = showAddModal;
+    window.showAddCaseModal = showAddCaseModal;
+    window.showTransferModal = showTransferModal;
+    var preparednessDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var preparednessDetailData = {
+      'prep-1': { title: '应急人员 — 张建国', basic: [['岗位', '应急指挥长'], ['在岗', '是'], ['AB角', '正常']], desc: '主岗在岗，AB角配置正常。', timeline: [{ status: 'done', time: '2026-01-01', event: '人员建档' }, { status: 'done', time: '2026-05-01', event: '资质复核' }] },
+      'prep-2': { title: '应急人员 — 李卫东', basic: [['岗位', '副指挥长'], ['在岗', '是']], desc: '副指挥长，与张建国互为 AB 角。', timeline: [{ status: 'done', time: '2026-01-01', event: '人员建档' }] },
+      'prep-8': { title: '应急预案 — 港口火灾专项预案', basic: [['版本', 'V3.2'], ['状态', '有效']], desc: '覆盖码头堆场与仓储区域火灾应急处置。', timeline: [{ status: 'done', time: '2025-12-01', event: '预案发布' }, { status: 'active', time: '2026-11', event: '到期复审' }] },
+      'prep-13': { title: '应急物资 — 空气呼吸器', basic: [['库存', '在库'], ['数量', '12 套']], desc: '定期点检，低于阈值将预警。', timeline: [{ status: 'done', time: '2026-05-01', event: '入库' }, { status: 'active', time: '每季度', event: '盘点' }] }
+    };
+    function fillPrepDetail(d) {
+      document.getElementById('prep-detail-title').textContent = d.title;
+      document.getElementById('prep-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('prep-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('prep-detail-timeline', d.timeline);
+    }
+    function openPreparednessDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = preparednessDetailData[key] || preparednessDetailDataFallback;
+      fillPrepDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openPreparednessDetail = openPreparednessDetail;
+    function showPrepList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showPrepList = showPrepList;
+
+  // ── data-action delegation ──
+  (function() {
+    document.addEventListener('click', function(e) {
+      var el = e.target.closest('[data-action]');
+      if (!el) return;
+      var action = el.getAttribute('data-action');
+      var param = el.getAttribute('data-param');
+      switch (action) {
+        case 'showAddModal':      showAddModal(); break;
+        case 'showAddCaseModal':  showAddCaseModal(); break;
+        case 'showTransferModal': showTransferModal(); break;
+        case 'savePrepAdd':       hideModal('modal-prep-add'); showToast('已保存（原型）','success'); break;
+        case 'saveCaseAdd':       hideModal('modal-prep-case-add'); showToast('案例已保存（原型）','success'); break;
+        case 'submitTransfer':    hideModal('modal-prep-transfer'); showToast('调拨单已提交（原型）','success'); break;
+        case 'hideModal':         if (param) hideModal(param); break;
+      }
+    });
+    // backdrop click to close modals
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal-overlay')) {
+        hideModal(e.target.id);
+      }
+    });
+  })();
   </script>
+  <div class="toast" id="toast" class="u-none"></div>
 </body>
 </html>

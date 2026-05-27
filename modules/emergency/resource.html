@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>应急资源 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .tag-in-stock { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-out-stock { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-consumed { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-scrapped { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
+    .detail-row .label { color:var(--text-secondary); }
+    .detail-row .value { color:var(--text-primary); font-weight:500; }
+    .detail-panel { width:360px; flex-shrink:0; }
+    .detail-panel .card { height:100%; }
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--bg-card); border-radius:var(--radius-lg); max-height:80vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-light); }
+    .modal-header h3 { font-size:var(--font-size-16); margin:0; }
+    .modal-body { padding:20px; }
+    .modal-footer { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; justify-content:flex-end; gap:8px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:4px; }
+    .alert-info-card { padding:10px 14px; background:var(--tag-info-bg); border-color:var(--tag-info-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-info-color); margin-bottom:12px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
+  <!-- 资源统计卡片 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num u-text-primary">186</div><div class="stat-label">在库总数</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">12</div><div class="stat-label">已出库</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">5</div><div class="stat-label">即将过期</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">3</div><div class="stat-label">库存不足</div></div>
+  </div>
+
+  <div class="alert-info-card">&#8505; 库存不足阈值为最低保有量的80%；即将过期阈值为到期前60天；物资到期前30天/7天自动提醒责任人</div>
+
+  <div class="card u-content-section">
+    <div class="filter-bar u-mb-0">
+      <div class="filter-field"><span class="filter-label">物资名称</span><input class="form-input" placeholder="请输入"></div>
+      <div class="filter-field"><span class="filter-label">类别</span><select class="form-input form-select">
+        <option>全部</option><option>防护装备类</option><option>救援工具类</option><option>通讯设备类</option><option>医疗急救类</option>
+      </select></div>
+      <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select">
+        <option>全部</option><option>在库</option><option>已出库</option><option>已消耗</option><option>已报废</option>
+      </select></div>
+      <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterResource">查询</button>
+      <button class="btn btn-default btn-sm" data-action="resetFilter">重置</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="filter-actions-row">
+      <button class="btn btn-primary" data-action="showAddModal">+ 新增物资</button>
+      <button class="btn btn-default" data-action="exportData">导出</button>
+    </div>
+    <div class="table-wrap">
+    <table class="data-table">
+      <colgroup><col style="width:56px"><col style="width:140px"><col style="width:100px"><col style="width:140px"><col style="width:64px"><col style="width:100px"><col style="width:80px"><col style="width:72px"><col></colgroup>
+      <thead>
+        <tr><th>序号</th><th>物资名称</th><th>类别</th><th>存放地点</th><th>数量</th><th>有效期</th><th>责任人</th><th>状态</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td><td>防毒面具</td><td>防护装备类</td><td>1号应急物资库</td><td>30</td><td>2028-06-30</td><td>李安全</td>
+          <td><span class="tag tag-in-stock">在库</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-1'">查看</button><button class="btn btn-text btn-sm" data-action="showOutboundModal">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+        </tr>
+        <tr>
+          <td>2</td><td>空气呼吸器</td><td>防护装备类</td><td>1号应急物资库</td><td>15</td><td>2027-12-31</td><td>李安全</td>
+          <td><span class="tag tag-in-stock">在库</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-2'">查看</button><button class="btn btn-text btn-sm" data-action="showOutboundModal">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+        </tr>
+        <tr>
+          <td>3</td><td>液压剪</td><td>救援工具类</td><td>2号应急物资库</td><td>5</td><td>长期有效</td><td>王救援</td>
+          <td><span class="tag tag-in-stock">在库</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-3'">查看</button><button class="btn btn-text btn-sm" data-action="showOutboundModal">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+        </tr>
+        <tr>
+          <td>4</td><td>对讲机</td><td>通讯设备类</td><td>3号应急物资库</td><td>20</td><td>长期有效</td><td>张通讯</td>
+          <td><span class="tag tag-out-stock">已出库</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-4'">查看</button><button class="btn btn-text btn-sm">入库</button></td>
+        </tr>
+        <tr>
+          <td>5</td><td>急救箱</td><td>医疗急救类</td><td>码头值班室</td><td>8</td><td>2026-09-30</td><td>刘医护</td>
+          <td><span class="tag tag-in-stock">在库</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-5'">查看</button><button class="btn btn-text btn-sm" data-action="showOutboundModal">出库</button><button class="btn btn-text btn-sm">盘点</button></td>
+        </tr>
+        <tr>
+          <td>6</td><td>担架</td><td>医疗急救类</td><td>码头值班室</td><td>4</td><td>长期有效</td><td>刘医护</td>
+          <td><span class="tag tag-consumed">已消耗</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-6'">查看</button></td>
+        </tr>
+        <tr>
+          <td>7</td><td>卫星电话</td><td>通讯设备类</td><td>3号应急物资库</td><td>2</td><td>长期有效</td><td>张通讯</td>
+          <td><span class="tag tag-scrapped">已报废</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-7'">查看</button></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="pagination-bar">
+  <span class="pagination-info">共 7 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+  </div>
+
+  <!-- 物资调拨面板 -->
+  <div class="card">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+      <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary);">物资调拨</div>
+      <button class="btn btn-primary btn-sm" data-action="showTransferModal">+ 发起调拨</button>
+    </div>
+    <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>序号</th><th>物资名称</th><th>调出单位</th><th>调入单位</th><th>调拨数量</th><th>审批状态</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td><td>防毒面具</td><td>集团应急库</td><td>集装箱码头公司</td><td>10</td>
+          <td><span class="tag tag-pending">审批中</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-8'">查看</button><button class="btn btn-text btn-sm">审批</button></td>
+        </tr>
+        <tr>
+          <td>2</td><td>急救箱</td><td>油品码头公司</td><td>散货码头公司</td><td>3</td>
+          <td><span class="tag tag-approved">已批准</span></td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'res-9'">查看</button></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- 标准分类字典说明 -->
+  <div class="card">
+    <div class="u-fs14-fw600-title">应急物资标准分类字典</div>
+    <div class="u-flex u-gap-16">
+      <div class="u-section-card">
+        <div style="font-size:var(--font-size-13); font-weight:600; color:var(--risk-major); margin-bottom:4px;">防护装备类</div>
+        <div class="u-hint-text">防毒面具、空气呼吸器、防护服、安全帽、护目镜</div>
+      </div>
+      <div class="u-section-card">
+        <div style="font-size:var(--font-size-13); font-weight:600; color:var(--risk-significant); margin-bottom:4px;">救援工具类</div>
+        <div class="u-hint-text">液压剪、千斤顶、救生绳、铁锹、撬棍</div>
+      </div>
+      <div class="u-section-card">
+        <div style="font-size:var(--font-size-13); font-weight:600; color:var(--risk-low); margin-bottom:4px;">通讯设备类</div>
+        <div class="u-hint-text">对讲机、卫星电话、应急广播设备</div>
+      </div>
+      <div class="u-section-card">
+        <div style="font-size:var(--font-size-13); font-weight:600; color:var(--success); margin-bottom:4px;">医疗急救类</div>
+        <div class="u-hint-text">急救箱、担架、止血包、AED除颤仪</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="resource-detail-title" style="font-size:var(--font-size-16);font-weight:600;">物资详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="resource-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">使用与维护说明</div><div id="resource-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">出入库记录</div><div id="resource-detail-timeline" class="timeline"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="resource-data.js?v=2.0"></script>
+  <script src="resource-logic.js?v=2.0"></script>
+  <div class="toast" id="toast"></div>
+</body>
+</html>

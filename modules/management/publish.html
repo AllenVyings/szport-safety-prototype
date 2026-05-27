@@ -4,69 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>信息发布 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-reviewing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-published { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-offline { background:#F5F5F5; color:#595959; border:1px solid #BFBFBF; }
-    .scroll-badge { display:inline-block; padding:1px 6px; border-radius:2px; font-size:11px; background:#E6F7FF; color:#0958D9; margin-left:6px; }
+    .tag-reviewing { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-offline { background:var(--tag-default-bg); color:var(--text-secondary); border:1px solid var(--color-gray); }
+    .scroll-badge { display:inline-block; padding:1px 6px; border-radius:2px; font-size:var(--font-size-11); background:var(--tag-info-bg); color:var(--tag-info-color); margin-left:6px; }
     .scroll-list-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border-light); }
     .scroll-list-item:last-child { border-bottom:none; }
     .scroll-list-item:hover { background:var(--bg-hover); }
-    .sort-handle { cursor:grab; color:var(--text-description); margin-right:8px; font-size:16px; }
-    .upload-area { border:1px dashed var(--border-input); border-radius:var(--radius-sm); padding:20px; text-align:center; color:var(--text-description); font-size:13px; cursor:pointer; background:var(--bg-page); transition:border-color 0.15s; }
+    .sort-handle { cursor:grab; color:var(--text-description); margin-right:8px; font-size:var(--font-size-16); }
+    .upload-area { border:1px dashed var(--border-input); border-radius:var(--radius-sm); padding:20px; text-align:center; color:var(--text-description); font-size:var(--font-size-13); cursor:pointer; background:var(--bg-page); transition:border-color 0.15s; }
     .upload-area:hover { border-color:var(--primary); color:var(--primary); }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">28</div><div class="stat-label">发布总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">18</div><div class="stat-label">已发布</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">审批中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">7</div><div class="stat-label">已下线</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">18</div><div class="stat-label">已发布</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">3</div><div class="stat-label">审批中</div></div>
+    <div class="stat-item"><div class="stat-num u-text-description">7</div><div class="stat-label">已下线</div></div>
   </div>
 
-  <!-- 审批流程说明 -->
-  <div class="alert alert-warning" style="margin-bottom:12px">&#9888; 重要信息需二级审批（安全主管 &#8594; 部门负责人）；普通信息发布人直接发布</div>
-
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('manage')">信息管理</div>
-    <div class="tab-item" onclick="switchTab('display')">首页展示配置</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="manage">信息管理</div>
+      <div class="tab-item" data-action="switchTab" data-param="display">首页展示配置</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab1 信息管理 -->
   <div id="tab-manage" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索信息标题..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部信息类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">信息标题</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">信息类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>通知公告</option>
           <option>工作通报</option>
           <option>应急通知</option>
           <option>安全提示</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>草稿</option>
           <option>审批中</option>
           <option>已发布</option>
           <option>已下线</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showModal('addInfo')">+ 新增信息</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showView" data-param="edit">+ 新增信息</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -89,7 +89,7 @@
             <td><span class="tag tag-published">已通过</span></td>
             <td>2026-05-10</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPublishDetail" data-param="'pub-1'">查看</button><button class="btn btn-text btn-sm u-text-warning">下线</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -99,7 +99,7 @@
             <td><span class="tag tag-reviewing">二级审批中</span></td>
             <td>-</td>
             <td><span class="tag tag-reviewing">审批中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPublishDetail" data-param="'pub-2'">查看</button><button class="btn btn-text btn-sm u-text-primary">审批</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -109,7 +109,7 @@
             <td><span class="tag tag-draft">免审批</span></td>
             <td>2026-05-14</td>
             <td><span class="tag tag-published">已发布</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openPublishDetail" data-param="'pub-3'">查看</button><button class="btn btn-text btn-sm u-text-warning">下线</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -119,60 +119,207 @@
             <td>-</td>
             <td>-</td>
             <td><span class="tag tag-draft">草稿</span></td>
-            <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">发布</button></td>
+            <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-primary">发布</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 4 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 4 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- Tab2 首页展示配置 -->
   <div id="tab-display" class="tab-content">
     <div class="card">
-      <div style="margin-bottom:12px; font-size:14px; font-weight:500;">首页滚动展示信息</div>
-      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">拖拽调整展示顺序，可手动下线已发布的信息</div>
+      <div style="margin-bottom:12px; font-size:var(--font-size-14); font-weight:500;">首页滚动展示信息</div>
+      <div style="font-size:var(--font-size-12); color:var(--text-secondary); margin-bottom:16px;">拖拽调整展示顺序，可手动下线已发布的信息</div>
       <div style="border:1px solid var(--border-light); border-radius:var(--radius-md); overflow:hidden;">
         <div class="scroll-list-item">
           <div style="display:flex; align-items:center;">
             <span class="sort-handle">&#9776;</span>
-            <span style="font-size:13px;">1.</span>
-            <span style="font-size:13px; margin-left:8px;">关于开展2026年"安全生产月"活动的通知</span>
-            <span style="font-size:11px; color:var(--text-description); margin-left:8px;">通知公告</span>
+            <span class="u-fs-13">1.</span>
+            <span style="font-size:var(--font-size-13); margin-left:8px;">关于开展2026年"安全生产月"活动的通知</span>
+            <span style="font-size:var(--font-size-11); color:var(--text-description); margin-left:8px;">通知公告</span>
           </div>
           <div style="display:flex; gap:8px;">
-            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8593;</button>
-            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8595;</button>
-            <button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button>
+            <button class="btn btn-text btn-sm u-text-description">&#8593;</button>
+            <button class="btn btn-text btn-sm u-text-description">&#8595;</button>
+            <button class="btn btn-text btn-sm u-text-warning">下线</button>
           </div>
         </div>
         <div class="scroll-list-item">
           <div style="display:flex; align-items:center;">
             <span class="sort-handle">&#9776;</span>
-            <span style="font-size:13px;">2.</span>
-            <span style="font-size:13px; margin-left:8px;">5月份安全隐患排查工作通报</span>
-            <span style="font-size:11px; color:var(--text-description); margin-left:8px;">工作通报</span>
+            <span class="u-fs-13">2.</span>
+            <span style="font-size:var(--font-size-13); margin-left:8px;">5月份安全隐患排查工作通报</span>
+            <span style="font-size:var(--font-size-11); color:var(--text-description); margin-left:8px;">工作通报</span>
           </div>
           <div style="display:flex; gap:8px;">
-            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8593;</button>
-            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8595;</button>
-            <button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button>
+            <button class="btn btn-text btn-sm u-text-description">&#8593;</button>
+            <button class="btn btn-text btn-sm u-text-description">&#8595;</button>
+            <button class="btn btn-text btn-sm u-text-warning">下线</button>
           </div>
         </div>
         <div class="scroll-list-item">
           <div style="display:flex; align-items:center;">
             <span class="sort-handle">&#9776;</span>
-            <span style="font-size:13px;">3.</span>
-            <span style="font-size:13px; margin-left:8px;">消防安全知识宣传通知</span>
-            <span style="font-size:11px; color:var(--text-description); margin-left:8px;">安全提示</span>
+            <span class="u-fs-13">3.</span>
+            <span style="font-size:var(--font-size-13); margin-left:8px;">消防安全知识宣传通知</span>
+            <span style="font-size:var(--font-size-11); color:var(--text-description); margin-left:8px;">安全提示</span>
           </div>
           <div style="display:flex; gap:8px;">
-            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8593;</button>
-            <button class="btn btn-text btn-sm" style="color:var(--text-description)">&#8595;</button>
-            <button class="btn btn-text btn-sm" style="color:var(--warning)">下线</button>
+            <button class="btn btn-text btn-sm u-text-description">&#8593;</button>
+            <button class="btn btn-text btn-sm u-text-description">&#8595;</button>
+            <button class="btn btn-text btn-sm u-text-warning">下线</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-edit" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;" id="edit-page-title">新增信息</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showView" data-param="list">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <!-- 基本信息 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div>
+              <div class="u-mb-14">
+                <label class="u-label-sm">信息标题 <span class="u-text-error-tag">*</span></label>
+                <input class="form-input u-w-full" placeholder="请输入信息标题">
+              </div>
+              <div class="u-flex u-gap-12 u-mb-14">
+                <div class="u-flex-1">
+                  <label class="u-label-sm">信息类型 <span class="u-text-error-tag">*</span></label>
+                  <select class="form-input form-select u-w-full">
+                    <option value="">请选择</option>
+                    <option>通知公告</option>
+                    <option>工作通报</option>
+                    <option>应急通知</option>
+                    <option>安全提示</option>
+                  </select>
+                </div>
+                <div class="u-flex-1">
+                  <label class="u-label-sm">发布人</label>
+                  <input class="form-input u-w-full" value="张安全" readonly style="background:var(--bg-disabled);">
+                </div>
+              </div>
+              <div class="u-flex u-gap-12 u-mb-14">
+                <div class="u-flex-1">
+                  <label class="u-label-sm">重要性标记</label>
+                  <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:var(--font-size-13); cursor:pointer;">
+                      <input type="checkbox" id="importantFlag"> 标记为重要信息
+                    </label>
+                    <span style="font-size:var(--font-size-11); color:var(--text-description);">（重要信息将在首页优先展示）</span>
+                  </div>
+                </div>
+                <div class="u-flex-1">
+                  <label class="u-label-sm">首页滚动展示</label>
+                  <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:var(--font-size-13); cursor:pointer;">
+                      <input type="checkbox" id="scrollFlag" checked> 滚动展示
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div></div>
+
+            <!-- 封面图上传 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">封面图片</div>
+              <div style="border:1px dashed var(--border-input); border-radius:var(--radius-md); padding:32px; text-align:center; color:var(--text-description); font-size:var(--font-size-13); cursor:pointer; background:var(--bg-page); transition:border-color 0.15s; min-height:160px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <div style="font-size:32px; margin-bottom:8px;">&#128247;</div>
+                <div>点击或拖拽上传封面图片</div>
+                <div style="font-size:var(--font-size-11); margin-top:4px;">建议尺寸 750x420px，支持 JPG、PNG 格式，不超过 5MB</div>
+              </div>
+            </div></div>
+
+            <!-- 富文本编辑器 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">信息内容 <span class="u-text-error-tag">*</span></div>
+              <div style="border:1px solid var(--border-input); border-radius:var(--radius-sm); overflow:hidden;">
+                <div style="display:flex; gap:2px; padding:8px 10px; border-bottom:1px solid var(--border-light); background:var(--bg-table-header); flex-wrap:wrap;">
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; font-weight:bold;">B</button>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; font-style:italic;">I</button>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; text-decoration:underline;">U</button>
+                  <span style="color:var(--border); margin:0 4px;">|</span>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H1</button>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H2</button>
+                  <span style="color:var(--border); margin:0 4px;">|</span>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128206; 链接</button>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128221; 图片</button>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128196; 附件</button>
+                  <span style="color:var(--border); margin:0 4px;">|</span>
+                  <button style="padding:4px 10px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128228; 上传</button>
+                </div>
+                <textarea class="form-input" style="width:100%; height:240px; resize:vertical; border:none; border-radius:0;" placeholder="请输入信息内容（富文本编辑区域）..."></textarea>
+              </div>
+            </div></div>
+
+            <!-- 附件上传 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">附件上传</div>
+              <div class="upload-area">
+                &#128228; 点击或拖拽文件到此处上传
+                <div style="font-size:var(--font-size-11); margin-top:4px;">支持 PDF、Word、图片等格式，单个文件不超过 20MB</div>
+              </div>
+            </div></div>
+
+          </div>
+          <div class="detail-panel">
+            <!-- 定时发布 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">发布设置</div>
+              <div class="u-mb-14">
+                <label style="display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); cursor:pointer; margin-bottom:12px;">
+                  <input type="checkbox" id="scheduleFlag" onchange="toggleSchedule()"> 定时发布
+                </label>
+                <div id="scheduleDatetime" style="display:none;">
+                  <label class="u-label-sm">发布时间</label>
+                  <input class="form-input u-w-full" type="datetime-local">
+                  <div style="font-size:var(--font-size-11); color:var(--text-description); margin-top:4px;">不设置定时则提交后立即发布</div>
+                </div>
+              </div>
+              <div style="padding:8px 12px; background:var(--tag-info-bg); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-info-color);">
+                &#128279; 应急通知类型免审批直接发布；其他类型需二级审批
+              </div>
+            </div></div>
+
+            <!-- 操作按钮 -->
+            <div class="card" style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn btn-default u-w-full">保存草稿</button>
+              <button class="btn btn-primary u-w-full">提交发布</button>
+              <button class="btn btn-text u-w-full" data-action="showView" data-param="list">取消</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="publish-detail-title" style="font-size:var(--font-size-16);font-weight:600;">信息详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showPublishList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">发布信息</div><div id="publish-detail-basic"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">审批进度</div><div id="publish-detail-timeline" class="timeline"></div></div>
           </div>
         </div>
       </div>
@@ -184,17 +331,17 @@
     <div class="modal" style="width:700px;">
       <div class="modal-header">
         <h3>新增信息</h3>
-        <button class="btn btn-text btn-sm" onclick="closeModal('addInfo')" style="font-size:18px; color:var(--text-description);">&times;</button>
+        <button class="btn btn-text btn-sm" data-action="hideModal" data-param="addInfo" class="u-fs18-desc">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">信息标题 <span style="color:#CF1322;">*</span></label>
-          <input class="form-input" style="width:100%;" placeholder="请输入信息标题">
+        <div class="u-mb-14">
+          <label class="u-label-sm">信息标题 <span class="u-text-error-tag">*</span></label>
+          <input class="form-input u-w-full" placeholder="请输入信息标题">
         </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">信息类型 <span style="color:#CF1322;">*</span></label>
-            <select class="form-input form-select" style="width:100%;">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">信息类型 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full">
               <option value="">请选择</option>
               <option>通知公告</option>
               <option>工作通报</option>
@@ -202,51 +349,47 @@
               <option>安全提示</option>
             </select>
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">定时发布时间</label>
-            <input class="form-input" type="datetime-local" style="width:100%;" placeholder="不选择则立即发布">
+          <div class="u-flex-1">
+            <label class="u-label-sm">定时发布时间</label>
+            <input class="form-input" type="datetime-local" class="u-w-full" placeholder="不选择则立即发布">
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">信息内容 <span style="color:#CF1322;">*</span></label>
+        <div class="u-mb-14">
+          <label class="u-label-sm">信息内容 <span class="u-text-error-tag">*</span></label>
           <!-- 模拟富文本编辑器 -->
           <div style="border:1px solid var(--border-input); border-radius:var(--radius-sm); overflow:hidden;">
             <div style="display:flex; gap:4px; padding:6px 8px; border-bottom:1px solid var(--border-light); background:var(--bg-table-header);">
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">B</button>
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; font-style:italic;">I</button>
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; text-decoration:underline;">U</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">B</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; font-style:italic;">I</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer; text-decoration:underline;">U</button>
               <span style="color:var(--border); margin:0 2px;">|</span>
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H1</button>
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H2</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H1</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">H2</button>
               <span style="color:var(--border); margin:0 2px;">|</span>
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128206; 链接</button>
-              <button style="padding:2px 8px; font-size:12px; border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128221; 图片</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128206; 链接</button>
+              <button style="padding:2px 8px; font-size:var(--font-size-12); border:1px solid var(--border); background:var(--bg-card); border-radius:2px; cursor:pointer;">&#128221; 图片</button>
             </div>
             <textarea class="form-input" style="width:100%; height:160px; resize:vertical; border:none; border-radius:0;" placeholder="请输入信息内容（富文本编辑区域）..."></textarea>
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+        <div class="u-mb-14">
+          <label style="display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); cursor:pointer;">
             <input type="checkbox" id="scrollCheck" onchange="toggleScrollOption()">
             <span>首页滚动展示</span>
           </label>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">附件上传</label>
+        <div class="u-mb-14">
+          <label class="u-label-sm">附件上传</label>
           <div class="upload-area">
             &#128228; 点击或拖拽文件到此处上传
-            <div style="font-size:11px; margin-top:4px;">支持 PDF、Word、图片等格式，单个文件不超过 20MB</div>
+            <div style="font-size:var(--font-size-11); margin-top:4px;">支持 PDF、Word、图片等格式，单个文件不超过 20MB</div>
           </div>
-        </div>
-        <!-- 审批流程说明 -->
-        <div class="alert alert-warning">
-          &#9888; 重要信息（应急通知、重要通知公告）需二级审批：安全主管 &#8594; 部门负责人；普通信息由发布人直接发布
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addInfo')">取消</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addInfo">取消</button>
         <button class="btn btn-default">保存草稿</button>
-        <button class="btn btn-primary" onclick="closeModal('addInfo')">提交发布</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="addInfo">提交发布</button>
       </div>
     </div>
   </div>
@@ -258,16 +401,41 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showModal(id) {
-      document.getElementById(id + 'Modal').classList.add('show');
-    }
-    function closeModal(id) {
-      document.getElementById(id + 'Modal').classList.remove('show');
-    }
     document.getElementById('addInfoModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addInfo'); });
     function toggleScrollOption() {
       // 首页滚动选项切换
     }
+    function toggleSchedule() {
+      var dt = document.getElementById('scheduleDatetime');
+      var flag = document.getElementById('scheduleFlag');
+      if (dt && flag) dt.style.display = flag.checked ? 'block' : 'none';
+    }
+    function showView(name) {
+      document.querySelectorAll('.page-view').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById('view-' + name);
+      if (target) target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    window.showView = showView;
+
+    var publishDetailData = {
+      'pub-1': { title: '关于开展2026年"安全生产月"活动的通知', basic: [['类型', '通知公告'], ['发布人', '张安全'], ['状态', '已发布'], ['发布日期', '2026-05-10']], timeline: [{ status: 'done', time: '2026-05-08', event: '提交审批' }, { status: 'done', time: '2026-05-09', event: '二级审批通过' }, { status: 'done', time: '2026-05-10', event: '发布上线' }] },
+      'pub-2': { title: '台风"海葵"防御工作应急通知', basic: [['类型', '应急通知'], ['发布人', '李应急'], ['状态', '审批中']], timeline: [{ status: 'done', time: '2026-05-16', event: '提交' }, { status: 'active', time: '进行中', event: '二级审批' }] },
+      'pub-3': { title: '5月份安全隐患排查工作通报', basic: [['类型', '工作通报'], ['发布人', '王通报'], ['状态', '已发布'], ['发布日期', '2026-05-14']], timeline: [{ status: 'done', time: '2026-05-14', event: '免审批直接发布' }] }
+    };
+    function openPublishDetail(id) {
+      var d = publishDetailData[String(id || '').replace(/'/g, '')];
+      if (!d) return;
+      document.getElementById('publish-detail-title').textContent = d.title;
+      document.getElementById('publish-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      renderApprovalTimeline('publish-detail-timeline', d.timeline);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openPublishDetail = openPublishDetail;
+    function showPublishList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showPublishList = showPublishList;
   </script>
 </body>
 </html>

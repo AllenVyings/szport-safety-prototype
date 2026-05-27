@@ -4,70 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>公司台账 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-normal { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-incomplete { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-submitted { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-confirmed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-rejected { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .tag-normal { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-incomplete { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-confirmed { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-rejected { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">企业总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">1,256</div><div class="stat-label">从业人员</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">15</div><div class="stat-label">本年报告</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">3</div><div class="stat-label">信息变更</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">1,256</div><div class="stat-label">从业人员</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">15</div><div class="stat-label">本年报告</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">3</div><div class="stat-label">信息变更</div></div>
   </div>
 
   <!-- 提示框 -->
   <div class="alert alert-warning" style="margin-bottom:12px">&#9888; 企业信息变更时，系统自动提醒相关模块更新（组织架构/危险源/应急预案）</div>
   <div class="alert alert-info" style="margin-bottom:12px">&#128279; 关联模块：系统管理-组织架构（企业数据自动同步）</div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('company')">企业信息</div>
-    <div class="tab-item" onclick="switchTab('archive')">报告档案</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="company">企业信息</div>
+      <div class="tab-item" data-action="switchTab" data-param="archive">报告档案</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab1 企业信息 -->
   <div id="tab-company" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索企业名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部行业类别</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">企业名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">行业类别</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>港口运营</option>
           <option>危化品</option>
           <option>建筑施工</option>
           <option>物流运输</option>
           <option>物业管理</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
-          <option>正常</option>
-          <option>信息待更新</option>
-          <option>待补充</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">单位层级</span><select class="form-input form-select" >
+          <option>全部</option>
+          <option>集团本部</option>
+          <option>二级公司</option>
+          <option>三级及以下</option>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showModal('addCompany')">+ 新增企业</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showModal" data-param="addCompany">+ 新增企业</button>
         <button class="btn btn-default">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
             <th>序号</th>
             <th>企业名称</th>
+            <th>统一社会信用代码</th>
             <th>行业类别</th>
             <th>地址</th>
             <th>从业人员</th>
@@ -81,73 +86,81 @@
           <tr>
             <td>1</td>
             <td>深圳港集装箱码头有限公司</td>
+            <td>91440300MA5EXAMPLE1</td>
             <td>港口运营</td>
             <td>深圳市南山区蛇口港区</td>
             <td>320</td>
             <td>张建国</td>
             <td>0755-2668XXXX</td>
             <td><span class="tag tag-normal">正常</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-1'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>2</td>
             <td>深圳港危化品储运公司</td>
+            <td>91440300MA5EXAMPLE2</td>
             <td>危化品</td>
             <td>深圳市盐田区盐田港区</td>
             <td>186</td>
             <td>李安全</td>
             <td>0755-2529XXXX</td>
             <td><span class="tag tag-pending">信息待更新</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-2'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>3</td>
             <td>深圳港物流运输有限公司</td>
+            <td>91440300MA5EXAMPLE3</td>
             <td>物流运输</td>
             <td>深圳市福田区保税区</td>
             <td>245</td>
             <td>王守卫</td>
             <td>0755-8356XXXX</td>
             <td><span class="tag tag-normal">正常</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-3'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>4</td>
             <td>深圳港物业管理有限公司</td>
+            <td>91440300MA5EXAMPLE4</td>
             <td>物业管理</td>
             <td>深圳市南山区前海路</td>
             <td>85</td>
             <td>陈管理</td>
             <td>0755-8601XXXX</td>
             <td><span class="tag tag-incomplete">待补充</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-4'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 4 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 4 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- Tab2 报告档案 -->
   <div id="tab-archive" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索报告名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部报告类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">报告名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">报告类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>月度报告</option>
           <option>季度报告</option>
           <option>年度报告</option>
           <option>专项报告</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -170,7 +183,7 @@
             <td>2026年4月</td>
             <td>2026-05-05</td>
             <td><span class="tag tag-confirmed">已确认</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-5'">查看</button><button class="btn btn-text btn-sm">下载</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -180,7 +193,7 @@
             <td>2026年Q1</td>
             <td>2026-04-12</td>
             <td><span class="tag tag-confirmed">已确认</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">下载</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-6'">查看</button><button class="btn btn-text btn-sm">下载</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -190,33 +203,67 @@
             <td>2026年1-5月</td>
             <td>2026-05-15</td>
             <td><span class="tag tag-submitted">已提交</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">确认</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openLedgerDetail" data-param="'led-7'">查看</button><button class="btn btn-text btn-sm u-text-primary">确认</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 3 条</span>
-        <div class="pagination-page active">1</div>
+      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 3 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="led-detail-title" style="font-size:var(--font-size-16);font-weight:600;">公司台账详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showLedgerList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="led-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="led-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="led-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- 新增企业弹窗 -->
   <div id="addCompanyModal" class="modal-overlay">
     <div class="modal" style="width:640px;">
       <div class="modal-header">
         <h3>新增企业</h3>
-        <button class="btn btn-text btn-sm" onclick="closeModal('addCompany')" style="font-size:18px; color:var(--text-description);">&times;</button>
+        <button class="btn btn-text btn-sm" data-action="hideModal" data-param="addCompany" class="u-fs18-desc">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">企业名称 <span style="color:#CF1322;">*</span></label>
-          <input class="form-input" style="width:100%;" placeholder="请输入企业名称">
+        <div class="u-mb-14">
+          <label class="u-label-sm">企业名称 <span class="u-text-error-tag">*</span></label>
+          <input class="form-input u-w-full" placeholder="请输入企业名称">
         </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">行业类别 <span style="color:#CF1322;">*</span></label>
-            <select class="form-input form-select" style="width:100%;">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">统一社会信用代码 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" maxlength="18" placeholder="18位统一社会信用代码">
+          </div>
+          <div class="u-flex-1">
+            <label class="u-label-sm">行业类别 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full">
               <option value="">请选择</option>
               <option>港口运营</option>
               <option>危化品</option>
@@ -225,33 +272,39 @@
               <option>物业管理</option>
             </select>
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">从业人员 <span style="color:#CF1322;">*</span></label>
-            <input class="form-input" type="number" style="width:100%;" placeholder="请输入人数">
+        </div>
+        <div class="u-mb-14">
+          <label class="u-label-sm">地址</label>
+          <input class="form-input u-w-full" placeholder="请输入企业地址">
+        </div>
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">从业人员</label>
+            <input class="form-input" type="number" class="u-w-full" placeholder="请输入人数">
+          </div>
+          <div class="u-flex-1">
+            <label class="u-label-sm">成立日期</label>
+            <input class="form-input" type="date" class="u-w-full">
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">地址 <span style="color:#CF1322;">*</span></label>
-          <input class="form-input" style="width:100%;" placeholder="请输入企业地址">
-        </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">安全负责人 <span style="color:#CF1322;">*</span></label>
-            <input class="form-input" style="width:100%;" placeholder="请输入安全负责人">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">安全负责人 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" placeholder="请输入安全负责人">
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">联系电话 <span style="color:#CF1322;">*</span></label>
-            <input class="form-input" style="width:100%;" placeholder="请输入联系电话">
+          <div class="u-flex-1">
+            <label class="u-label-sm">联系电话 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" placeholder="请输入联系电话">
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">备注</label>
+        <div class="u-mb-14">
+          <label class="u-label-sm">备注</label>
           <textarea class="form-input" style="width:100%; height:60px; resize:vertical;" placeholder="请输入备注信息..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addCompany')">取消</button>
-        <button class="btn btn-primary" onclick="closeModal('addCompany')">确认新增</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addCompany">取消</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="addCompany">确认新增</button>
       </div>
     </div>
   </div>
@@ -263,13 +316,33 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showModal(id) {
-      document.getElementById(id + 'Modal').classList.add('show');
-    }
-    function closeModal(id) {
-      document.getElementById(id + 'Modal').classList.remove('show');
-    }
     document.getElementById('addCompanyModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addCompany'); });
+    var ledgerDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var ledgerDetailData = {
+      'led-1': {title:"深圳港集装箱码头有限公司",basic:[["行业","港口运营"],["从业人员","320人"],["状态","正常"]],desc:"企业基础信息已与组织架构同步。",timeline:[{status:"done",time:"2026-01-01",event:"建档"},{status:"done",time:"2026-05-01",event:"信息复核"}]},
+      'led-2': {title:"深圳港危化品储运公司",basic:[["状态","信息待更新"]],desc:"关键字段变更后需同步危险源与应急预案模块。",timeline:[{status:"active",time:"待更新",event:"信息变更提醒"}]},
+      'led-5': {title:"2026年4月安全生产月度报告",basic:[["类型","月度报告"],["状态","已确认"]],desc:"报告档案已归档，可下载。",timeline:[{status:"done",time:"2026-05-05",event:"提交"},{status:"done",time:"2026-05-08",event:"确认归档"}]}
+    };
+    function fillLedgerDetail(d) {
+      document.getElementById('led-detail-title').textContent = d.title;
+      document.getElementById('led-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('led-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('led-detail-timeline', d.timeline);
+    }
+    function openLedgerDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = ledgerDetailData[key] || ledgerDetailDataFallback;
+      fillLedgerDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openLedgerDetail = openLedgerDetail;
+    function showLedgerList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showLedgerList = showLedgerList;
+
   </script>
 </body>
 </html>

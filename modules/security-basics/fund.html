@@ -4,283 +4,409 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>资金保障 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    body { padding:20px 20px 0; background:var(--bg-page); height:100vh; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box; }
+
+    /* 左侧组织树 */
+    .fund-tree-panel { width:260px; min-width:260px; display:flex; flex-direction:column; min-height:0; }
+    .fund-tree-title { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border-divider); margin-bottom:10px; flex-shrink:0; }
+    .fund-tree-title span { font-size:var(--font-size-14); font-weight:600; }
+    .fund-tree-search { width:100%; height:28px; font-size:var(--font-size-12); margin-bottom:8px; padding:0 8px; border:1px solid var(--border); border-radius:var(--radius-sm); flex-shrink:0; outline:none; }
+    .fund-tree-search:focus { border-color:var(--primary); }
+    #fund-org-tree { flex:1; min-height:0; overflow-y:auto; }
+    .tree-node { padding:5px 6px; border-radius:var(--radius-sm); font-size:var(--font-size-13); cursor:pointer; color:var(--text-primary); display:flex; align-items:center; gap:4px; margin-bottom:2px; }
+    .tree-node:hover { background:var(--bg-hover); }
+    .tree-node.selected { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .tree-node .arrow { font-size:var(--font-size-9); color:var(--text-description); width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform var(--duration-fast); }
+    .tree-node .arrow.open { transform:rotate(90deg); }
+    .tree-node .arrow.empty { visibility:hidden; pointer-events:none; }
+    .tree-node .node-icon { font-size:var(--font-size-10); width:18px; height:18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--primary-light); color:var(--primary); }
+    .tree-node .node-label { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tree-node .node-count { font-size:var(--font-size-10); color:var(--text-description); flex-shrink:0; }
+    .tree-children.collapsed { display:none; }
+
+    /* 右侧主面板 */
+    .fund-main-panel { display:flex; flex-direction:column; min-height:0; padding:0 !important; background:var(--bg-card); }
+
+    /* 单位标题栏 */
+    .unit-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-divider); flex-shrink:0; }
+    .unit-header-title { font-size:var(--font-size-16); font-weight:var(--font-weight-semibold); color:var(--text-primary); }
+    .unit-header-stats { display:flex; gap:16px; }
+    .unit-stat { font-size:var(--font-size-12); color:var(--text-secondary); }
+    .unit-stat b { color:var(--text-primary); font-weight:var(--font-weight-semibold); }
+
+    /* Tab 切换 */
     .tab-content { display:none; }
-    .tab-content.active { display:block; }
-    .tag-executing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-completed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .progress-bar-bg { width:100px; height:8px; background:#F0F0F0; border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:6px; }
-    .progress-bar-fill { height:100%; border-radius:4px; transition:width var(--duration-normal) var(--ease-out); }
-    .category-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-    .category-card { padding:16px; border-radius:var(--radius-md); background:var(--bg-card); border:1px solid var(--border-light); }
-    .category-card .cat-name { font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
-    .category-card .cat-value { font-size:20px; font-weight:600; }
-    .category-card .cat-pct { font-size:12px; color:var(--text-description); margin-top:2px; }
-    .chart-area { padding:20px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-md); }
-    .chart-legend { display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; }
-    .legend-item { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-secondary); }
-    .legend-color { width:14px; height:14px; border-radius:3px; }
-    .pie-visual { display:flex; align-items:center; justify-content:center; gap:40px; padding:20px 0; }
-    .pie-chart { width:180px; height:180px; border-radius:50%; position:relative; }
-    .pie-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80px; height:80px; border-radius:50%; background:var(--bg-card); display:flex; flex-direction:column; align-items:center; justify-content:center; }
-    .pie-center .pie-total { font-size:18px; font-weight:600; color:var(--text-primary); }
-    .pie-center .pie-label { font-size:11px; color:var(--text-description); }
-    .prd-footer { margin-top:20px; padding:10px 16px; background:#F5F5F5; border-radius:var(--radius-sm); font-size:12px; color:var(--text-description); text-align:center; }
-</style>
-</head>
-<body style="padding:20px; background:var(--bg-page);">
-  <!-- 统计概览 -->
-  <div class="stat-bar">
-    <div class="stat-item"><div class="stat-num">1,050</div><div class="stat-label">年度预算总额（万元）</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">554</div><div class="stat-label">已执行金额（万元）</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">52.8%</div><div class="stat-label">整体执行率</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">5</div><div class="stat-label">项目总数</div></div>
-  </div>
+    .tab-content.active { display:flex; flex-direction:column; }
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('ledger')">费用台账</div>
-    <div class="tab-item" onclick="switchTab('stats')">分类统计</div>
-  </div>
+    /* 类别标签色板 */
+    .tag-facility { background:var(--tag-blue-bg); color:var(--tag-blue-color); border-color:var(--tag-blue-border); }
+    .tag-training { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-protect { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-rectify { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .tag-rescue { background:var(--tag-purple-bg); color:var(--tag-purple-color); border-color:var(--tag-purple-border); }
+    .tag-other { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
 
-  <!-- Tab1 费用台账 -->
-  <div id="tab-ledger" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索项目名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部费用类别</option>
-          <option>安全设施</option>
-          <option>培训教育</option>
-          <option>应急物资</option>
-          <option>隐患整改</option>
-          <option>职业健康</option>
-          <option>其他</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
-          <option>执行中</option>
-          <option>已完成</option>
-          <option>待审批</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-      </div>
-    </div>
-
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-      <button class="btn btn-primary" onclick="showModal('addFundModal')">+ 新增</button>
-      <button class="btn btn-default">导出</button>
-    </div>
-
-    <div class="card">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>项目名称</th>
-            <th>费用类别</th>
-            <th>预算金额（万元）</th>
-            <th>已用金额（万元）</th>
-            <th>执行率</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>2026年度安全设施改造</td>
-            <td><span class="tag tag-info">安全设施</span></td>
-            <td>580</td>
-            <td>261</td>
-            <td>
-              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:45%; background:var(--primary);"></div></div>
-              <span style="font-size:12px;">45%</span>
-            </td>
-            <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>安全培训专项经费</td>
-            <td><span class="tag tag-success">培训教育</span></td>
-            <td>120</td>
-            <td>74</td>
-            <td>
-              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:62%; background:var(--success);"></div></div>
-              <span style="font-size:12px;">62%</span>
-            </td>
-            <td><span class="tag tag-completed">已完成</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>应急物资储备采购</td>
-            <td><span class="tag tag-warning">应急物资</span></td>
-            <td>85</td>
-            <td>0</td>
-            <td>
-              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%; background:#D9D9D9;"></div></div>
-              <span style="font-size:12px; color:var(--text-description);">0%</span>
-            </td>
-            <td><span class="tag tag-pending">待审批</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>隐患整改专项资金</td>
-            <td><span style="background:#FFF1F0; color:#CF1322; padding:2px 8px; border-radius:var(--radius-sm); font-size:12px;">隐患整改</span></td>
-            <td>200</td>
-            <td>180</td>
-            <td>
-              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:90%; background:var(--warning);"></div></div>
-              <span style="font-size:12px; color:var(--warning);">90%</span>
-            </td>
-            <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>职业健康体检费</td>
-            <td><span style="background:#F9F0FF; color:#531DAB; padding:2px 8px; border-radius:var(--radius-sm); font-size:12px;">职业健康</span></td>
-            <td>65</td>
-            <td>39</td>
-            <td>
-              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:60%; background:#531DAB;"></div></div>
-              <span style="font-size:12px;">60%</span>
-            </td>
-            <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="pagination">
-        <span>共 5 条</span>
-        <div class="pagination-page active">1</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab2 分类统计 -->
-  <div id="tab-stats" class="tab-content">
-    <div class="category-grid">
-      <div class="category-card">
-        <div class="cat-name">安全设施</div>
-        <div class="cat-value" style="color:var(--primary);">580万</div>
-        <div class="cat-pct">占比 45%</div>
-      </div>
-      <div class="category-card">
-        <div class="cat-name">培训教育</div>
-        <div class="cat-value" style="color:var(--success);">120万</div>
-        <div class="cat-pct">占比 15%</div>
-      </div>
-      <div class="category-card">
-        <div class="cat-name">应急物资</div>
-        <div class="cat-value" style="color:var(--warning);">85万</div>
-        <div class="cat-pct">占比 10%</div>
-      </div>
-      <div class="category-card">
-        <div class="cat-name">隐患整改</div>
-        <div class="cat-value" style="color:var(--error);">200万</div>
-        <div class="cat-pct">占比 20%</div>
-      </div>
-      <div class="category-card">
-        <div class="cat-name">职业健康</div>
-        <div class="cat-value" style="color:#531DAB;">65万</div>
-        <div class="cat-pct">占比 8%</div>
-      </div>
-      <div class="category-card">
-        <div class="cat-name">其他</div>
-        <div class="cat-value" style="color:var(--text-description);">0万</div>
-        <div class="cat-pct">占比 2%</div>
-      </div>
-    </div>
-    <div class="chart-area">
-      <div style="font-size:14px; font-weight:500; margin-bottom:12px;">费用类别占比分布</div>
-      <div class="pie-visual">
-        <div class="pie-chart" style="background:conic-gradient(var(--primary) 0% 45%, var(--success) 45% 60%, var(--warning) 60% 70%, var(--error) 70% 90%, #531DAB 90% 98%, #D9D9D9 98% 100%);">
-          <div class="pie-center">
-            <div class="pie-total">1,050</div>
-            <div class="pie-label">万元</div>
-          </div>
-        </div>
-        <div class="chart-legend">
-          <div class="legend-item"><div class="legend-color" style="background:var(--primary);"></div>安全设施 45%</div>
-          <div class="legend-item"><div class="legend-color" style="background:var(--success);"></div>培训教育 15%</div>
-          <div class="legend-item"><div class="legend-color" style="background:var(--warning);"></div>应急物资 10%</div>
-          <div class="legend-item"><div class="legend-color" style="background:var(--error);"></div>隐患整改 20%</div>
-          <div class="legend-item"><div class="legend-color" style="background:#531DAB;"></div>职业健康 8%</div>
-          <div class="legend-item"><div class="legend-color" style="background:#D9D9D9;"></div>其他 2%</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 新增费用弹窗 -->
-  <div id="addFundModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:var(--bg-card); border-radius:var(--radius-lg); width:600px; max-height:80vh; overflow:auto; padding:24px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0; font-size:16px;">新增安全投入项目</h3>
-        <button class="btn btn-text" onclick="hideModal('addFundModal')">&#10005;</button>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 项目名称</label>
-          <input class="form-input" style="width:100%" placeholder="请输入项目名称">
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 费用类别</label>
-          <select class="form-input form-select" style="width:100%">
-            <option>请选择</option>
-            <option>安全设施</option>
-            <option>培训教育</option>
-            <option>应急物资</option>
-            <option>隐患整改</option>
-            <option>职业健康</option>
-            <option>其他</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 预算金额（万元）</label>
-          <input class="form-input" type="number" style="width:100%" placeholder="请输入预算金额">
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 计划执行期</label>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <input class="form-input" type="date" style="flex:1">
-            <span style="color:var(--text-description);">至</span>
-            <input class="form-input" type="date" style="flex:1">
-          </div>
-        </div>
-        <div style="grid-column:span 2">
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">说明</label>
-          <textarea class="form-input" style="width:100%; height:80px" placeholder="请输入项目说明"></textarea>
-        </div>
-      </div>
-      <div style="margin-top:12px; padding:10px 12px; background:var(--primary-5); border:1px solid var(--primary-10); border-radius:var(--radius-sm); font-size:12px; color:var(--primary);">
-        安全投入执行情况将影响绩效考核评分 | 关联模块：绩效考核
-      </div>
-      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
-        <button class="btn btn-default" onclick="hideModal('addFundModal')">取消</button>
-        <button class="btn btn-primary" onclick="hideModal('addFundModal')">确定</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="prd-footer">对应PRD章节 3.12.3 资金保障 | 关联模块：绩效考核（安全投入影响考核）</div>
-
-  <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
+    /* Tab2 分类卡片 */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-4);
     }
-    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-  </script>
+    .category-card {
+      padding: var(--spacing-4) var(--spacing-5);
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border-top: 3px solid var(--border-light);
+      transition: box-shadow var(--duration-fast) var(--ease-out);
+    }
+    .category-card:hover { box-shadow: var(--shadow-card); }
+    .category-card.cat-facility { border-top-color: var(--primary); }
+    .category-card.cat-training { border-top-color: var(--success); }
+    .category-card.cat-protect { border-top-color: var(--warning); }
+    .category-card.cat-rectify { border-top-color: var(--error); }
+    .category-card.cat-rescue { border-top-color: var(--tag-purple-color); }
+    .category-card .cat-name { font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:4px; }
+    .category-card .cat-value { font-size:var(--font-size-20); font-weight:var(--font-weight-bold); }
+    .category-card .cat-pct { font-size:var(--font-size-12); color:var(--text-description); margin-top:2px; }
+
+    /* 图表区 */
+    .chart-area {
+      padding: var(--spacing-5);
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-area-title {
+      font-size: var(--font-size-14);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--spacing-4);
+    }
+    .pie-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 16px 0;
+    }
+    .pie-chart {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .pie-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .pie-center .pie-total { font-size:var(--font-size-18); font-weight:var(--font-weight-bold); color:var(--text-primary); }
+    .pie-center .pie-label { font-size:var(--font-size-11); color:var(--text-description); }
+    .chart-legend { display:flex; flex-direction:column; gap:8px; }
+    .legend-item { display:flex; align-items:center; gap:6px; font-size:var(--font-size-12); color:var(--text-secondary); white-space:nowrap; }
+    .legend-color { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+    .legend-bar { display:flex; flex-wrap:wrap; gap:12px 16px; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light); }
+    .legend-bar .legend-item { font-size:var(--font-size-12); }
+
+    /* 按月份柱状图（带坐标轴） */
+    .bar-chart-with-axis { display:flex; margin-top:16px; height:200px; }
+    .bar-y-axis { display:flex; flex-direction:column-reverse; justify-content:space-between; padding-right:8px; flex-shrink:0; width:40px; text-align:right; }
+    .bar-y-label { font-size:var(--font-size-10); color:var(--text-description); line-height:1; }
+    .bar-chart-body { flex:1; display:flex; flex-direction:column; min-width:0; }
+    .bar-chart-plot { flex:1; display:flex; align-items:flex-end; gap:6px; border-left:1px solid var(--border-light); border-bottom:1px solid var(--border-light); padding:0 4px; position:relative; }
+    .bar-group { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .bar-value { font-size:var(--font-size-10); color:var(--text-quaternary); white-space:nowrap; }
+    .bar-stack { width:100%; max-width:44px; display:flex; flex-direction:column-reverse; border-radius:3px 3px 0 0; overflow:hidden; }
+    .bar-segment { width:100%; min-height:1px; transition:height .3s; }
+    .bar-x-axis { display:flex; padding-left:4px; }
+    .bar-x-label { flex:1; text-align:center; font-size:var(--font-size-10); color:var(--text-tertiary); padding-top:4px; }
+
+    /* 详情 */
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title {
+      font-size:var(--font-size-13);
+      font-weight:var(--font-weight-semibold);
+      color:var(--text-primary);
+      margin-bottom:8px;
+      padding-bottom:6px;
+      border-bottom:1px solid var(--border);
+    }
+    /* 上传组件 */
+    .upload-area { display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px; border:1px dashed var(--border); border-radius:var(--radius-md); cursor:pointer; transition:border-color var(--duration-fast); }
+    .upload-area:hover { border-color:var(--primary); background:var(--primary-5,rgba(35,102,236,0.03)); }
+    .upload-icon { width:40px; height:40px; }
+    .upload-text { font-size:var(--font-size-13); color:var(--primary); font-weight:var(--font-weight-semibold); }
+    .upload-hint { font-size:var(--font-size-11); color:var(--text-description); }
+    .upload-file-list { margin-top:8px; }
+    .upload-file-item { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-sm); font-size:var(--font-size-12); margin-bottom:4px; }
+    .upload-file-icon { width:16px; height:16px; flex-shrink:0; }
+    .upload-file-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-primary); }
+    .upload-file-size { color:var(--text-description); flex-shrink:0; }
+    .upload-file-remove { background:none; border:none; color:var(--text-description); cursor:pointer; font-size:var(--font-size-16); line-height:1; padding:0 2px; }
+    .upload-file-remove:hover { color:var(--error); }
+
+    /* 详情页附件预览 */
+    .preview-file-tab { padding:4px 12px; font-size:var(--font-size-12); color:var(--text-secondary); border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); cursor:pointer; transition:all var(--duration-fast); }
+    .preview-file-tab.active { color:var(--primary); border-color:var(--primary); background:var(--primary-5,rgba(35,102,236,0.06)); }
+    .preview-empty { text-align:center; }
+    .preview-empty-icon { width:56px; height:56px; margin:0 auto 12px; opacity:0.3; }
+    .preview-empty-text { font-size:var(--font-size-13); color:var(--text-description); }
+    .preview-doc { width:100%; max-width:680px; padding:24px; background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); }
+    .preview-doc h4 { font-size:var(--font-size-14); font-weight:var(--font-weight-semibold); margin-bottom:12px; }
+    .preview-doc p { font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.8; margin-bottom:8px; }
+
+    #fund-table th, #fund-table td { text-align:center; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+
+  <div id="view-list" class="page-view active">
+  <div class="card" style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+    <div class="split-layout" style="margin-top:0;flex:1;min-height:0;">
+
+      <!-- 左侧：组织架构树 -->
+      <aside class="split-left fund-tree-panel">
+        <div class="fund-tree-title"><span>单位组织</span></div>
+        <input type="search" class="fund-tree-search" id="fund-tree-search" placeholder="搜索单位名称…">
+        <div id="fund-org-tree"></div>
+      </aside>
+
+      <!-- 右侧：资金保障内容 -->
+      <div class="split-right fund-main-panel">
+
+        <!-- 单位标题栏 -->
+        <div class="unit-header">
+          <div class="unit-header-title" id="fund-unit-title">深圳港集团</div>
+          <div class="unit-header-stats" id="fund-unit-stats">
+            <span class="unit-stat">投入合计 <b id="stat-total">700</b> 万元</span>
+            <span class="unit-stat">记录数 <b id="stat-count">2</b></span>
+          </div>
+        </div>
+
+        <!-- Tab 栏 -->
+        <div style="flex-shrink:0;padding:0 20px;border-bottom:1px solid var(--border-divider);">
+          <div class="tab-bar" style="padding:0;">
+            <div class="tab-item active" data-action="switchTab" data-param="ledger">费用台账</div>
+            <div class="tab-item" data-action="switchTab" data-param="stats">分类统计</div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 20px;">
+
+          <!-- Tab1 费用台账 -->
+          <div id="tab-ledger" class="tab-content active">
+            <!-- 查询区 -->
+            <div class="card u-mb-16">
+              <div class="filter-bar" style="margin-top:0">
+                <div class="filter-field"><span class="filter-label">投入名称</span><input class="form-input" placeholder="请输入"></div>
+                <div class="filter-field"><span class="filter-label">类别</span><select class="form-select">
+                  <option>全部</option>
+                  <option>安全设施</option>
+                  <option>安全培训</option>
+                  <option>劳动防护</option>
+                  <option>隐患整改</option>
+                  <option>应急救援</option>
+                  <option>其他</option>
+                </select></div>
+                <div class="filter-field"><span class="filter-label">年度</span><select class="form-select">
+                  <option>全部</option>
+                  <option>2026</option>
+                  <option>2025</option>
+                  <option>2024</option>
+                </select></div>
+                <div class="filter-bar-actions">
+                  <button class="btn btn-primary btn-sm" data-action="filterFund">查询</button>
+                  <button class="btn btn-default btn-sm" data-action="resetFundFilter">重置</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 数据区 -->
+            <div class="card u-p-0" style="overflow:hidden;">
+              <div class="filter-actions-row" style="padding:16px 20px 0;">
+                <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addFundModal">+ 新增</button>
+                <button class="btn btn-default btn-sm" data-action="batchDeleteFund">批量删除</button>
+                <button class="btn btn-default btn-sm" data-action="showToast" data-param="已导出记录">导出</button>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table" id="fund-table">
+                  <colgroup>
+                    <col style="width:40px">
+                    <col style="width:48px">
+                    <col style="width:220px">
+                    <col style="width:90px">
+                    <col style="width:100px">
+                    <col style="width:100px">
+                    <col style="width:80px">
+                    <col style="width:140px">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" data-action="toggleAllCheck" data-param="fund-table"></th>
+                      <th>序号</th>
+                      <th>投入名称</th>
+                      <th>类别</th>
+                      <th>金额（万元）</th>
+                      <th>投入日期</th>
+                      <th>经办人</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fund-tbody">
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination-bar">
+                <span class="pagination-info" id="fund-page-info">共 0 条</span>
+                <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+                <div class="pagination"><div class="pagination-page active">1</div></div>
+                <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+              </div>
+            </div>
+          </div><!-- /tab-ledger -->
+
+          <!-- Tab2 分类统计 -->
+          <div id="tab-stats" class="tab-content">
+            <div class="category-grid" id="fund-category-grid">
+            </div>
+            <div style="display:flex;gap:var(--spacing-4);">
+              <div class="chart-area" style="flex:1;min-width:0;">
+                <div class="chart-area-title">投入类别占比分布</div>
+                <div class="pie-visual">
+                  <div class="pie-chart" id="fund-pie-chart">
+                    <div class="pie-center">
+                      <div class="pie-total" id="fund-pie-total">0</div>
+                      <div class="pie-label">万元</div>
+                    </div>
+                  </div>
+                  <div class="chart-legend" id="fund-chart-legend"></div>
+                </div>
+              </div>
+              <div class="chart-area" style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div class="chart-area-title" style="margin-bottom:0;">按月份投入趋势</div>
+                  <div class="legend-bar" style="margin:0;padding:0;border:none;">
+                    <div class="legend-item"><div class="legend-color" style="background:var(--primary);"></div>安全设施</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--success);"></div>安全培训</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--warning);"></div>劳动防护</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--error);"></div>隐患整改</div>
+                    <div class="legend-item"><div class="legend-color" style="background:var(--tag-purple-color);"></div>应急救援</div>
+                  </div>
+                </div>
+                <div id="monthly-bar-chart" class="bar-chart-with-axis"></div>
+              </div>
+            </div>
+          </div><!-- /tab-stats -->
+
+        </div>
+
+      </div><!-- /split-right -->
+    </div><!-- /split-layout -->
+  </div><!-- /card -->
+  </div><!-- /view-list -->
+
+  <!-- 详情页 -->
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="secu2-detail-title" style="font-size:var(--font-size-16);font-weight:var(--font-weight-semibold);">资金保障详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showSecurityBasicsFundList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div id="secu2-detail-basic" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div style="font-size:var(--font-size-14);font-weight:var(--font-weight-semibold);color:var(--text-primary);">附件预览</div>
+            <div id="fund-detail-file-tabs" style="display:flex;gap:4px;"></div>
+          </div>
+          <div id="fund-detail-preview" style="min-height:320px;background:var(--bg-page);border-radius:0 0 var(--radius-lg) var(--radius-lg);display:flex;align-items:center;justify-content:center;">
+            <div id="fund-detail-preview-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增投入登记弹窗 -->
+  <div class="modal-overlay" id="addFundModal">
+    <div class="modal" style="width:var(--modal-md)">
+      <div class="modal-header">
+        <h3 class="modal-title">新增安全投入登记</h3>
+        <button class="modal-close" data-action="hideModal" data-param="addFundModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>投入名称</label>
+            <div class="form-content"><input class="form-input" placeholder="请输入投入名称"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>类别</label>
+            <div class="form-content"><select class="form-select">
+              <option>请选择</option>
+              <option>安全设施</option>
+              <option>安全培训</option>
+              <option>劳动防护</option>
+              <option>隐患整改</option>
+              <option>应急救援</option>
+              <option>其他</option>
+            </select></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>金额（万元）</label>
+            <div class="form-content"><input class="form-input" type="number" placeholder="请输入金额"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>投入日期</label>
+            <div class="form-content"><input class="form-input" type="date"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>经办人</label>
+            <div class="form-content"><input class="form-input" placeholder="请输入经办人"></div>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">附件</label>
+            <div class="form-content">
+              <div class="upload-area" data-action="triggerUpload">
+                <svg class="upload-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="var(--primary-5,rgba(35,102,236,0.06))"/><path d="M20 14v12M14 20l6-6 6 6" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div class="upload-text">点击或拖拽上传</div>
+                <div class="upload-hint">支持 .doc/.docx/.pdf/.xls/.xlsx，单文件不超过 20MB</div>
+              </div>
+              <div class="upload-file-list" id="fund-file-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="addFundModal">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="hideModal" data-param="addFundModal">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../system-admin/org-data.js?v=2.0"></script>
+  <script src="fund-data.js?v=2.0"></script>
+  <script src="fund-logic.js?v=2.0"></script>
 </body>
 </html>

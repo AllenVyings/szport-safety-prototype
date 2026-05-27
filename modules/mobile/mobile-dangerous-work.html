@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>危险作业 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-dark-primary);
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 20px 20px;
+    }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame {
+      width: 375px; height: 740px; background: var(--bg-gray-lighter);
+      border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+    .phone-statusbar {
+      height: 44px; background: var(--brand); display: flex; align-items: flex-end;
+      justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse);
+      font-size: 12px; flex-shrink: 0;
+    }
+    .mobile-header {
+      background: var(--brand); padding: 12px 16px 16px; color: var(--text-inverse); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mobile-header-title { font-size: 17px; font-weight: 600; }
+    .header-back {
+      font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .mobile-content {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 0 0 60px 0; -webkit-overflow-scrolling: touch;
+    }
+    /* 视图切换 */
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+    /* 列表视图 */
+    .work-card {
+      background: var(--bg-card); margin: 8px 12px; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); padding: 14px; cursor: pointer;
+    }
+    .work-card:active { background: var(--bg-hover); }
+    .work-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .work-type {
+      font-size: 11px; padding: 2px 8px; border-radius: var(--radius-full);
+      font-weight: 500;
+    }
+    .work-type.high { background: var(--tag-error-bg); color: var(--tag-error-color); }
+    .work-type.medium { background: var(--tag-warning-bg); color: var(--tag-warning-color); }
+    .work-type.low { background: var(--tag-info-bg); color: var(--tag-info-color); }
+    .work-status { font-size: 11px; padding: 2px 8px; border-radius: var(--radius-full); }
+    .work-status.pending { background: var(--tag-warning-bg); color: var(--tag-warning-color); }
+    .work-status.approved { background: var(--tag-success-bg); color: var(--tag-success-color); }
+    .work-status.executing { background: var(--tag-info-bg); color: var(--tag-info-color); }
+    .work-status.done { background: var(--tag-default-bg); color: var(--tag-default-color); }
+    .work-title { font-size: 15px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+    .work-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+    .work-meta span { display: flex; align-items: center; gap: 3px; }
+    /* 详情视图 */
+    .detail-section { margin: 8px 12px; }
+    .detail-card {
+      background: var(--bg-card); border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      padding: 14px;
+    }
+    .detail-card-title {
+      font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 10px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border-light);
+    }
+    .detail-row {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      font-size: 13px;
+    }
+    .detail-row .label { color: var(--text-secondary); }
+    .detail-row .value { color: var(--text-primary); font-weight: 500; }
+    .safety-check-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 0;
+      border-bottom: 1px solid var(--border-light); font-size: 13px;
+    }
+    .safety-check-item:last-child { border-bottom: none; }
+    .check-box {
+      width: 20px; height: 20px; border-radius: 4px; border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .check-box.checked { background: var(--primary); border-color: var(--primary); color: #fff; font-size: 12px; }
+    .sign-area {
+      margin-top: 10px; border: 1px dashed var(--border-input); border-radius: 8px;
+      padding: 20px; text-align: center; color: var(--text-description); font-size: 13px;
+      background: var(--bg-page);
+    }
+    .mobile-tabbar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+      background: var(--bg-card); border-top: 1px solid var(--border-light);
+      display: flex; align-items: center; justify-content: space-around;
+      flex-shrink: 0; z-index: 10;
+    }
+    .tabbar-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer; padding: 4px 12px; text-decoration: none; color: inherit;
+    }
+    .tabbar-item .tabbar-icon { font-size: 20px; color: var(--text-description); }
+    .tabbar-item .tabbar-label { font-size: 10px; color: var(--text-description); }
+    .tabbar-item.active .tabbar-icon { color: var(--primary); }
+    .tabbar-item.active .tabbar-label { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+
+  <div class="phone-frame">
+    <div class="phone-statusbar">
+      <span>09:41</span>
+      <span>5G 100%</span>
+    </div>
+
+    <div class="mobile-header">
+      <div class="mobile-header-title">危险作业</div>
+      <a href="mobile-function.html" class="header-back">返回 ›</a>
+    </div>
+
+    <div class="mobile-content">
+
+      <!-- 列表视图 -->
+      <div id="view-list" class="page-view active">
+        <div class="work-card" data-action="showDetail">
+          <div class="work-header">
+            <span class="work-type high">高处作业</span>
+            <span class="work-status approved">已审批</span>
+          </div>
+          <div class="work-title">3号泊位照明塔维修高处作业</div>
+          <div class="work-meta">
+            <span>📍 盐田港区</span>
+            <span>📅 2026-05-23</span>
+            <span>👤 王操作</span>
+          </div>
+        </div>
+
+        <div class="work-card" data-action="showDetail">
+          <div class="work-header">
+            <span class="work-type medium">动火作业</span>
+            <span class="work-status pending">待审批</span>
+          </div>
+          <div class="work-title">5号仓库焊接作业</div>
+          <div class="work-meta">
+            <span>📍 前海港区</span>
+            <span>📅 2026-05-24</span>
+            <span>👤 李施工</span>
+          </div>
+        </div>
+
+        <div class="work-card" data-action="showDetail" data-param="executing">
+          <div class="work-header">
+            <span class="work-type high">受限空间</span>
+            <span class="work-status executing">实施中</span>
+          </div>
+          <div class="work-title">2号储罐内部检测作业</div>
+          <div class="work-meta">
+            <span>📍 大铲湾</span>
+            <span>📅 2026-05-22</span>
+            <span>👤 张建国</span>
+          </div>
+        </div>
+
+        <div class="work-card" data-action="showDetail">
+          <div class="work-header">
+            <span class="work-type low">临时用电</span>
+            <span class="work-status done">已完成</span>
+          </div>
+          <div class="work-title">码头临时照明线路铺设</div>
+          <div class="work-meta">
+            <span>📍 蛇口港区</span>
+            <span>📅 2026-05-20</span>
+            <span>👤 赵电工</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 详情视图 -->
+      <div id="view-detail" class="page-view">
+        <div class="detail-section">
+          <div class="detail-card">
+            <div class="detail-card-title">作业信息</div>
+            <div class="detail-row"><span class="label">作业类型</span><span class="value" style="color:var(--error);">受限空间</span></div>
+            <div class="detail-row"><span class="label">作业内容</span><span class="value">2号储罐内部检测</span></div>
+            <div class="detail-row"><span class="label">作业地点</span><span class="value">大铲湾2号储罐</span></div>
+            <div class="detail-row"><span class="label">作业时间</span><span class="value">2026-05-22 08:00~18:00</span></div>
+            <div class="detail-row"><span class="label">作业人员</span><span class="value">张建国 等3人</span></div>
+            <div class="detail-row"><span class="label">状态</span><span class="value" id="detail-status" style="color:var(--primary);">实施中</span></div>
+          </div>
+        </div>
+
+        <div class="detail-section" id="section-jiaodi">
+          <div class="detail-card">
+            <div class="detail-card-title">作业交底（现场负责人 PC 办理，移动端只读）</div>
+            <div class="detail-row"><span class="label">交底人</span><span class="value">陈安全</span></div>
+            <div class="detail-row"><span class="label">完成时间</span><span class="value">2026-05-21 17:30</span></div>
+          </div>
+        </div>
+
+        <div class="detail-section" id="section-work-control">
+          <div class="detail-card">
+            <div class="detail-card-title">实施控制（仅作业人员）</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">开工/暂停/恢复请在下方操作；关闭与复核在 PC 端由现场负责人、安全工程师办理。</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" id="btn-start-work" data-action="startWork" style="flex:1;min-width:100px;padding:12px;border-radius:10px;border:none;background:var(--success,#00b42a);color:#fff;font-size:14px;font-weight:600;cursor:pointer;">开始作业</button>
+              <button type="button" id="btn-pause-work" data-action="pauseWorkMobile" style="flex:1;min-width:100px;padding:12px;border-radius:10px;border:none;background:var(--warning,#ff7d00);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:none;">暂停作业</button>
+              <button type="button" id="btn-resume-work" data-action="resumeWorkMobile" style="flex:1;min-width:100px;padding:12px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:none;">恢复作业</button>
+            </div>
+            <div id="work-control-log" style="margin-top:10px;font-size:12px;color:var(--text-secondary);">记录：2026-05-22 08:05 张建国 开始作业</div>
+          </div>
+        </div>
+
+        <div class="detail-section" id="section-readonly" style="display:none;">
+          <div class="detail-card">
+            <div class="detail-card-title">作业交底签字（已审批作业）</div>
+            <div class="safety-check-item">
+              <div class="check-box checked">&#10003;</div>
+              <span>作业人员已佩戴安全带</span>
+            </div>
+            <div class="sign-area">点击此处签字确认</div>
+          </div>
+        </div>
+
+        <div style="padding: 12px;">
+          <button data-action="hideDetail" style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); font-size:14px; color:var(--primary); cursor:pointer;">返回列表</button>
+        </div>
+      </div>
+
+    </div><!-- /mobile-content -->
+
+    <div class="mobile-tabbar">
+      <a href="mobile-home.html" class="tabbar-item">
+        <span class="tabbar-icon">🏠</span>
+        <span class="tabbar-label">首页</span>
+      </a>
+      <a href="mobile-function.html" class="tabbar-item active">
+        <span class="tabbar-icon">📱</span>
+        <span class="tabbar-label">功能</span>
+      </a>
+      <a href="mobile-message.html" class="tabbar-item">
+        <span class="tabbar-icon">💬</span>
+        <span class="tabbar-label">消息</span>
+      </a>
+      <a href="mobile-profile.html" class="tabbar-item">
+        <span class="tabbar-icon">👤</span>
+        <span class="tabbar-label">我的</span>
+      </a>
+    </div>
+
+  </div><!-- /phone-frame -->
+
+  <script>
+    var workPaused = false;
+    function showDetail(mode) {
+      document.getElementById('view-list').classList.remove('active');
+      document.getElementById('view-detail').classList.add('active');
+      var isExecuting = mode === 'executing';
+      document.getElementById('section-work-control').style.display = isExecuting ? 'block' : 'none';
+      document.getElementById('section-jiaodi').style.display = isExecuting ? 'block' : 'none';
+      document.getElementById('section-readonly').style.display = isExecuting ? 'none' : 'block';
+      if (isExecuting) {
+        workPaused = false;
+        document.getElementById('detail-status').textContent = '实施中';
+        document.getElementById('btn-start-work').style.display = 'inline-block';
+        document.getElementById('btn-pause-work').style.display = 'none';
+        document.getElementById('btn-resume-work').style.display = 'none';
+      }
+    }
+    function hideDetail() {
+      document.getElementById('view-detail').classList.remove('active');
+      document.getElementById('view-list').classList.add('active');
+    }
+    function startWork() {
+      workPaused = false;
+      document.getElementById('btn-start-work').style.display = 'none';
+      document.getElementById('btn-pause-work').style.display = 'inline-block';
+      document.getElementById('btn-resume-work').style.display = 'none';
+      document.getElementById('detail-status').textContent = '实施中';
+      appendLog('张建国 开始作业');
+    }
+    function pauseWorkMobile() {
+      workPaused = true;
+      document.getElementById('btn-pause-work').style.display = 'none';
+      document.getElementById('btn-resume-work').style.display = 'inline-block';
+      document.getElementById('detail-status').textContent = '已暂停';
+      appendLog('张建国 暂停作业');
+    }
+    function resumeWorkMobile() {
+      workPaused = false;
+      document.getElementById('btn-pause-work').style.display = 'inline-block';
+      document.getElementById('btn-resume-work').style.display = 'none';
+      document.getElementById('detail-status').textContent = '实施中';
+      appendLog('张建国 恢复作业');
+    }
+    function appendLog(text) {
+      var el = document.getElementById('work-control-log');
+      var t = new Date();
+      var ts = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0') + ' ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+      el.innerHTML += '<br>' + ts + ' ' + text;
+    }
+
+    // Event delegation for data-action attributes
+    (function() {
+      document.addEventListener('click', function(e) {
+        var target = e.target.closest('[data-action]');
+        if (!target) return;
+        var action = target.getAttribute('data-action');
+        var param = target.getAttribute('data-param');
+        switch (action) {
+          case 'showDetail':
+            showDetail(param || undefined);
+            break;
+          case 'startWork':
+            startWork();
+            break;
+          case 'pauseWorkMobile':
+            pauseWorkMobile();
+            break;
+          case 'resumeWorkMobile':
+            resumeWorkMobile();
+            break;
+          case 'hideDetail':
+            hideDetail();
+            break;
+        }
+      });
+
+      // Backdrop click to close modal overlays
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+          var detailView = document.getElementById('view-detail');
+          if (detailView && detailView.classList.contains('active')) {
+            hideDetail();
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

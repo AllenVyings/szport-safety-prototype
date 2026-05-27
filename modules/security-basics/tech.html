@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>科技保障 - 深圳港集团安全综合管理系统</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    body { padding:20px 20px 0; background:var(--bg-page); height:100vh; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box; }
+
+    /* 左侧组织树 */
+    .tech-tree-panel { width:260px; min-width:260px; display:flex; flex-direction:column; min-height:0; }
+    .tech-tree-title { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--border-divider); margin-bottom:10px; flex-shrink:0; }
+    .tech-tree-title span { font-size:var(--font-size-14); font-weight:600; }
+    .tech-tree-search { width:100%; height:28px; font-size:var(--font-size-12); margin-bottom:8px; padding:0 8px; border:1px solid var(--border); border-radius:var(--radius-sm); flex-shrink:0; outline:none; }
+    .tech-tree-search:focus { border-color:var(--primary); }
+    #tech-org-tree { flex:1; min-height:0; overflow-y:auto; }
+    .tree-node { padding:5px 6px; border-radius:var(--radius-sm); font-size:var(--font-size-13); cursor:pointer; color:var(--text-primary); display:flex; align-items:center; gap:4px; margin-bottom:2px; }
+    .tree-node:hover { background:var(--bg-hover); }
+    .tree-node.selected { background:var(--primary-light); color:var(--primary); font-weight:500; }
+    .tree-node .arrow { font-size:var(--font-size-9); color:var(--text-description); width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform var(--duration-fast); }
+    .tree-node .arrow.open { transform:rotate(90deg); }
+    .tree-node .arrow.empty { visibility:hidden; pointer-events:none; }
+    .tree-node .node-icon { font-size:var(--font-size-10); width:18px; height:18px; border-radius:var(--radius-sm); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--primary-light); color:var(--primary); }
+    .tree-node .node-label { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .tree-node .node-count { font-size:var(--font-size-10); color:var(--text-description); flex-shrink:0; }
+    .tree-children.collapsed { display:none; }
+
+    /* 右侧主面板 */
+    .tech-main-panel { display:flex; flex-direction:column; min-height:0; padding:0 !important; background:var(--bg-card); }
+
+    /* 单位标题栏 */
+    .unit-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-divider); flex-shrink:0; }
+    .unit-header-title { font-size:var(--font-size-16); font-weight:var(--font-weight-semibold); color:var(--text-primary); }
+    .unit-header-stats { display:flex; gap:16px; }
+    .unit-stat { font-size:var(--font-size-12); color:var(--text-secondary); }
+    .unit-stat b { color:var(--text-primary); font-weight:var(--font-weight-semibold); }
+
+    /* 保障类别标签色板 */
+    .tag-equipment { background:var(--tag-blue-bg); color:var(--tag-blue-color); border-color:var(--tag-blue-border); }
+    .tag-digital { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-monitor { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+
+    /* 上传组件 */
+    .upload-area { display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px; border:1px dashed var(--border); border-radius:var(--radius-md); cursor:pointer; transition:border-color var(--duration-fast); }
+    .upload-area:hover { border-color:var(--primary); background:var(--primary-5,rgba(35,102,236,0.03)); }
+    .upload-icon { width:40px; height:40px; }
+    .upload-text { font-size:var(--font-size-13); color:var(--primary); font-weight:var(--font-weight-semibold); }
+    .upload-hint { font-size:var(--font-size-11); color:var(--text-description); }
+    .upload-file-list { margin-top:8px; }
+    .upload-file-item { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-sm); font-size:var(--font-size-12); margin-bottom:4px; }
+    .upload-file-icon { width:16px; height:16px; flex-shrink:0; }
+    .upload-file-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-primary); }
+    .upload-file-size { color:var(--text-description); flex-shrink:0; }
+    .upload-file-remove { background:none; border:none; color:var(--text-description); cursor:pointer; font-size:var(--font-size-16); line-height:1; padding:0 2px; }
+    .upload-file-remove:hover { color:var(--error); }
+
+    /* 详情页附件预览 */
+    .preview-file-tab { padding:4px 12px; font-size:var(--font-size-12); color:var(--text-secondary); border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); cursor:pointer; transition:all var(--duration-fast); }
+    .preview-file-tab.active { color:var(--primary); border-color:var(--primary); background:var(--primary-5,rgba(35,102,236,0.06)); }
+    .preview-empty { text-align:center; }
+    .preview-empty-icon { width:56px; height:56px; margin:0 auto 12px; opacity:0.3; }
+    .preview-empty-text { font-size:var(--font-size-13); color:var(--text-description); }
+    .preview-doc { width:100%; max-width:680px; padding:24px; background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); }
+    .preview-doc h4 { font-size:var(--font-size-14); font-weight:var(--font-weight-semibold); margin-bottom:12px; }
+    .preview-doc p { font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.8; margin-bottom:8px; }
+
+    /* 详情 */
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title { font-size:var(--font-size-13); font-weight:var(--font-weight-semibold); color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+
+    #tech-table th, #tech-table td { text-align:center; }
+    #tech-table td:nth-child(3) { text-align:left; }
+    .form-textarea { width:100%; min-height:88px; padding:8px 12px; border:1px solid var(--border-input); border-radius:var(--input-radius); font-size:var(--font-size-13); font-family:var(--font-family); color:var(--text-primary); background:var(--bg-card); line-height:1.6; resize:vertical; outline:none; transition:border-color var(--duration-fast) var(--ease-out); }
+    .form-textarea:focus { border-color:var(--border-input-focus); box-shadow:0 0 0 2px rgba(35,102,236,0.1); }
+    .form-textarea::placeholder { color:var(--text-description); }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+
+  <div id="view-list" class="page-view active">
+  <div class="card" style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+    <div class="split-layout" style="margin-top:0;flex:1;min-height:0;">
+
+      <!-- 左侧：组织架构树 -->
+      <aside class="split-left tech-tree-panel">
+        <div class="tech-tree-title"><span>单位组织</span></div>
+        <input type="search" class="tech-tree-search" id="tech-tree-search" placeholder="搜索单位名称…">
+        <div id="tech-org-tree"></div>
+      </aside>
+
+      <!-- 右侧：科技保障内容 -->
+      <div class="split-right tech-main-panel">
+
+        <!-- 单位标题栏 -->
+        <div class="unit-header">
+          <div class="unit-header-title" id="tech-unit-title">深圳港集团</div>
+          <div class="unit-header-stats">
+            <span class="unit-stat">投入合计 <b id="stat-total">0</b> 万元</span>
+            <span class="unit-stat">项目数 <b id="stat-count">0</b></span>
+            <span class="unit-stat">规划中 <b id="stat-planned">0</b></span>
+            <span class="unit-stat">实施中 <b id="stat-ongoing">0</b></span>
+            <span class="unit-stat">已验收 <b id="stat-accepted">0</b></span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 20px;">
+
+          <!-- 查询区 -->
+          <div class="card u-mb-16">
+            <div class="filter-bar" style="margin-top:0">
+              <div class="filter-field"><span class="filter-label">项目名称</span><input class="form-input" placeholder="请输入"></div>
+              <div class="filter-field"><span class="filter-label">保障类别</span><select class="form-select">
+                <option>全部</option>
+                <option>先进技术装备与无人值守</option>
+                <option>数字化信息化智能化</option>
+                <option>监测预警系统</option>
+              </select></div>
+              <div class="filter-field"><span class="filter-label">项目类型</span><select class="form-select">
+                <option>全部</option>
+                <option>设备类</option>
+                <option>系统类</option>
+                <option>其他类</option>
+              </select></div>
+              <div class="filter-field"><span class="filter-label">实施状态</span><select class="form-select">
+                <option>全部</option>
+                <option>规划中</option>
+                <option>实施中</option>
+                <option>已验收</option>
+              </select></div>
+              <div class="filter-bar-actions">
+                <button class="btn btn-primary btn-sm" data-action="filterTech">查询</button>
+                <button class="btn btn-default btn-sm" data-action="resetTechFilter">重置</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 数据区 -->
+          <div class="card u-p-0" style="overflow:hidden;">
+            <div class="filter-actions-row" style="padding:16px 20px 0;">
+              <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addTechModal">+ 新增</button>
+              <button class="btn btn-default btn-sm" data-action="batchDeleteTech">批量删除</button>
+              <button class="btn btn-default btn-sm" data-action="showToast" data-param="已导出记录">导出</button>
+            </div>
+
+            <div class="table-wrap">
+              <table class="data-table" id="tech-table">
+                <colgroup>
+                  <col style="width:40px">
+                  <col style="width:48px">
+                  <col style="width:200px">
+                  <col style="width:140px">
+                  <col style="width:80px">
+                  <col style="width:100px">
+                  <col style="width:100px">
+                  <col style="width:80px">
+                  <col style="width:72px">
+                  <col style="width:140px">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" data-action="toggleAllCheck" data-param="tech-table"></th>
+                    <th>序号</th>
+                    <th>项目名称</th>
+                    <th>保障类别</th>
+                    <th>项目类型</th>
+                    <th>金额（万元）</th>
+                    <th>实施日期</th>
+                    <th>实施状态</th>
+                    <th>责任人</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="tech-tbody">
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination-bar">
+              <span class="pagination-info" id="tech-page-info">共 0 条</span>
+              <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select>
+              <div class="pagination"><div class="pagination-page active">1</div></div>
+              <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /split-right -->
+    </div><!-- /split-layout -->
+  </div><!-- /card -->
+  </div><!-- /view-list -->
+
+  <!-- 详情页 -->
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="secu5-detail-title" style="font-size:var(--font-size-16);font-weight:var(--font-weight-semibold);">科技保障详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showSecurityBasicsTechList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div id="secu5-detail-basic" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div style="font-size:var(--font-size-14);font-weight:var(--font-weight-semibold);color:var(--text-primary);">附件预览</div>
+            <div id="tech-detail-file-tabs" style="display:flex;gap:4px;"></div>
+          </div>
+          <div id="tech-detail-preview" style="min-height:320px;background:var(--bg-page);border-radius:0 0 var(--radius-lg) var(--radius-lg);display:flex;align-items:center;justify-content:center;">
+            <div id="tech-detail-preview-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑科技保障项目弹窗 -->
+  <div class="modal-overlay" id="addTechModal">
+    <div class="modal" style="width:var(--modal-md)">
+      <div class="modal-header">
+        <h3 class="modal-title">新增科技保障项目</h3>
+        <button class="modal-close" data-action="hideModal" data-param="addTechModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>项目名称</label>
+            <div class="form-content"><input class="form-input" placeholder="请输入项目名称"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>保障类别</label>
+            <div class="form-content"><select class="form-select">
+              <option>请选择</option>
+              <option value="equipment">先进技术装备与无人值守</option>
+              <option value="digital">数字化信息化智能化</option>
+              <option value="monitor">监测预警系统</option>
+            </select></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>项目类型</label>
+            <div class="form-content"><select class="form-select">
+              <option>请选择</option>
+              <option value="device">设备类</option>
+              <option value="system">系统类</option>
+              <option value="other">其他类</option>
+            </select></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>投入金额（万元）</label>
+            <div class="form-content"><input class="form-input" type="number" placeholder="请输入金额"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>实施日期</label>
+            <div class="form-content"><input class="form-input" type="date"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>实施状态</label>
+            <div class="form-content"><select class="form-select">
+              <option>请选择</option>
+              <option value="planned">规划中</option>
+              <option value="ongoing">实施中</option>
+              <option value="accepted">已验收</option>
+            </select></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>责任人</label>
+            <div class="form-content"><input class="form-input" placeholder="请输入责任人"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">项目说明</label>
+            <div class="form-content"><textarea class="form-textarea" rows="3" placeholder="请输入项目说明" maxlength="500"></textarea></div>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label class="form-label">附件</label>
+            <div class="form-content">
+              <div class="upload-area" data-action="triggerUpload">
+                <svg class="upload-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="var(--primary-5,rgba(35,102,236,0.06))"/><path d="M20 14v12M14 20l6-6 6 6" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div class="upload-text">点击或拖拽上传</div>
+                <div class="upload-hint">支持 .doc/.docx/.pdf/.xls/.xlsx，单文件不超过 20MB</div>
+              </div>
+              <div class="upload-file-list" id="tech-file-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="addTechModal">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="hideModal" data-param="addTechModal">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../system-admin/org-data.js?v=2.0"></script>
+  <script src="tech-data.js?v=2.0"></script>
+  <script src="tech-logic.js?v=2.0"></script>
+</body>
+</html>

@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>隐患统计分析 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .stat-item .stat-trend { font-size:11px; margin-top:2px; }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>    .stat-item .stat-trend { font-size:var(--font-size-11); margin-top:2px; }
     .stat-item .stat-trend.up { color:var(--color-error); }
     .stat-item .stat-trend.down { color:var(--color-success); }
     .stat-item .stat-trend.flat { color:var(--text-quaternary); }
@@ -15,50 +16,52 @@
     .tab-content.active { display:block; }
     .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
     .chart-card { background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:16px; }
-    .chart-card .chart-title { font-size:14px; font-weight:500; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
-    .chart-card .chart-title .chart-subtitle { font-size:11px; color:var(--text-quaternary); font-weight:400; }
+    .chart-card .chart-title { font-size:var(--font-size-14); font-weight:500; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+    .chart-card .chart-title .chart-subtitle { font-size:var(--font-size-11); color:var(--text-quaternary); font-weight:400; }
     .bar-chart { display:flex; align-items:flex-end; gap:8px; height:180px; padding-top:12px; }
     .bar-group { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
     .bar-stack { width:100%; max-width:48px; display:flex; flex-direction:column-reverse; border-radius:4px 4px 0 0; overflow:hidden; }
     .bar-segment { width:100%; min-height:2px; }
-    .bar-segment.major { background:#F5222D; }
-    .bar-segment.significant { background:#FA8C16; }
-    .bar-segment.normal { background:#FAAD14; }
-    .bar-label { font-size:11px; color:var(--text-tertiary); }
-    .bar-value { font-size:10px; color:var(--text-quaternary); }
+    .bar-segment.major { background:var(--chart-red); }
+    .bar-segment.significant { background:var(--chart-orange); }
+    .bar-segment.normal { background:var(--chart-gold); }
+    .bar-label { font-size:var(--font-size-11); color:var(--text-tertiary); }
+    .bar-value { font-size:var(--font-size-10); color:var(--text-quaternary); }
     .pie-chart { display:flex; align-items:center; gap:24px; }
     .pie-visual { width:160px; height:160px; border-radius:50%; position:relative; }
     .pie-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
-    .pie-center .pie-total { font-size:28px; font-weight:700; }
-    .pie-center .pie-label { font-size:11px; color:var(--text-tertiary); }
+    .pie-center .pie-total { font-size:var(--font-size-28); font-weight:700; }
+    .pie-center .pie-label { font-size:var(--font-size-11); color:var(--text-tertiary); }
     .pie-legend { display:flex; flex-direction:column; gap:8px; }
-    .pie-legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+    .pie-legend-item { display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); }
     .pie-legend-dot { width:10px; height:10px; border-radius:2px; }
     .pie-legend-value { font-weight:500; margin-left:auto; min-width:24px; text-align:right; }
-    .pie-legend-pct { font-size:11px; color:var(--text-quaternary); min-width:40px; text-align:right; }
+    .pie-legend-pct { font-size:var(--font-size-11); color:var(--text-quaternary); min-width:40px; text-align:right; }
     .trend-line { display:flex; align-items:flex-end; gap:2px; height:140px; }
     .trend-bar { flex:1; border-radius:2px 2px 0 0; min-height:2px; position:relative; cursor:pointer; }
     .trend-bar:hover { opacity:.8; }
-    .trend-bar .trend-tip { display:none; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.75); color:#fff; padding:4px 8px; border-radius:4px; font-size:11px; white-space:nowrap; margin-bottom:4px; }
+    .trend-bar .trend-tip { display:none; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.75); color:var(--text-inverse); padding:4px 8px; border-radius:4px; font-size:var(--font-size-11); white-space:nowrap; margin-bottom:4px; }
     .trend-bar:hover .trend-tip { display:block; }
     .trend-labels { display:flex; gap:2px; margin-top:4px; }
-    .trend-labels span { flex:1; text-align:center; font-size:10px; color:var(--text-quaternary); }
+    .trend-labels span { flex:1; text-align:center; font-size:var(--font-size-10); color:var(--text-quaternary); }
     .rate-bar { display:flex; align-items:center; margin-bottom:10px; }
-    .rate-bar .label { font-size:13px; width:80px; color:var(--text-secondary); flex-shrink:0; }
+    .rate-bar .label { font-size:var(--font-size-13); width:80px; color:var(--text-secondary); flex-shrink:0; }
     .rate-bar .bar-bg { flex:1; height:24px; background:var(--bg-page); border-radius:4px; overflow:hidden; margin:0 8px; }
-    .rate-bar .bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:11px; color:#fff; }
-    .rate-bar .value { font-size:13px; font-weight:500; min-width:48px; text-align:right; }
+    .rate-bar .bar-fill { height:100%; border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:var(--font-size-11); color:var(--text-inverse); }
+    .rate-bar .value { font-size:var(--font-size-13); font-weight:500; min-width:48px; text-align:right; }
     .report-card { display:flex; align-items:center; gap:16px; padding:12px 16px; background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-md); margin-bottom:8px; }
-    .report-card .report-icon { width:40px; height:40px; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:20px; }
+    .report-card .report-icon { width:40px; height:40px; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:var(--font-size-20); }
     .report-card .report-info { flex:1; }
-    .report-card .report-name { font-size:14px; font-weight:500; }
-    .report-card .report-meta { font-size:12px; color:var(--text-tertiary); margin-top:2px; }
-    .report-card .report-status { font-size:12px; }
+    .report-card .report-name { font-size:var(--font-size-14); font-weight:500; }
+    .report-card .report-meta { font-size:var(--font-size-12); color:var(--text-tertiary); margin-top:2px; }
+    .report-card .report-status { font-size:var(--font-size-12); }
 </style>
+<script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
-  <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:8px;">
+  <div class="filter-actions-row">
     <button class="btn btn-default">导出报告</button>
   </div>
   <div class="stat-bar">
@@ -68,12 +71,12 @@
       <div class="stat-trend up">↑ 5 较上月</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:#F5222D">3</div>
+      <div class="stat-num" style="color:var(--chart-red)">3</div>
       <div class="stat-label">重大隐患</div>
       <div class="stat-trend flat">— 持平</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:var(--color-success)">85.7%</div>
+      <div class="stat-num u-text-success">85.7%</div>
       <div class="stat-label">整改闭环率</div>
       <div class="stat-trend down">↑ 3.2%</div>
     </div>
@@ -83,18 +86,19 @@
       <div class="stat-trend up">需关注</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:var(--color-error)">4.2</div>
+      <div class="stat-num u-text-error">4.2</div>
       <div class="stat-label">平均整改天数</div>
       <div class="stat-trend down">↓ 0.8天</div>
     </div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('overview')">综合概览</div>
-    <div class="tab-item" onclick="switchTab('dimension')">多维分析</div>
-    <div class="tab-item" onclick="switchTab('report')">报表管理</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="overview">综合概览</div>
+      <div class="tab-item" data-action="switchTab" data-param="dimension">多维分析</div>
+      <div class="tab-item" data-action="switchTab" data-param="report">报表管理</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- 综合概览 -->
   <div id="tab-overview" class="tab-content active">
@@ -103,16 +107,16 @@
       <div class="chart-card">
         <div class="chart-title">隐患等级分布<span class="chart-subtitle">按重大/较大/一般分类</span></div>
         <div class="pie-chart">
-          <div class="pie-visual" style="background:conic-gradient(#F5222D 0% 10.7%, #FA8C16 10.7% 25%, #FAAD14 25% 100%)">
+          <div class="pie-visual" style="background:conic-gradient(var(--chart-red) 0% 10.7%, var(--chart-orange) 10.7% 25%, var(--chart-gold) 25% 100%)">
             <div class="pie-center">
               <div class="pie-total">28</div>
               <div class="pie-label">隐患总数</div>
             </div>
           </div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#F5222D"></div>重大隐患<div class="pie-legend-value">3</div><div class="pie-legend-pct">10.7%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FA8C16"></div>较大隐患<div class="pie-legend-value">4</div><div class="pie-legend-pct">14.3%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FAAD14"></div>一般隐患<div class="pie-legend-value">21</div><div class="pie-legend-pct">75.0%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-red)"></div>重大隐患<div class="pie-legend-value">3</div><div class="pie-legend-pct">10.7%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-orange)"></div>较大隐患<div class="pie-legend-value">4</div><div class="pie-legend-pct">14.3%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-gold)"></div>一般隐患<div class="pie-legend-value">21</div><div class="pie-legend-pct">75.0%</div></div>
           </div>
         </div>
       </div>
@@ -121,18 +125,18 @@
       <div class="chart-card">
         <div class="chart-title">隐患状态分布<span class="chart-subtitle">按整改流程阶段</span></div>
         <div class="pie-chart">
-          <div class="pie-visual" style="background:conic-gradient(#CF1322 0% 10.7%, #D48806 10.7% 25%, #0958D9 25% 46.4%, #389E0D 46.4% 82.1%, #8C8C8C 82.1% 100%)">
+          <div class="pie-visual" style="background:conic-gradient(var(--tag-error-color) 0% 10.7%, var(--tag-warning-color) 10.7% 25%, var(--tag-info-color) 25% 46.4%, var(--tag-success-color) 46.4% 82.1%, var(--chart-gray) 82.1% 100%)">
             <div class="pie-center">
-              <div class="pie-total" style="font-size:20px">85.7%</div>
+              <div class="pie-total" style="font-size:var(--font-size-20)">85.7%</div>
               <div class="pie-label">闭环率</div>
             </div>
           </div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#CF1322"></div>逾期<div class="pie-legend-value">2</div><div class="pie-legend-pct">7.1%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#D48806"></div>待确认/分派<div class="pie-legend-value">4</div><div class="pie-legend-pct">14.3%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#0958D9"></div>整改中/审批<div class="pie-legend-value">6</div><div class="pie-legend-pct">21.4%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#389E0D"></div>已销号<div class="pie-legend-value">10</div><div class="pie-legend-pct">35.7%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#8C8C8C"></div>待验收<div class="pie-legend-value">6</div><div class="pie-legend-pct">21.4%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--tag-error-color)"></div>逾期<div class="pie-legend-value">2</div><div class="pie-legend-pct">7.1%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--tag-warning-color)"></div>待确认/分派<div class="pie-legend-value">4</div><div class="pie-legend-pct">14.3%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--tag-info-color)"></div>整改中/审批<div class="pie-legend-value">6</div><div class="pie-legend-pct">21.4%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--tag-success-color)"></div>已销号<div class="pie-legend-value">10</div><div class="pie-legend-pct">35.7%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-gray)"></div>待验收<div class="pie-legend-value">6</div><div class="pie-legend-pct">21.4%</div></div>
           </div>
         </div>
       </div>
@@ -141,21 +145,21 @@
       <div class="chart-card">
         <div class="chart-title">隐患发现与整改趋势<span class="chart-subtitle">近12个月</span></div>
         <div style="display:flex; gap:24px; margin-bottom:8px;">
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#1890FF; border-radius:2px; display:inline-block"></span>发现数</span>
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#52C41A; border-radius:2px; display:inline-block"></span>整改完成数</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-blue); border-radius:2px; display:inline-block"></span>发现数</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-green); border-radius:2px; display:inline-block"></span>整改完成数</span>
         </div>
         <div class="trend-line">
-          <div class="trend-bar" style="height:55%; background:#1890FF"><div class="trend-tip">6月: 发现22 / 整改20</div></div>
-          <div class="trend-bar" style="height:58%; background:#1890FF"><div class="trend-tip">7月: 发现23 / 整改21</div></div>
-          <div class="trend-bar" style="height:52%; background:#1890FF"><div class="trend-tip">8月: 发现20 / 整改19</div></div>
-          <div class="trend-bar" style="height:60%; background:#1890FF"><div class="trend-tip">9月: 发现24 / 整改22</div></div>
-          <div class="trend-bar" style="height:55%; background:#1890FF"><div class="trend-tip">10月: 发现22 / 整改21</div></div>
-          <div class="trend-bar" style="height:62%; background:#1890FF"><div class="trend-tip">11月: 发现25 / 整改23</div></div>
-          <div class="trend-bar" style="height:58%; background:#1890FF"><div class="trend-tip">12月: 发现23 / 整改22</div></div>
-          <div class="trend-bar" style="height:65%; background:#1890FF"><div class="trend-tip">1月: 发现26 / 整改24</div></div>
-          <div class="trend-bar" style="height:60%; background:#1890FF"><div class="trend-tip">2月: 发现24 / 整改22</div></div>
-          <div class="trend-bar" style="height:68%; background:#1890FF"><div class="trend-tip">3月: 发现27 / 整改25</div></div>
-          <div class="trend-bar" style="height:65%; background:#1890FF"><div class="trend-tip">4月: 发现26 / 整改24</div></div>
+          <div class="trend-bar" style="height:55%; background:var(--chart-blue)"><div class="trend-tip">6月: 发现22 / 整改20</div></div>
+          <div class="trend-bar" style="height:58%; background:var(--chart-blue)"><div class="trend-tip">7月: 发现23 / 整改21</div></div>
+          <div class="trend-bar" style="height:52%; background:var(--chart-blue)"><div class="trend-tip">8月: 发现20 / 整改19</div></div>
+          <div class="trend-bar" style="height:60%; background:var(--chart-blue)"><div class="trend-tip">9月: 发现24 / 整改22</div></div>
+          <div class="trend-bar" style="height:55%; background:var(--chart-blue)"><div class="trend-tip">10月: 发现22 / 整改21</div></div>
+          <div class="trend-bar" style="height:62%; background:var(--chart-blue)"><div class="trend-tip">11月: 发现25 / 整改23</div></div>
+          <div class="trend-bar" style="height:58%; background:var(--chart-blue)"><div class="trend-tip">12月: 发现23 / 整改22</div></div>
+          <div class="trend-bar" style="height:65%; background:var(--chart-blue)"><div class="trend-tip">1月: 发现26 / 整改24</div></div>
+          <div class="trend-bar" style="height:60%; background:var(--chart-blue)"><div class="trend-tip">2月: 发现24 / 整改22</div></div>
+          <div class="trend-bar" style="height:68%; background:var(--chart-blue)"><div class="trend-tip">3月: 发现27 / 整改25</div></div>
+          <div class="trend-bar" style="height:65%; background:var(--chart-blue)"><div class="trend-tip">4月: 发现26 / 整改24</div></div>
           <div class="trend-bar" style="height:70%; background:var(--primary)"><div class="trend-tip">5月: 发现28 / 整改24</div></div>
         </div>
         <div class="trend-labels">
@@ -173,19 +177,19 @@
           </div>
           <div class="rate-bar">
             <span class="label">油品码头</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:82.6%; background:#FA8C16">82.6%</div></div>
+            <div class="bar-bg"><div class="bar-fill" style="width:82.6%; background:var(--chart-orange)">82.6%</div></div>
           </div>
           <div class="rate-bar">
             <span class="label">散货码头</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:91.3%; background:#FA8C16">91.3%</div></div>
+            <div class="bar-bg"><div class="bar-fill" style="width:91.3%; background:var(--chart-orange)">91.3%</div></div>
           </div>
           <div class="rate-bar">
             <span class="label">物流公司</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:94.7%; background:#FA8C16">94.7%</div></div>
+            <div class="bar-bg"><div class="bar-fill" style="width:94.7%; background:var(--chart-orange)">94.7%</div></div>
           </div>
           <div class="rate-bar">
             <span class="label">物业公司</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:75.0%; background:#F5222D">75.0%</div></div>
+            <div class="bar-bg"><div class="bar-fill" style="width:75.0%; background:var(--chart-red)">75.0%</div></div>
           </div>
         </div>
       </div>
@@ -194,6 +198,7 @@
     <!-- 同类隐患重复分析 -->
     <div class="chart-card">
       <div class="chart-title">同类隐患重复出现分析<span class="chart-subtitle">季度内重复3次以上触发绩效扣分（扣分仅限外部检查发现）</span></div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -210,57 +215,58 @@
             <td>灭火器过期未更换</td>
             <td><span style="color:var(--color-error); font-weight:500">4次</span></td>
             <td>物业公司、散货码头</td>
-            <td><span style="color:var(--color-error); font-weight:500">扣分</span><span style="font-size:11px; color:var(--text-quaternary); margin-left:4px">外部检查</span></td>
+            <td><span style="color:var(--color-error); font-weight:500">扣分</span><span style="font-size:var(--font-size-11); color:var(--text-quaternary); margin-left:4px">外部检查</span></td>
           </tr>
           <tr>
             <td>电气安全</td>
             <td>临时用电线路私拉乱接</td>
             <td><span style="color:var(--color-warning); font-weight:500">3次</span></td>
             <td>建筑施工区域</td>
-            <td><span style="color:var(--text-quaternary)">不扣分</span><span style="font-size:11px; color:var(--text-quaternary); margin-left:4px">企业自查</span></td>
+            <td><span style="color:var(--text-quaternary)">不扣分</span><span style="font-size:var(--font-size-11); color:var(--text-quaternary); margin-left:4px">企业自查</span></td>
           </tr>
           <tr>
             <td>消防安全</td>
             <td>消防通道堵塞</td>
             <td>2次</td>
             <td>仓储区</td>
-            <td><span style="color:var(--text-quaternary)">不扣分</span><span style="font-size:11px; color:var(--text-quaternary); margin-left:4px">企业自查</span></td>
+            <td><span style="color:var(--text-quaternary)">不扣分</span><span style="font-size:var(--font-size-11); color:var(--text-quaternary); margin-left:4px">企业自查</span></td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 
   <!-- 多维分析 -->
   <div id="tab-dimension" class="tab-content">
-    <div class="card" style="margin-bottom:16px;">
+    <div class="card u-mb-16">
       <div class="filter-bar">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部组织</option>
+        <div class="filter-field"><span class="filter-label">组织</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>集装箱码头公司</option>
           <option>油品码头公司</option>
           <option>散货码头公司</option>
           <option>物流公司</option>
           <option>物业公司</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
+        </select></div>
+        <div class="filter-field"><span class="filter-label">分类维度</span><select class="form-input form-select" >
           <option>按原因分类</option>
           <option>按责任主体</option>
           <option>按隐患类型</option>
           <option>按检查类别</option>
           <option>按发现时间</option>
-        </select>
-        <select class="form-input form-select" style="width:120px">
+        </select></div>
+        <div class="filter-field"><span class="filter-label">年度</span><select class="form-input form-select" >
           <option>2026年</option>
           <option>2025年</option>
-        </select>
-        <select class="form-input form-select" style="width:120px">
+        </select></div>
+        <div class="filter-field"><span class="filter-label">季度</span><select class="form-input form-select" >
           <option>Q2</option>
           <option>Q1</option>
           <option>全年</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
 
@@ -291,9 +297,9 @@
           </div>
         </div>
         <div style="display:flex; gap:16px; justify-content:center; margin-top:8px;">
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#F5222D; border-radius:2px; display:inline-block"></span>重大隐患</span>
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#FA8C16; border-radius:2px; display:inline-block"></span>较大隐患</span>
-	          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#FAAD14; border-radius:2px; display:inline-block"></span>一般隐患</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-red); border-radius:2px; display:inline-block"></span>重大隐患</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-orange); border-radius:2px; display:inline-block"></span>较大隐患</span>
+	          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-gold); border-radius:2px; display:inline-block"></span>一般隐患</span>
         </div>
       </div>
 
@@ -301,17 +307,17 @@
       <div class="chart-card">
         <div class="chart-title">按检查类别统计</div>
         <div class="pie-chart">
-          <div class="pie-visual" style="background:conic-gradient:#1890FF 0% 35.7%, #52C41A 35.7% 60.7%, #FA8C16 60.7% 82.1%, #722ED1 82.1% 100%)">
+          <div class="pie-visual" style="background:conic-gradient:var(--chart-blue) 0% 35.7%, var(--chart-green) 35.7% 60.7%, var(--chart-orange) 60.7% 82.1%, var(--chart-purple) 82.1% 100%)">
             <div class="pie-center">
               <div class="pie-total">28</div>
               <div class="pie-label">隐患总数</div>
             </div>
           </div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#1890FF"></div>月度检查<div class="pie-legend-value">10</div><div class="pie-legend-pct">35.7%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#52C41A"></div>日常巡查<div class="pie-legend-value">7</div><div class="pie-legend-pct">25.0%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FA8C16"></div>专项检查<div class="pie-legend-value">6</div><div class="pie-legend-pct">21.4%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#722ED1"></div>外部检查<div class="pie-legend-value">5</div><div class="pie-legend-pct">17.9%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-blue)"></div>月度检查<div class="pie-legend-value">10</div><div class="pie-legend-pct">35.7%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-green)"></div>日常巡查<div class="pie-legend-value">7</div><div class="pie-legend-pct">25.0%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-orange)"></div>专项检查<div class="pie-legend-value">6</div><div class="pie-legend-pct">21.4%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-purple)"></div>外部检查<div class="pie-legend-value">5</div><div class="pie-legend-pct">17.9%</div></div>
           </div>
         </div>
       </div>
@@ -322,22 +328,22 @@
         <div style="padding:16px 0;">
           <div class="rate-bar">
             <span class="label">重大隐患</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:84%; background:#F5222D">4.2天</div></div>
-            <span class="value" style="color:#F5222D">4.2天</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:84%; background:var(--chart-red)">4.2天</div></div>
+            <span class="value" style="color:var(--chart-red)">4.2天</span>
           </div>
-          <div style="font-size:11px; color:var(--text-quaternary); margin:-4px 0 8px 88px;">标准：7天内 | 实际：优于标准</div>
+          <div style="font-size:var(--font-size-11); color:var(--text-quaternary); margin:-4px 0 8px 88px;">标准：7天内 | 实际：优于标准</div>
           <div class="rate-bar">
             <span class="label">较大隐患</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:60%; background:#FA8C16">6.0天</div></div>
-            <span class="value" style="color:#FA8C16">6.0天</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:60%; background:var(--chart-orange)">6.0天</div></div>
+            <span class="value" style="color:var(--chart-orange)">6.0天</span>
           </div>
-          <div style="font-size:11px; color:var(--text-quaternary); margin:-4px 0 8px 88px;">标准：10天内 | 实际：优于标准</div>
+          <div style="font-size:var(--font-size-11); color:var(--text-quaternary); margin:-4px 0 8px 88px;">标准：10天内 | 实际：优于标准</div>
           <div class="rate-bar">
             <span class="label">一般隐患</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:28%; background:#1890FF">8.4天</div></div>
-            <span class="value" style="color:#1890FF">8.4天</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:28%; background:var(--chart-blue)">8.4天</div></div>
+            <span class="value" style="color:var(--chart-blue)">8.4天</span>
           </div>
-          <div style="font-size:11px; color:var(--text-quaternary); margin:-4px 0 8px 88px;">标准：30天内 | 实际：优于标准</div>
+          <div style="font-size:var(--font-size-11); color:var(--text-quaternary); margin:-4px 0 8px 88px;">标准：30天内 | 实际：优于标准</div>
         </div>
       </div>
 
@@ -372,11 +378,11 @@
 
   <!-- 报表管理 -->
   <div id="tab-report" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:12px 16px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-md);">
-      <div style="font-size:13px; color:#0958D9;">隐患数据周报自动归集至月度报表，统一对接集团数据模板。每周一自动生成上周数据报表，每月1日自动生成上月汇总报表。</div>
+    <div class="card" style="margin-bottom:16px; padding:12px 16px; background:var(--tag-info-bg); border-color:var(--tag-info-border); border-radius:var(--radius-md);">
+      <div style="font-size:var(--font-size-13); color:var(--tag-info-color);">隐患数据周报自动归集至月度报表，统一对接集团数据模板。每周一自动生成上周数据报表，每月1日自动生成上月汇总报表。</div>
     </div>
 
-    <div style="display:flex; gap:12px; margin-bottom:16px;">
+    <div class="filter-actions-row">
       <button class="btn btn-primary btn-sm">生成周报</button>
       <button class="btn btn-primary btn-sm">生成月报</button>
       <button class="btn btn-default btn-sm">查看集团数据模板</button>
@@ -385,70 +391,97 @@
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
       <!-- 周报列表 -->
       <div>
-        <div style="font-size:14px; font-weight:500; margin-bottom:12px;">隐患周报</div>
+        <div style="font-size:var(--font-size-14); font-weight:500; margin-bottom:12px;">隐患周报</div>
         <div class="report-card">
-          <div class="report-icon" style="background:#E6F7FF;">📊</div>
+          <div class="report-icon" style="background:var(--tag-info-bg);">📊</div>
           <div class="report-info">
             <div class="report-name">2026年第20周隐患周报</div>
             <div class="report-meta">5月12日-5月16日 | 发现6项 | 整改完成5项</div>
           </div>
-          <div class="report-status"><span class="tag tag-published" style="background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; font-size:11px;">已生成</span></div>
-          <button class="btn btn-text btn-sm">查看</button>
+          <div class="report-status"><span class="tag tag-published" style="background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); font-size:var(--font-size-11);">已生成</span></div>
+          <button class="btn btn-text btn-sm" data-action="openHazardAnalysisDetail" data-param="'haza1-1'">查看</button>
         </div>
         <div class="report-card">
-          <div class="report-icon" style="background:#E6F7FF;">📊</div>
+          <div class="report-icon" style="background:var(--tag-info-bg);">📊</div>
           <div class="report-info">
             <div class="report-name">2026年第19周隐患周报</div>
             <div class="report-meta">5月5日-5月9日 | 发现5项 | 整改完成4项</div>
           </div>
-          <div class="report-status"><span class="tag tag-published" style="background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; font-size:11px;">已生成</span></div>
-          <button class="btn btn-text btn-sm">查看</button>
+          <div class="report-status"><span class="tag tag-published" style="background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); font-size:var(--font-size-11);">已生成</span></div>
+          <button class="btn btn-text btn-sm" data-action="openHazardAnalysisDetail" data-param="'haza1-2'">查看</button>
         </div>
         <div class="report-card">
-          <div class="report-icon" style="background:#E6F7FF;">📊</div>
+          <div class="report-icon" style="background:var(--tag-info-bg);">📊</div>
           <div class="report-info">
             <div class="report-name">2026年第18周隐患周报</div>
             <div class="report-meta">4月28日-5月2日 | 发现4项 | 整改完成4项</div>
           </div>
-          <div class="report-status"><span class="tag tag-published" style="background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; font-size:11px;">已生成</span></div>
-          <button class="btn btn-text btn-sm">查看</button>
+          <div class="report-status"><span class="tag tag-published" style="background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); font-size:var(--font-size-11);">已生成</span></div>
+          <button class="btn btn-text btn-sm" data-action="openHazardAnalysisDetail" data-param="'haza1-3'">查看</button>
         </div>
       </div>
 
       <!-- 月报列表 -->
       <div>
-        <div style="font-size:14px; font-weight:500; margin-bottom:12px;">隐患月报</div>
+        <div style="font-size:var(--font-size-14); font-weight:500; margin-bottom:12px;">隐患月报</div>
         <div class="report-card">
-          <div class="report-icon" style="background:#FFF7E6;">📋</div>
+          <div class="report-icon" style="background:var(--tag-warning-bg);">📋</div>
           <div class="report-info">
             <div class="report-name">2026年4月隐患月报</div>
             <div class="report-meta">发现26项 | 整改完成24项 | 闭环率92.3%</div>
           </div>
-          <div class="report-status"><span class="tag tag-published" style="background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; font-size:11px;">已上报集团</span></div>
-          <button class="btn btn-text btn-sm">查看</button>
+          <div class="report-status"><span class="tag tag-published" style="background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); font-size:var(--font-size-11);">已上报集团</span></div>
+          <button class="btn btn-text btn-sm" data-action="openHazardAnalysisDetail" data-param="'haza1-4'">查看</button>
         </div>
         <div class="report-card">
-          <div class="report-icon" style="background:#FFF7E6;">📋</div>
+          <div class="report-icon" style="background:var(--tag-warning-bg);">📋</div>
           <div class="report-info">
             <div class="report-name">2026年3月隐患月报</div>
             <div class="report-meta">发现27项 | 整改完成25项 | 闭环率92.6%</div>
           </div>
-          <div class="report-status"><span class="tag tag-published" style="background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; font-size:11px;">已上报集团</span></div>
-          <button class="btn btn-text btn-sm">查看</button>
+          <div class="report-status"><span class="tag tag-published" style="background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); font-size:var(--font-size-11);">已上报集团</span></div>
+          <button class="btn btn-text btn-sm" data-action="openHazardAnalysisDetail" data-param="'haza1-5'">查看</button>
         </div>
         <div class="report-card">
-          <div class="report-icon" style="background:#FFF7E6;">📋</div>
+          <div class="report-icon" style="background:var(--tag-warning-bg);">📋</div>
           <div class="report-info">
             <div class="report-name">2026年5月隐患月报</div>
             <div class="report-meta">统计中...</div>
           </div>
-          <div class="report-status"><span style="font-size:11px; color:var(--text-quaternary)">月中，未生成</span></div>
+          <div class="report-status"><span style="font-size:var(--font-size-11); color:var(--text-quaternary)">月中，未生成</span></div>
           <button class="btn btn-text btn-sm" disabled>查看</button>
         </div>
       </div>
     </div>
   </div>
 
+    </div>
+  </div>
+
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="haza1-detail-title" style="font-size:var(--font-size-16);font-weight:600;">隐患统计分析详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showHazardAnalysisList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="haza1-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="haza1-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="haza1-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  
   <script>
     function switchTab(name) {
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -456,6 +489,28 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
+    var hazardAnalysisDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var hazardAnalysisDetailData = {};
+    function fillHazardAnalysisDetail(d) {
+      document.getElementById('haza1-detail-title').textContent = d.title;
+      document.getElementById('haza1-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('haza1-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('haza1-detail-timeline', d.timeline);
+    }
+    function openHazardAnalysisDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = hazardAnalysisDetailData[key] || hazardAnalysisDetailDataFallback;
+      fillHazardAnalysisDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openHazardAnalysisDetail = openHazardAnalysisDetail;
+    function showHazardAnalysisList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showHazardAnalysisList = showHazardAnalysisList;
+
   </script>
 </body>
 </html>

@@ -4,66 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>应急演练 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>    .page-view { display:none; }
+    .page-view.active { display:block; }
+    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-not-started { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-executing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-completed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-overdue { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-waiting { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-in-progress { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .progress-bar { height:6px; background:#F0F0F0; border-radius:3px; overflow:hidden; }
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
+    .detail-row .label { color:var(--text-secondary); }
+    .detail-row .value { color:var(--text-primary); font-weight:500; }
+    .tag-not-started { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-waiting { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-in-progress { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .progress-bar { height:6px; background:var(--border-light); border-radius:3px; overflow:hidden; }
     .progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
-    .qr-placeholder { width:120px; height:120px; border:2px dashed var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:13px; margin:12px auto; }
+    .qr-placeholder { width:120px; height:120px; border:2px dashed var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:var(--font-size-13); margin:12px auto; }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">年度演练计划</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">执行中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">4</div><div class="stat-label">已完成</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--error)">1</div><div class="stat-label">逾期</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">75%</div><div class="stat-label">整体完成率</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">3</div><div class="stat-label">执行中</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">4</div><div class="stat-label">已完成</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">1</div><div class="stat-label">逾期</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">75%</div><div class="stat-label">整体完成率</div></div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('plan')">演练计划</div>
-    <div class="tab-item" onclick="switchTab('record')">演练记录</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="plan">演练计划</div>
+      <div class="tab-item" data-action="switchTab" data-param="record">演练记录</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab 1: 演练计划 -->
   <div id="tab-plan" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索计划名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">计划名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>综合演练</option>
           <option>专项演练</option>
           <option>桌面推演</option>
           <option>实战演练</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>未开始</option>
           <option>执行中</option>
           <option>已完成</option>
           <option>逾期</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterPlan">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetPlanFilter">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showAddPlanModal()">+ 新增计划</button>
-        <button class="btn btn-default">导出</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showAddPlanModal">+ 新增计划</button>
+        <button class="btn btn-default" data-action="exportData">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -88,12 +98,12 @@
             <td>3</td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:75%;background:var(--success);"></div></div>
-                <span style="font-size:12px;color:var(--success);">75%</span>
+                <div class="progress-bar u-w-80"><div class="progress-fill" style="width:75%;background:var(--success);"></div></div>
+                <span style="font-size:var(--font-size-12);color:var(--success);">75%</span>
               </div>
             </td>
             <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">执行</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-6'">查看</button><button class="btn btn-text btn-sm u-text-primary" data-action="executeDrill">执行</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -104,12 +114,12 @@
             <td>2</td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:100%;background:var(--success);"></div></div>
-                <span style="font-size:12px;color:var(--success);">100%</span>
+                <div class="progress-bar u-w-80"><div class="progress-fill" style="width:100%;background:var(--success);"></div></div>
+                <span style="font-size:var(--font-size-12);color:var(--success);">100%</span>
               </div>
             </td>
             <td><span class="tag tag-completed">已完成</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-7'">查看</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -120,12 +130,12 @@
             <td>1</td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:25%;background:var(--warning);"></div></div>
-                <span style="font-size:12px;color:var(--warning);">25%</span>
+                <div class="progress-bar u-w-80"><div class="progress-fill" style="width:25%;background:var(--warning);"></div></div>
+                <span style="font-size:var(--font-size-12);color:var(--warning);">25%</span>
               </div>
             </td>
             <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">执行</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-8'">查看</button><button class="btn btn-text btn-sm u-text-primary" data-action="executeDrill">执行</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -136,12 +146,12 @@
             <td>0</td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:0%;"></div></div>
-                <span style="font-size:12px;color:var(--text-description);">0%</span>
+                <div class="progress-bar u-w-80"><div class="progress-fill" style="width:0%;"></div></div>
+                <span style="font-size:var(--font-size-12);color:var(--text-description);">0%</span>
               </div>
             </td>
             <td><span class="tag tag-not-started">未开始</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">执行</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-9'">查看</button><button class="btn btn-text btn-sm u-text-primary" data-action="executeDrill">执行</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -152,75 +162,50 @@
             <td>1</td>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:50%;background:var(--error);"></div></div>
-                <span style="font-size:12px;color:var(--error);">50%</span>
+                <div class="progress-bar u-w-80"><div class="progress-fill" style="width:50%;background:var(--error);"></div></div>
+                <span style="font-size:var(--font-size-12);color:var(--error);">50%</span>
               </div>
             </td>
             <td><span class="tag tag-overdue">逾期</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">执行</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-10'">查看</button><button class="btn btn-text btn-sm u-text-primary" data-action="executeDrill">执行</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 8 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
-    <!-- 执行面板说明 -->
-    <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">演练执行面板（点击"执行"按钮展开）</div>
-      <div style="display:flex; gap:16px;">
-        <div style="flex:1; padding:16px; background:var(--bg-page); border-radius:var(--radius-md); text-align:center;">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:8px;">签到二维码</div>
-          <div class="qr-placeholder">二维码</div>
-          <div style="font-size:12px; color:var(--text-secondary);">点击"执行"生成签到二维码</div>
-        </div>
-        <div style="flex:1; padding:16px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:8px;">执行流程</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">
-            1. 生成签到二维码<br>
-            2. 参与人员扫码签到<br>
-            3. 录入演练结果<br>
-            4. 上传评估报告<br>
-            5. 关联应急预案
-          </div>
-        </div>
-        <div style="flex:1; padding:16px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:8px;">预警规则</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">
-            1. 季度演练未完成提醒<br>
-            2. 年度演练计划完成率 &lt;80% 标红<br>
-            3. 演练计划到期前7天提醒
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Tab 2: 演练记录 -->
   <div id="tab-record" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索演练名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">演练名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>综合演练</option>
           <option>专项演练</option>
           <option>桌面推演</option>
           <option>实战演练</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>待开始</option>
           <option>进行中</option>
           <option>已完成</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterRecord">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetRecordFilter">重置</button></div>
       </div>
     </div>
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -242,10 +227,10 @@
             <td>2026-03-20</td>
             <td>综合演练</td>
             <td>56</td>
-            <td><span style="color:var(--success)">96%</span></td>
+            <td><span class="u-text-success">96%</span></td>
             <td><span class="tag tag-completed">达标</span></td>
             <td>深圳港集团综合应急预案</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-1'">查看详情</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -253,10 +238,10 @@
             <td>2026-02-15</td>
             <td>桌面推演</td>
             <td>20</td>
-            <td><span style="color:var(--success)">100%</span></td>
+            <td><span class="u-text-success">100%</span></td>
             <td><span class="tag tag-completed">达标</span></td>
             <td>危化品泄漏专项预案</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-2'">查看详情</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -264,10 +249,10 @@
             <td>2026-03-10</td>
             <td>实战演练</td>
             <td>45</td>
-            <td><span style="color:var(--success)">93%</span></td>
+            <td><span class="u-text-success">93%</span></td>
             <td><span class="tag tag-completed">达标</span></td>
             <td>火灾应急处置方案</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-3'">查看详情</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -275,10 +260,10 @@
             <td>2026-05-10</td>
             <td>桌面推演</td>
             <td>22</td>
-            <td><span style="color:var(--warning)">82%</span></td>
+            <td><span class="u-text-warning">82%</span></td>
             <td><span class="tag tag-overdue">不足</span></td>
             <td>危化品泄漏专项预案</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-4'">查看详情</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -289,45 +274,101 @@
             <td>--</td>
             <td><span class="tag tag-in-progress">进行中</span></td>
             <td>深圳港集团综合应急预案</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openDrillDetail" data-param="'drill-5'">查看详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 12 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
+      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;">演练详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showDrillList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><span class="label">演练名称</span><span class="value">港口综合应急演练（第一季度）</span></div>
+            <div class="detail-row"><span class="label">演练日期</span><span class="value">2026-03-20</span></div>
+            <div class="detail-row"><span class="label">演练类型</span><span class="value">综合演练</span></div>
+            <div class="detail-row"><span class="label">关联预案</span><span class="value">深圳港集团综合应急预案</span></div>
+            <div class="detail-row"><span class="label">评估结果</span><span class="value"><span class="tag tag-completed">达标</span></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">签到记录</div>
+            <div class="detail-row"><span class="label">应到 / 实到</span><span class="value">56 / 54 人</span></div>
+            <div class="detail-row"><span class="label">扫码签到率</span><span class="value u-text-success">96%</span></div>
+            <div class="u-hint-text">支持查看签到时间明细与未签到人员名单</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">过程照片</div>
+            <div class="u-hint-text" style="margin-bottom:8px;">演练现场照片 8 张，支持批量上传与预览</div>
+            <button class="btn btn-default btn-sm" type="button">上传照片</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">审批记录</div>
+            <div style="padding-left:8px;border-left:2px solid var(--border-light);">
+              <div style="position:relative;padding:0 0 16px 20px;">
+                <div style="position:absolute;left:-25px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--success);border:2px solid var(--bg-card);box-shadow:0 0 0 2px var(--success);"></div>
+                <div style="font-size:var(--font-size-14);font-weight:600;color:var(--text-primary);">安全管理人员审核</div>
+                <div style="font-size:var(--font-size-12);color:var(--text-description);margin-top:4px;">2026-03-15 10:30 王安全 · 通过</div>
+                <div style="font-size:var(--font-size-12);color:var(--text-secondary);margin-top:4px;padding:6px 10px;background:var(--bg-table-stripe);border-radius:var(--radius-sm);">演练方案符合要求，同意实施</div>
+              </div>
+              <div style="position:relative;padding:0 0 16px 20px;">
+                <div style="position:absolute;left:-25px;top:2px;width:12px;height:12px;border-radius:50%;background:var(--success);border:2px solid var(--bg-card);box-shadow:0 0 0 2px var(--success);"></div>
+                <div style="font-size:var(--font-size-14);font-weight:600;color:var(--text-primary);">安全分管领导审批</div>
+                <div style="font-size:var(--font-size-12);color:var(--text-description);margin-top:4px;">2026-03-16 09:15 李总 · 通过</div>
+                <div style="font-size:var(--font-size-12);color:var(--text-secondary);margin-top:4px;padding:6px 10px;background:var(--bg-table-stripe);border-radius:var(--radius-sm);">已审批，请按计划实施</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">评估报告</div>
+            <div class="detail-row"><span class="label">预案验证</span><span class="value">响应流程有效，通讯联络畅通</span></div>
+            <div class="detail-row"><span class="label">改进措施</span><span class="value">补充夜间照明应急物资点位标识</span></div>
+          </div>
+        </div>
       </div>
     </div>
+  </div><!-- /view-detail -->
 
-    <!-- 查看详情说明 -->
-    <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">演练详情面板（点击"查看详情"展开）</div>
-      <div style="display:flex; gap:16px;">
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">签到记录</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">签到人数/应到人数、签到时间明细、扫码签到率</div>
-        </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">过程照片</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">演练现场照片上传与查看，支持批量上传</div>
-        </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">评估报告</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">达标/不足/改进措施，关联预案验证结果</div>
-        </div>
+  <div class="modal-overlay" id="modal-drill-plan-add" style="display:none;">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header"><h3>新增演练计划</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="'modal-drill-plan-add'">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">演练名称</label><div class="form-content"><input class="form-input" placeholder="如：港口火灾桌面推演"></div></div>
+        <div class="form-group"><label class="form-label">演练类型</label><div class="form-content"><select class="form-input form-select"><option>桌面推演</option><option>实战演练</option></select></div></div>
+        <div class="form-group"><label class="form-label">计划时间</label><div class="form-content"><input class="form-input" type="date"></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="'modal-drill-plan-add'">取消</button>
+        <button class="btn btn-primary" data-action="saveDrillPlan">保存</button>
       </div>
     </div>
   </div>
 
-  <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
-    }
-    function showAddPlanModal() { alert('新增演练计划弹窗（开发中）'); }
-  </script>
+  <script src="drill-logic.js?v=2.0"></script>
 </body>
 </html>

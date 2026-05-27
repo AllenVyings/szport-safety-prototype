@@ -4,22 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安全教育培训 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-reviewing { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-approved { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-executing { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-completed { background:#F0F5FF; color:#2F54EB; border:1px solid #ADC6FF; }
-    .tag-notstarted { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-inprogress { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-overdue { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-plan { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-independent { background:#F9F0FF; color:#722ED1; border:1px solid #D3ADF7; }
-    .completion-bar { width:80px; height:8px; background:#F0F0F0; border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; }
+    .tag-approved { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-executing { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-completed { background:var(--tag-blue-bg); color:var(--tag-blue-color); border-color:var(--tag-blue-border); }
+    .tag-notstarted { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-inprogress { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-plan { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-independent { background:var(--tag-purple-bg); color:var(--tag-purple-color); border-color:var(--tag-purple-border); }
+    .completion-bar { width:80px; height:8px; background:var(--border-light); border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; }
     .completion-fill { height:100%; border-radius:4px; }
     .completion-fill.green { background:var(--success); }
     .completion-fill.orange { background:var(--warning); }
@@ -28,59 +26,62 @@
     .modal-overlay.show { display:flex; }
     .modal { background:var(--bg-card); border-radius:var(--radius-lg); width:680px; max-height:80vh; overflow-y:auto; }
     .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-light); }
-    .modal-header h3 { font-size:16px; margin:0; }
+    .modal-header h3 { font-size:var(--font-size-16); margin:0; }
     .modal-body { padding:20px; }
     .modal-footer { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; justify-content:flex-end; gap:8px; }
     .form-group { margin-bottom:16px; }
-    .form-group label { display:block; font-size:13px; color:var(--text-secondary); margin-bottom:4px; }
+    .form-group label { display:block; font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:4px; }
     .form-group .form-input, .form-group .form-textarea, .form-group .form-select { width:100%; }
     .form-textarea { min-height:80px; resize:vertical; }
     .radio-group { display:flex; gap:16px; flex-wrap:wrap; margin-top:6px; }
-    .radio-group label { display:flex; align-items:center; gap:4px; font-size:13px; color:var(--text-primary); cursor:pointer; margin-bottom:0; }
-    .overdue-mark { color:var(--error); font-size:12px; font-weight:500; margin-left:6px; }
+    .radio-group label { display:flex; align-items:center; gap:4px; font-size:var(--font-size-13); color:var(--text-primary); cursor:pointer; margin-bottom:0; }
+    .overdue-mark { color:var(--error); font-size:var(--font-size-12); font-weight:500; margin-left:6px; }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('plan')">培训计划</div>
-    <div class="tab-item" onclick="switchTab('task')">培训任务</div>
-  </div>
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="plan">培训计划</div>
+      <div class="tab-item" data-action="switchTab" data-param="task">培训任务</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab1 培训计划 -->
   <div id="tab-plan" class="tab-content active">
     <!-- 统计概览 -->
     <div class="stat-bar">
       <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">年度计划总数</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--success)">8</div><div class="stat-label">执行中</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--warning)">3</div><div class="stat-label">审批中</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">5</div><div class="stat-label">已完成</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">2</div><div class="stat-label">编制中</div></div>
+      <div class="stat-item"><div class="stat-num u-text-success">8</div><div class="stat-label">执行中</div></div>
+      <div class="stat-item"><div class="stat-num u-text-warning">3</div><div class="stat-label">审批中</div></div>
+      <div class="stat-item"><div class="stat-num u-text-primary">5</div><div class="stat-label">已完成</div></div>
+      <div class="stat-item"><div class="stat-num u-text-description">2</div><div class="stat-label">编制中</div></div>
     </div>
 
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索计划名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">计划名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>编制中</option>
           <option>审批中</option>
           <option>已批准</option>
           <option>执行中</option>
           <option>已完成</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary btn-sm" onclick="showModal('addPlan')">+ 新增计划</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
 
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+    <div class="filter-actions-row">
+      <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addPlan">+ 新增计划</button>
       <button class="btn btn-default">导出</button>
     </div>
 
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -103,10 +104,10 @@
             <td><span class="tag tag-approved">已批准</span></td>
             <td>
               <div class="completion-bar"><div class="completion-fill green" style="width:68%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">68%</span>
+              <span class="u-fs12-ml4">68%</span>
             </td>
             <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">分解任务</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-plan-1'">查看</button><button class="btn btn-text btn-sm">分解任务</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -116,7 +117,7 @@
             <td><span class="tag tag-reviewing">审批中</span></td>
             <td>—</td>
             <td><span class="tag tag-reviewing">审批中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-plan-2'">查看</button><button class="btn btn-text btn-sm u-text-primary">审批</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -126,10 +127,10 @@
             <td><span class="tag tag-approved">已批准</span></td>
             <td>
               <div class="completion-bar"><div class="completion-fill green" style="width:85%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">85%</span>
+              <span class="u-fs12-ml4">85%</span>
             </td>
             <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">分解任务</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-plan-3'">查看</button><button class="btn btn-text btn-sm">分解任务</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -138,11 +139,11 @@
             <td>2026</td>
             <td><span class="tag tag-approved">已批准</span></td>
             <td>
-              <div class="completion-bar"><div class="completion-fill green" style="width:100%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">100%</span>
+              <div class="completion-bar"><div class="completion-fill green u-w-full"></div></div>
+              <span class="u-fs12-ml4">100%</span>
             </td>
             <td><span class="tag tag-completed">已完成</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-plan-4'">查看</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -152,15 +153,17 @@
             <td>—</td>
             <td>—</td>
             <td><span class="tag tag-draft">编制中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--primary)">提交审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-plan-5'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-primary">提交审批</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 18 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
@@ -168,35 +171,38 @@
   <div id="tab-task" class="tab-content">
     <div class="stat-bar">
       <div class="stat-item"><div class="stat-num">45</div><div class="stat-label">任务总数</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--success)">28</div><div class="stat-label">已完成</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">12</div><div class="stat-label">进行中</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">3</div><div class="stat-label">未开始</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--error)">2</div><div class="stat-label">逾期</div></div>
+      <div class="stat-item"><div class="stat-num u-text-success">28</div><div class="stat-label">已完成</div></div>
+      <div class="stat-item"><div class="stat-num u-text-primary">12</div><div class="stat-label">进行中</div></div>
+      <div class="stat-item"><div class="stat-num u-text-description">3</div><div class="stat-label">未开始</div></div>
+      <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">逾期</div></div>
     </div>
 
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索任务名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">任务名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>计划关联</option>
           <option>独立任务</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>未开始</option>
           <option>进行中</option>
           <option>已完成</option>
           <option>逾期</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-        <div style="flex:1"></div>
-        <button class="btn btn-primary btn-sm" onclick="showModal('addTask')">+ 新增独立任务</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
 
+    <div class="filter-actions-row">
+      <button class="btn btn-primary btn-sm" data-action="showModal" data-param="addTask">+ 新增独立任务</button>
+    </div>
+
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -223,10 +229,10 @@
             <td>2026-06-30</td>
             <td>
               <div class="completion-bar"><div class="completion-fill green" style="width:72%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">72%</span>
+              <span class="u-fs12-ml4">72%</span>
             </td>
             <td><span class="tag tag-inprogress">进行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">催办</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-task-1'">查看</button><button class="btn btn-text btn-sm">催办</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -238,11 +244,11 @@
             <td>2026-05-20</td>
             <td>
               <div class="completion-bar"><div class="completion-fill red" style="width:55%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">55%</span>
+              <span class="u-fs12-ml4">55%</span>
               <span class="overdue-mark">逾期</span>
             </td>
             <td><span class="tag tag-overdue">逾期</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error)">催办</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-task-2'">查看</button><button class="btn btn-text btn-sm u-text-error">催办</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -254,10 +260,10 @@
             <td>2026-07-15</td>
             <td>
               <div class="completion-bar"><div class="completion-fill green" style="width:90%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">90%</span>
+              <span class="u-fs12-ml4">90%</span>
             </td>
             <td><span class="tag tag-inprogress">进行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-task-3'">查看</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -269,10 +275,10 @@
             <td>2026-06-01</td>
             <td>
               <div class="completion-bar"><div class="completion-fill orange" style="width:40%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">40%</span>
+              <span class="u-fs12-ml4">40%</span>
             </td>
             <td><span class="tag tag-inprogress">进行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">催办</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-task-4'">查看</button><button class="btn btn-text btn-sm">催办</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -284,7 +290,7 @@
             <td>2026-06-15</td>
             <td>—</td>
             <td><span class="tag tag-notstarted">未开始</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-task-5'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>6</td>
@@ -295,21 +301,44 @@
             <td>消防责任人</td>
             <td>2026-03-31</td>
             <td>
-              <div class="completion-bar"><div class="completion-fill green" style="width:100%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">100%</span>
+              <div class="completion-bar"><div class="completion-fill green u-w-full"></div></div>
+              <span class="u-fs12-ml4">100%</span>
             </td>
             <td><span class="tag tag-completed">已完成</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openEducationDetail" data-param="'edu-task-6'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 45 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
-        <div class="pagination-page">3</div>
-        <div class="pagination-page">...</div>
-        <div class="pagination-page">5</div>
+      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 6 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="education-detail-title" style="font-size:var(--font-size-16);font-weight:600;">培训详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showEducationList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="education-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="education-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="education-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -319,23 +348,23 @@
     <div class="modal">
       <div class="modal-header">
         <h3>新增年度培训计划</h3>
-        <button class="btn btn-text" onclick="closeModal('addPlan')">&#10005;</button>
+        <button class="btn btn-text" data-action="hideModal" data-param="addPlan">&#10005;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label>计划名称 <span style="color:var(--error)">*</span></label>
+          <label>计划名称 <span class="u-text-error">*</span></label>
           <input class="form-input" placeholder="如：2026年度安全教育培训计划">
         </div>
-        <div style="display:flex; gap:12px;">
-          <div class="form-group" style="flex:1">
-            <label>培训年度 <span style="color:var(--error)">*</span></label>
+        <div class="u-flex u-gap-12">
+          <div class="form-group u-flex-1">
+            <label>培训年度 <span class="u-text-error">*</span></label>
             <select class="form-input form-select">
               <option>2026</option>
               <option>2027</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1">
-            <label>培训方式 <span style="color:var(--error)">*</span></label>
+          <div class="form-group u-flex-1">
+            <label>培训方式 <span class="u-text-error">*</span></label>
             <select class="form-input form-select">
               <option>线上+线下</option>
               <option>线上</option>
@@ -344,14 +373,14 @@
           </div>
         </div>
         <div class="form-group">
-          <label>培训对象 <span style="color:var(--error)">*</span></label>
+          <label>培训对象 <span class="u-text-error">*</span></label>
           <div class="radio-group">
             <label><input type="radio" name="target" value="dept" checked> 按部门</label>
             <label><input type="radio" name="target" value="post"> 按岗位</label>
             <label><input type="radio" name="target" value="person"> 按个人</label>
             <label><input type="radio" name="target" value="tag"> 按标签</label>
           </div>
-          <input class="form-input" placeholder="选择培训对象..." style="margin-top:8px;">
+          <input class="form-input" placeholder="选择培训对象..." class="u-mt-8">
         </div>
         <div class="form-group">
           <label>关联课程</label>
@@ -363,7 +392,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addPlan')">取消</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addPlan">取消</button>
         <button class="btn btn-default">保存草稿</button>
         <button class="btn btn-primary">提交审批</button>
       </div>
@@ -375,39 +404,39 @@
     <div class="modal">
       <div class="modal-header">
         <h3>新增独立培训任务</h3>
-        <button class="btn btn-text" onclick="closeModal('addTask')">&#10005;</button>
+        <button class="btn btn-text" data-action="hideModal" data-param="addTask">&#10005;</button>
       </div>
       <div class="modal-body">
-        <div style="padding:10px 12px; background:#F9F0FF; border:1px solid #D3ADF7; border-radius:var(--radius-sm); font-size:12px; color:#722ED1; line-height:1.6; margin-bottom:16px;">
+        <div style="padding:10px 12px; background:var(--tag-purple-bg); border-color:var(--tag-purple-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-purple-color); line-height:1.6; margin-bottom:16px;">
           独立任务无需绑定年度培训计划，不走审批流程，由安全管理人员直接创建并推送。
         </div>
         <div class="form-group">
-          <label>任务名称 <span style="color:var(--error)">*</span></label>
+          <label>任务名称 <span class="u-text-error">*</span></label>
           <input class="form-input" placeholder="输入培训任务名称">
         </div>
-        <div style="display:flex; gap:12px;">
-          <div class="form-group" style="flex:1">
-            <label>培训方式 <span style="color:var(--error)">*</span></label>
+        <div class="u-flex u-gap-12">
+          <div class="form-group u-flex-1">
+            <label>培训方式 <span class="u-text-error">*</span></label>
             <select class="form-input form-select">
               <option>线上+线下</option>
               <option>线上</option>
               <option>线下</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1">
-            <label>截止日期 <span style="color:var(--error)">*</span></label>
+          <div class="form-group u-flex-1">
+            <label>截止日期 <span class="u-text-error">*</span></label>
             <input class="form-input" type="date">
           </div>
         </div>
         <div class="form-group">
-          <label>培训对象 <span style="color:var(--error)">*</span></label>
+          <label>培训对象 <span class="u-text-error">*</span></label>
           <div class="radio-group">
             <label><input type="radio" name="target2" value="dept" checked> 按部门</label>
             <label><input type="radio" name="target2" value="post"> 按岗位</label>
             <label><input type="radio" name="target2" value="person"> 按个人</label>
             <label><input type="radio" name="target2" value="tag"> 按标签</label>
           </div>
-          <input class="form-input" placeholder="选择培训对象..." style="margin-top:8px;">
+          <input class="form-input" placeholder="选择培训对象..." class="u-mt-8">
         </div>
         <div class="form-group">
           <label>关联课程</label>
@@ -419,7 +448,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addTask')">取消</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addTask">取消</button>
         <button class="btn btn-primary">创建并推送</button>
       </div>
     </div>
@@ -432,17 +461,40 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showModal(id) {
-      document.getElementById('modal-' + id).classList.add('show');
+
+    var educationFallback = {
+      title: '培训记录详情', basic: [['类型', '培训任务'], ['状态', '进行中']], desc: '原型样例：展示培训计划/任务基本信息与办理进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '创建' }, { status: 'active', time: '进行中', event: '执行/审批' }]
+    };
+    var educationDetailData = {
+      'edu-plan-1': { title: '2026年度安全教育培训计划', basic: [['类型', '年度计划'], ['状态', '执行中'], ['培训方式', '线上+线下']], desc: '已分解为多条培训任务，整体完成率 68%。', timeline: [{ status: 'done', time: '2026-01-10', event: '计划审批通过' }, { status: 'done', time: '2026-02-01', event: '任务分解' }, { status: 'active', time: '进行中', event: '任务执行' }] },
+      'edu-plan-2': { title: '2026年度特种作业培训计划', basic: [['类型', '年度计划'], ['状态', '审批中']], desc: '待安全分管领导审批后下发任务。', timeline: [{ status: 'done', time: '2026-05-18', event: '提交审批' }, { status: 'done', time: '2026-05-19', event: '安全管理人员审核通过' }, { status: 'active', time: '审批中', event: '安全分管领导审批' }] },
+      'edu-plan-3': { title: '2026年度危化品从业人员培训计划', basic: [['类型', '年度计划'], ['状态', '执行中']], desc: '重点覆盖危化品岗位人员岗前与再培训。', timeline: [{ status: 'done', time: '2026-03-01', event: '审批通过' }, { status: 'active', time: '进行中', event: '任务执行' }] },
+      'edu-plan-4': { title: '2026年度消防安全培训计划', basic: [['类型', '年度计划'], ['状态', '已完成']], desc: 'Q1 消防演练相关任务已全部完成。', timeline: [{ status: 'done', time: '2026-03-31', event: '全部任务完成' }] },
+      'edu-plan-5': { title: '2026年度新员工入职培训计划', basic: [['类型', '年度计划'], ['状态', '草稿']], desc: '草稿待完善培训对象与课程关联后提交审批。', timeline: [{ status: 'active', time: '草稿', event: '编辑中' }] },
+      'edu-task-1': { title: 'Q2新员工三级安全教育', basic: [['关联计划', '2026年度安全教育培训计划'], ['完成率', '72%'], ['状态', '进行中']], desc: '新员工三级安全教育线上+线下结合推进。', timeline: [{ status: 'done', time: '2026-04-01', event: '任务下发' }, { status: 'active', time: '进行中', event: '学习打卡' }] },
+      'edu-task-2': { title: '特种设备操作人员复审培训', basic: [['完成率', '55%'], ['状态', '逾期']], desc: '已触发逾期催办，需责任单位加快完成。', timeline: [{ status: 'done', time: '2026-04-15', event: '任务下发' }, { status: 'active', time: '已逾期', event: '催办' }] },
+      'edu-task-3': { title: '危化品从业人员岗前培训', basic: [['完成率', '90%'], ['状态', '进行中']], desc: '线下实操环节进行中。', timeline: [{ status: 'done', time: '2026-05-01', event: '开班' }, { status: 'active', time: '进行中', event: '实操培训' }] },
+      'edu-task-4': { title: '消防安全专项培训（临时）', basic: [['类型', '独立任务'], ['完成率', '40%']], desc: '临时专项，面向全公司人员线上学习。', timeline: [{ status: 'active', time: '进行中', event: '线上学习' }] },
+      'edu-task-5': { title: '高空作业安全规范培训', basic: [['状态', '未开始']], desc: '计划 6 月中旬开班。', timeline: [{ status: 'active', time: '未开始', event: '待开班' }] },
+      'edu-task-6': { title: 'Q1消防演练培训', basic: [['完成率', '100%'], ['状态', '已完成']], desc: '已完成线下演练与考核归档。', timeline: [{ status: 'done', time: '2026-03-31', event: '培训完成' }, { status: 'done', time: '2026-04-02', event: '归档' }] }
+    };
+    function fillEducationDetail(d) {
+      document.getElementById('education-detail-title').textContent = d.title;
+      document.getElementById('education-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('education-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('education-detail-timeline', d.timeline);
     }
-    function closeModal(id) {
-      document.getElementById('modal-' + id).classList.remove('show');
+    function openEducationDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = educationDetailData[key] || educationFallback;
+      fillEducationDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
     }
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-      overlay.addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
-      });
-    });
+    window.openEducationDetail = openEducationDetail;
+    function showEducationList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showEducationList = showEducationList;
   </script>
 </body>
 </html>

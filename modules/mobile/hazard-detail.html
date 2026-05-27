@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐患详情 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; flex: 1; }
+    .mobile-nav-share { font-size: 18px; cursor: pointer; opacity: 0.9; }
+
+    /* 头部状态条 */
+    .detail-head {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--primary) 100%);
+      padding: 12px 16px 18px; color: var(--text-inverse); flex-shrink: 0;
+    }
+    .dh-no { font-size: 12px; opacity: 0.85; }
+    .dh-title { font-size: 17px; font-weight: 600; line-height: 1.4; margin: 6px 0 10px; }
+    .dh-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .dh-tag {
+      font-size: 11px; padding: 2px 10px; border-radius: 10px;
+      background: rgba(255,255,255,0.22); color: var(--text-inverse); border: 1px solid rgba(255,255,255,0.35);
+    }
+    .dh-tag.danger { background: var(--error); border-color: var(--error); }
+    .dh-tag.warn { background: var(--warning); border-color: var(--warning); }
+
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; padding-bottom: 80px; -webkit-overflow-scrolling: touch; }
+    .form-card { background: var(--bg-card); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .form-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; padding-left: 8px; border-left: 3px solid var(--primary); }
+    .info-row { display: flex; padding: 6px 0; font-size: 13px; line-height: 1.5; }
+    .info-row .il { width: 80px; color: var(--text-secondary); flex-shrink: 0; }
+    .info-row .iv { flex: 1; color: var(--text-primary); }
+    .info-row .iv.muted { color: var(--text-secondary); }
+
+    /* 照片网格 */
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+    .photo-thumb {
+      aspect-ratio: 1; border-radius: 8px; background: var(--bg-gray-lighter);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: var(--text-description); cursor: pointer;
+      border: 1px solid var(--border-light);
+    }
+
+    /* 时间轴 */
+    .timeline { padding-left: 4px; }
+    .tl-item { position: relative; padding: 0 0 16px 22px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before {
+      content: ''; position: absolute; left: 4px; top: 4px; width: 10px; height: 10px;
+      border-radius: 50%; background: var(--primary); border: 2px solid var(--bg-card); box-shadow: 0 0 0 2px var(--primary);
+    }
+    .tl-item.done::before { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+    .tl-item.pending::before { background: var(--bg-gray-lighter); box-shadow: 0 0 0 2px var(--border); }
+    .tl-item:not(:last-child)::after {
+      content: ''; position: absolute; left: 8px; top: 14px; bottom: 0; width: 2px; background: var(--border-light);
+    }
+    .tl-time { font-size: 11px; color: var(--text-description); margin-bottom: 2px; }
+    .tl-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+    .tl-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    /* 底部操作栏 */
+    .action-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 10px 16px 16px; background: var(--bg-card); border-top: 1px solid var(--border-light);
+      display: flex; gap: 8px; flex-shrink: 0; z-index: 10;
+    }
+    .action-btn { flex: 1; height: 42px; border-radius: 21px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .action-btn.primary { background: var(--primary); color: var(--text-inverse); }
+    .action-btn.warn { background: var(--warning); color: var(--text-inverse); }
+    .action-btn.ghost { background: var(--bg-gray-lighter); color: var(--text-primary); }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+      <span class="mobile-nav-title">隐患详情</span>
+      <span class="mobile-nav-share" data-action="showToast" data-param="分享给同事">⤴</span>
+    </div>
+
+    <div class="detail-head">
+      <div class="dh-no">YH-20260520-003</div>
+      <div class="dh-title">1号泊位门机MH-01钢丝绳断丝超标</div>
+      <div class="dh-tags">
+        <span class="dh-tag danger">重大隐患</span>
+        <span class="dh-tag warn">已超期 2 天</span>
+        <span class="dh-tag">整改中</span>
+      </div>
+    </div>
+
+    <div class="mobile-content">
+      <div class="form-card">
+        <div class="form-card-title">基本信息</div>
+        <div class="info-row"><span class="il">隐患类型</span><span class="iv">物的不安全状态</span></div>
+        <div class="info-row"><span class="il">发现部位</span><span class="iv">1号泊位 · 门机MH-01 · 主起升钢丝绳</span></div>
+        <div class="info-row"><span class="il">所属单位</span><span class="iv">盐田港务公司 · 装卸一部</span></div>
+        <div class="info-row"><span class="il">上报人</span><span class="iv">李工 · 13800138000</span></div>
+        <div class="info-row"><span class="il">上报时间</span><span class="iv muted">2026-05-20 14:32</span></div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">隐患描述</div>
+        <div class="info-row"><span class="iv">主起升钢丝绳第3段发现 12 处断丝，超过 GB/T 5972 报废标准（10 丝/捻距），存在突然断裂风险，可能造成吊具坠落事故。建议立即停用并更换。</span></div>
+        <div class="photo-grid">
+          <div class="photo-thumb" data-action="showToast" data-param="查看大图">📷</div>
+          <div class="photo-thumb" data-action="showToast" data-param="查看大图">📷</div>
+          <div class="photo-thumb" data-action="showToast" data-param="查看大图">📷</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">整改要求</div>
+        <div class="info-row"><span class="il">整改责任人</span><span class="iv">陈队长 · 装卸一部</span></div>
+        <div class="info-row"><span class="il">整改期限</span><span class="iv" style="color:var(--error);font-weight:600;">2026-05-24（已超期 2 天）</span></div>
+        <div class="info-row"><span class="il">整改措施</span><span class="iv">1. 立即停用门机；2. 联系厂家更换钢丝绳；3. 全面排查同批次钢丝绳。</span></div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">处理进度</div>
+        <div class="timeline">
+          <div class="tl-item done">
+            <div class="tl-time">05-20 14:32</div>
+            <div class="tl-title">隐患上报</div>
+            <div class="tl-desc">李工通过移动端上报，附 3 张现场照片</div>
+          </div>
+          <div class="tl-item done">
+            <div class="tl-time">05-20 15:10</div>
+            <div class="tl-title">安全员审核</div>
+            <div class="tl-desc">王安全员定级为重大隐患，下发整改通知</div>
+          </div>
+          <div class="tl-item done">
+            <div class="tl-time">05-21 09:00</div>
+            <div class="tl-title">分派整改</div>
+            <div class="tl-desc">陈队长接单，承诺 5/24 前完成</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-time">05-23 16:00</div>
+            <div class="tl-title">整改延期申请</div>
+            <div class="tl-desc">陈队长申请延期至 5/28，原因：钢丝绳备件未到货</div>
+          </div>
+          <div class="tl-item pending">
+            <div class="tl-time">待办</div>
+            <div class="tl-title">整改完成 + 验收闭环</div>
+            <div class="tl-desc">待陈队长提交整改证明照片，安全员现场验收</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="action-btn ghost" data-action="showToast" data-param="催办已发送给陈队长">催办</button>
+      <button class="action-btn warn" data-action="showToast" data-param="转派给其他责任人">转派</button>
+      <button class="action-btn primary" data-action="showToast" data-param="进入整改/验收流程">整改</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'showToast': if (param && window.showToast) showToast(param, 'success'); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

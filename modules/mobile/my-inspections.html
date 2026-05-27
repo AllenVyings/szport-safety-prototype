@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的巡检 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-left { display: flex; align-items: center; gap: 12px; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; }
+    .mobile-nav-action { font-size: 13px; opacity: 0.9; cursor: pointer; }
+    .stat-overview { background: linear-gradient(135deg, var(--brand) 0%, var(--primary) 100%); padding: 0 16px 18px; color: var(--text-inverse); flex-shrink: 0; }
+    .stat-row { display: flex; gap: 8px; }
+    .stat-cell { flex: 1; text-align: center; padding: 8px 0; background: rgba(255,255,255,0.12); border-radius: 8px; }
+    .stat-cell .sc-num { font-size: 20px; font-weight: 700; line-height: 1.2; }
+    .stat-cell .sc-label { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+    .filter-tabs { display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+    .filter-tab { flex: 1; text-align: center; padding: 11px 0; font-size: 13px; color: var(--text-secondary); cursor: pointer; position: relative; }
+    .filter-tab.active { color: var(--primary); font-weight: 600; }
+    .filter-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 2px; background: var(--primary); border-radius: 1px; }
+    .filter-tab .badge { display: inline-block; margin-left: 3px; min-width: 16px; height: 16px; line-height: 14px; padding: 0 4px; background: var(--warning); color: var(--text-inverse); font-size: 10px; border-radius: 8px; vertical-align: 1px; }
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 12px 60px; -webkit-overflow-scrolling: touch; }
+    .insp-card { background: var(--bg-card); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); cursor: pointer; }
+    .insp-card:active { box-shadow: 0 2px 8px rgba(35,102,236,0.15); }
+    .ic-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .ic-no { font-size: 12px; color: var(--text-description); }
+    .ic-tag { font-size: 11px; padding: 1px 8px; border-radius: 10px; font-weight: 500; }
+    .ic-tag.pending { background: var(--tag-warning-bg); color: var(--tag-warning-color); border: 1px solid var(--tag-warning-border); }
+    .ic-tag.done { background: var(--tag-success-bg); color: var(--tag-success-color); border: 1px solid var(--tag-success-border); }
+    .ic-tag.overdue { background: var(--tag-error-bg); color: var(--tag-error-color); border: 1px solid var(--tag-error-border); }
+    .ic-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; line-height: 1.4; }
+    .ic-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+    .ic-meta-item { display: inline-flex; align-items: center; gap: 3px; }
+    .ic-progress { height: 4px; background: var(--bg-gray-lighter); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+    .ic-progress-bar { height: 100%; background: var(--primary); transition: width 0.3s; }
+    .ic-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px dashed var(--border-light); }
+    .ic-deadline { font-size: 12px; color: var(--text-secondary); }
+    .ic-deadline.urgent { color: var(--error); font-weight: 600; }
+    .ic-actions { display: flex; gap: 6px; }
+    .ic-btn { height: 26px; padding: 0 12px; border-radius: 13px; font-size: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); cursor: pointer; }
+    .ic-btn.primary { background: var(--primary); color: var(--text-inverse); border-color: var(--primary); }
+    .ic-btn.ghost { color: var(--primary); border-color: var(--primary); background: var(--primary-5); }
+    .fab { position: absolute; right: 16px; bottom: 76px; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: var(--text-inverse); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(35,102,236,0.4); cursor: pointer; z-index: 11; text-decoration: none; }
+    .fab:active { transform: scale(0.95); }
+    .mobile-tabbar { position: absolute; bottom: 0; left: 0; right: 0; height: 56px; background: var(--bg-card); border-top: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-around; z-index: 10; }
+    .tabbar-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 12px; text-decoration: none; color: inherit; }
+    .tabbar-item .tabbar-icon { font-size: 20px; color: var(--text-description); }
+    .tabbar-item .tabbar-label { font-size: 10px; color: var(--text-description); }
+    .tabbar-item.active .tabbar-icon { color: var(--primary); }
+    .tabbar-item.active .tabbar-label { color: var(--primary); font-weight: 600; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <div class="mobile-nav-left">
+        <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+        <span class="mobile-nav-title">我的巡检</span>
+      </div>
+      <a class="mobile-nav-action" href="inspection-stats.html" data-disabled="true">统计</a>
+    </div>
+
+    <div class="stat-overview">
+      <div class="stat-row">
+        <div class="stat-cell"><div class="sc-num">28</div><div class="sc-label">本月任务</div></div>
+        <div class="stat-cell"><div class="sc-num">5</div><div class="sc-label">待巡检</div></div>
+        <div class="stat-cell"><div class="sc-num">22</div><div class="sc-label">已完成</div></div>
+        <div class="stat-cell"><div class="sc-num">1</div><div class="sc-label">超期</div></div>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <div class="filter-tab active" data-tab="all">全部</div>
+      <div class="filter-tab" data-tab="pending">待巡检<span class="badge">5</span></div>
+      <div class="filter-tab" data-tab="overdue">超期<span class="badge">1</span></div>
+      <div class="filter-tab" data-tab="done">已完成</div>
+    </div>
+
+    <div class="mobile-content">
+      <div class="insp-card" data-action="openDetail">
+        <div class="ic-head"><span class="ic-no">XJ-20260526-001</span><span class="ic-tag overdue">超期</span></div>
+        <div class="ic-title">1号泊位日常安全巡检（晨班）</div>
+        <div class="ic-meta">
+          <span class="ic-meta-item">📍 盐田港1号泊位</span>
+          <span class="ic-meta-item">🔁 日检</span>
+          <span class="ic-meta-item">📋 18 项</span>
+        </div>
+        <div class="ic-progress"><div class="ic-progress-bar" style="width: 0%;"></div></div>
+        <div class="ic-foot">
+          <span class="ic-deadline urgent">⏰ 已超期 1 天</span>
+          <div class="ic-actions"><button class="ic-btn primary" data-action="startScan">开始巡检</button></div>
+        </div>
+      </div>
+
+      <div class="insp-card" data-action="openDetail">
+        <div class="ic-head"><span class="ic-no">XJ-20260526-005</span><span class="ic-tag pending">待巡检</span></div>
+        <div class="ic-title">3号仓库消防设施周检</div>
+        <div class="ic-meta">
+          <span class="ic-meta-item">📍 蛇口港3号仓库</span>
+          <span class="ic-meta-item">🔁 周检</span>
+          <span class="ic-meta-item">📋 24 项</span>
+        </div>
+        <div class="ic-progress"><div class="ic-progress-bar" style="width: 0%;"></div></div>
+        <div class="ic-foot">
+          <span class="ic-deadline">⏳ 今日 18:00 前</span>
+          <div class="ic-actions"><button class="ic-btn primary" data-action="startScan">开始巡检</button></div>
+        </div>
+      </div>
+
+      <div class="insp-card" data-action="openDetail">
+        <div class="ic-head"><span class="ic-no">XJ-20260525-012</span><span class="ic-tag pending">巡检中</span></div>
+        <div class="ic-title">大铲湾码头危化品库月检</div>
+        <div class="ic-meta">
+          <span class="ic-meta-item">📍 大铲湾危化品库</span>
+          <span class="ic-meta-item">🔁 月检</span>
+          <span class="ic-meta-item">📋 36 项</span>
+        </div>
+        <div class="ic-progress"><div class="ic-progress-bar" style="width: 65%;"></div></div>
+        <div class="ic-foot">
+          <span class="ic-deadline">已完成 23/36</span>
+          <div class="ic-actions"><button class="ic-btn primary" data-action="resume">继续巡检</button></div>
+        </div>
+      </div>
+
+      <div class="insp-card" data-action="openDetail">
+        <div class="ic-head"><span class="ic-no">XJ-20260525-008</span><span class="ic-tag done">已完成</span></div>
+        <div class="ic-title">综合楼配电室日检</div>
+        <div class="ic-meta">
+          <span class="ic-meta-item">📍 集团办公楼B1</span>
+          <span class="ic-meta-item">🔁 日检</span>
+          <span class="ic-meta-item">📋 12 项</span>
+        </div>
+        <div class="ic-progress"><div class="ic-progress-bar" style="width: 100%; background: var(--success);"></div></div>
+        <div class="ic-foot">
+          <span class="ic-deadline">✅ 5/25 17:30 完成 · 发现 1 项隐患</span>
+          <div class="ic-actions"><button class="ic-btn" data-action="viewReport">报告</button></div>
+        </div>
+      </div>
+
+      <div class="insp-card" data-action="openDetail">
+        <div class="ic-head"><span class="ic-no">XJ-20260524-003</span><span class="ic-tag done">已完成</span></div>
+        <div class="ic-title">作业现场专项检查</div>
+        <div class="ic-meta">
+          <span class="ic-meta-item">📍 盐田港2号泊位</span>
+          <span class="ic-meta-item">🔁 专项</span>
+          <span class="ic-meta-item">📋 8 项</span>
+        </div>
+        <div class="ic-progress"><div class="ic-progress-bar" style="width: 100%; background: var(--success);"></div></div>
+        <div class="ic-foot">
+          <span class="ic-deadline">✅ 5/24 10:15 完成 · 无异常</span>
+          <div class="ic-actions"><button class="ic-btn" data-action="viewReport">报告</button></div>
+        </div>
+      </div>
+    </div>
+
+    <a class="fab" href="scan-inspection.html" title="扫码巡检">⊕</a>
+
+    <div class="mobile-tabbar">
+      <a href="mobile-home.html" class="tabbar-item"><span class="tabbar-icon">🏠</span><span class="tabbar-label">首页</span></a>
+      <a href="mobile-function.html" class="tabbar-item"><span class="tabbar-icon">⚙</span><span class="tabbar-label">功能</span></a>
+      <a href="mobile-message.html" class="tabbar-item"><span class="tabbar-icon">📨</span><span class="tabbar-label">消息</span></a>
+      <a href="mobile-profile.html" class="tabbar-item active"><span class="tabbar-icon">👤</span><span class="tabbar-label">我的</span></a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      document.querySelectorAll('.filter-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          if (window.showToast) showToast('切换至 ' + tab.textContent.replace(/\d+/g, '').trim(), 'info');
+        });
+      });
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'startScan': location.href = 'scan-inspection.html'; break;
+          case 'resume': location.href = 'inspection-detail.html'; break;
+          case 'openDetail': location.href = 'inspection-detail.html'; break;
+          case 'viewReport': if (window.showToast) showToast('查看巡检报告', 'success'); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

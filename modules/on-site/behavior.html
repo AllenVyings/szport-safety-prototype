@@ -4,260 +4,292 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>行为管控 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
-    .stat-card { background:var(--bg-card); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); }
-    .stat-card-label { font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
-    .stat-card-value { font-size:28px; font-weight:700; color:var(--text-primary); }
-    .stat-card-sub { font-size:12px; color:var(--text-description); margin-top:4px; }
-    .stat-card.highlight .stat-card-value { color:var(--primary); }
-    .stat-card.success .stat-card-value { color:var(--success); }
-    .stat-card.warning .stat-card-value { color:var(--warning); }
-    .stat-card.error .stat-card-value { color:var(--error); }
+    .page-view { display:none; }
+    .page-view.active { display:block; }
+    .stat-cards { grid-template-columns:repeat(5,1fr); }
+    .stat-card-value { font-size:var(--font-size-28); }
     .detail-panel { border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; margin-top:16px; background:var(--bg-table-stripe); }
-    .detail-panel h4 { font-size:14px; font-weight:600; margin-bottom:12px; color:var(--text-primary); }
-    .detail-row { display:flex; gap:24px; margin-bottom:8px; font-size:13px; }
+    .detail-panel h4 { font-size:var(--font-size-14); font-weight:600; margin-bottom:12px; color:var(--text-primary); }
+    .detail-row { display:flex; gap:24px; margin-bottom:8px; font-size:var(--font-size-13); }
     .detail-label { color:var(--text-secondary); min-width:80px; }
     .detail-value { color:var(--text-primary); }
-    .chart-placeholder { width:100%; height:240px; background:var(--bg-card); border:1px dashed var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:14px; }
-    .process-flow { display:flex; align-items:center; gap:0; margin:16px 0; flex-wrap:wrap; }
-    .process-node { display:flex; flex-direction:column; align-items:center; min-width:80px; }
-    .process-circle { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; margin-bottom:4px; }
-    .process-circle.done { background:var(--success); color:#fff; }
-    .process-circle.current { background:var(--primary); color:#fff; }
-    .process-circle.pending { background:var(--text-disabled); color:#fff; }
-    .process-name { font-size:12px; color:var(--text-primary); text-align:center; }
-    .process-arrow { font-size:18px; color:var(--text-description); margin:0 6px; margin-bottom:16px; }
+    .chart-placeholder { width:100%; height:240px; background:var(--bg-card); border:1px dashed var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:var(--font-size-14); }
     .severity-high { color:var(--error); font-weight:600; }
     .severity-mid { color:var(--warning); font-weight:600; }
     .severity-low { color:var(--primary); }
-    .record-section { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; background:#fff; }
-    .record-section h5 { font-size:14px; font-weight:600; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
-    .record-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0; color:var(--text-secondary); }
-    .img-placeholder { width:120px; height:80px; background:var(--bg-table-header); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--text-description); border:1px solid var(--border-light); }
+    .record-section { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; background:var(--bg-card); }
+    .record-section h5 { font-size:var(--font-size-14); font-weight:600; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+    .record-item { display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); padding:4px 0; color:var(--text-secondary); }
+    .img-placeholder { width:120px; height:80px; background:var(--bg-table-header); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:var(--font-size-12); color:var(--text-description); border:1px solid var(--border-light); }
+    .tag-purple { background:rgba(139,92,246,0.1); color:var(--chart-violet); }
+    .timeline { position:relative; padding-left:24px; }
+    .timeline::before { content:''; position:absolute; left:7px; top:4px; bottom:4px; width:2px; background:var(--border); }
+    .timeline-item { position:relative; padding-bottom:16px; }
+    .timeline-item:last-child { padding-bottom:0; }
+    .timeline-dot { position:absolute; left:-24px; top:2px; width:16px; height:16px; border-radius:50%; border:2px solid var(--border); background:var(--bg-card); z-index:1; }
+    .timeline-dot.done { background:var(--success); border-color:var(--success); }
+    .timeline-dot.done::after { content:'✓'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:var(--text-inverse); font-size:var(--font-size-9); font-weight:700; }
+    .timeline-dot.current { background:var(--primary); border-color:var(--primary); animation:pulse-dot 1.5s infinite; }
+    .timeline-dot.pending { background:var(--bg-card); border-color:var(--text-disabled); border-style:dashed; }
+    .timeline-item.pending-item::before { content:''; position:absolute; left:-17px; top:18px; bottom:-2px; width:2px; background:repeating-linear-gradient(to bottom, var(--text-disabled) 0, var(--text-disabled) 4px, transparent 4px, transparent 8px); }
+    .timeline-item.done-item::before { content:''; position:absolute; left:-17px; top:18px; bottom:-2px; width:2px; background:var(--success); }
+    .timeline-item:last-child::before { display:none; }
+    .timeline-content { font-size:var(--font-size-13); }
+    .timeline-time { color:var(--text-description); font-size:var(--font-size-12); }
+    .timeline-action { font-weight:600; color:var(--text-primary); margin-top:2px; }
+    .timeline-operator { color:var(--text-secondary); font-size:var(--font-size-12); margin-top:2px; }
+    .timeline-desc { color:var(--text-secondary); margin-top:2px; }
+    @keyframes pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(64,158,255,0.4);} 50%{box-shadow:0 0 0 6px rgba(64,158,255,0);} }
+    /* 关闭按钮 */
+    .modal-close { background:none; border:none; font-size:var(--font-size-18); cursor:pointer; color:var(--text-secondary); }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <div class="card">
-    <!-- Tab切换 -->
-    <div class="tab-bar">
-      <div class="tab-item active" onclick="switchTab('event')">行为事件</div>
-      <div class="tab-item" onclick="switchTab('analysis')">行为分析</div>
-      <div class="tab-item" onclick="switchTab('process')">处理记录</div>
+<body class="u-bg-page-px20">
+  <div class="card u-p-0">
+    <!-- 列表视图 -->
+    <div id="view-list" class="page-view active">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="event">行为事件</div>
+      <div class="tab-item" data-action="switchTab" data-param="analysis">行为分析</div>
+      <div class="tab-item" data-action="switchTab" data-param="process">处理记录</div>
     </div>
+    <div style="padding:0 20px 20px;">
 
     <!-- Tab1: 行为事件 -->
     <div id="tab-event" class="tab-content active">
       <!-- 统计卡片 -->
       <div class="stat-cards">
-        <div class="stat-card highlight">
-          <div class="stat-card-label">事件总数（本月）</div>
-          <div class="stat-card-value">47</div>
-          <div class="stat-card-sub">较上月 -12%</div>
-        </div>
         <div class="stat-card" style="border-left:3px solid var(--error);">
           <div class="stat-card-label">未佩戴安全帽</div>
-          <div class="stat-card-value" style="color:var(--error);">16</div>
-          <div class="stat-card-sub">占比 34%</div>
+          <div class="stat-card-value u-text-error">38</div>
+          <div class="stat-card-sub">占比35% · 较上月-8%</div>
         </div>
         <div class="stat-card" style="border-left:3px solid var(--warning);">
-          <div class="stat-card-label">违规吸烟 / 进入禁区</div>
-          <div class="stat-card-value" style="color:var(--warning);">14</div>
-          <div class="stat-card-sub">吸烟 10 / 禁区 4</div>
+          <div class="stat-card-label">违规吸烟</div>
+          <div class="stat-card-value u-text-warning">28</div>
+          <div class="stat-card-sub">占比26% · 较上月+3%</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--chart-violet);">
+          <div class="stat-card-label">登高作业违规</div>
+          <div class="stat-card-value" style="color:var(--chart-violet);">24</div>
+          <div class="stat-card-sub">占比22% · 较上月-2%</div>
         </div>
         <div class="stat-card" style="border-left:3px solid var(--primary);">
-          <div class="stat-card-label">高处/反光衣/其他</div>
-          <div class="stat-card-value" style="color:var(--primary);">17</div>
-          <div class="stat-card-sub">待处理 8 / 重复行为 6</div>
+          <div class="stat-card-label">进入禁区</div>
+          <div class="stat-card-value u-text-primary">18</div>
+          <div class="stat-card-sub">占比17% · 较上月+1%</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--warning);">
+          <div class="stat-card-label">本月误报率</div>
+          <div class="stat-card-value u-text-warning">23%</div>
+          <div class="stat-card-sub">误报 11 / 总预警 47 · 较上月-5%</div>
         </div>
       </div>
 
       <!-- 筛选条件 -->
-      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-        <div class="filter-bar" style="margin-bottom:0;">
-          <input class="form-input" placeholder="搜索事件/人员..." style="width:200px">
-          <select class="form-input form-select" style="width:160px">
-            <option>全部行为类型</option>
+      <div class="card u-content-section">
+        <div class="filter-bar u-mb-0">
+          <div class="filter-field"><span class="filter-label">事件/人员</span><input class="form-input" placeholder="请输入" ></div>
+          <div class="filter-field"><span class="filter-label">行为类型</span><select class="form-input form-select" >
+            <option>全部</option>
             <option>未佩戴安全帽</option>
             <option>违规吸烟</option>
             <option>高处作业未系安全绳</option>
             <option>未穿反光衣</option>
             <option>违规进入禁区</option>
             <option>操作违规</option>
-          </select>
-          <select class="form-input form-select" style="width:140px">
-            <option>全部严重程度</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">行为分类</span><select class="form-input form-select" >
+            <option>全部</option>
+            <option>个人防护</option>
+            <option>消防禁令</option>
+            <option>高处作业</option>
+            <option>区域管控</option>
+            <option>操作规程</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">严重程度</span><select class="form-input form-select" >
+            <option>全部</option>
             <option>严重</option>
             <option>一般</option>
             <option>轻微</option>
-          </select>
-          <select class="form-input form-select" style="width:140px">
-            <option>全部状态</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+            <option>全部</option>
             <option>待处理</option>
             <option>处理中</option>
+            <option>已通知</option>
+            <option>整改中</option>
+            <option>培训中</option>
             <option>已处理</option>
             <option>已归档</option>
-          </select>
-          <input class="form-input" type="date" style="width:150px">
-          <button class="btn btn-primary btn-sm">查询</button>
-          <button class="btn btn-default btn-sm">重置</button>
+            <option>已归档-误报</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">日期</span><input class="form-input" type="date"></div>
+          <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button></div>
         </div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" onclick="openReportEventModal()">+ 上报行为事件</button>
-        <button class="btn btn-default btn-sm" onclick="alert('分析报告已生成（原型演示）')">生成分析报告</button>
-        <button class="btn btn-default btn-sm">导出报告</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary btn-sm" data-action="openReportEventModal">+ 上报行为事件</button>
+        <button class="btn btn-default btn-sm" data-action="showToast" data-param="分析报告已生成">生成分析报告</button>
+        <button class="btn btn-default btn-sm" data-action="showToast" data-param="数据导出中...">导出报告</button>
       </div>
 
-      <!-- 数据列表 -->
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
+            <th>事件编号</th>
             <th>事件时间</th>
             <th>区域</th>
             <th>行为类型</th>
             <th>行为分类</th>
             <th>涉及人员</th>
             <th>严重程度</th>
+            <th>AI置信度</th>
             <th>状态</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260516-0038</td>
             <td>2026-05-16 09:30</td>
             <td>3号泊位</td>
             <td>未佩戴安全帽</td>
-            <td><span class="tag tag-error" style="font-size:11px;">个人防护</span></td>
+            <td><span class="tag tag-error u-fs-11">个人防护</span></td>
             <td>张磊（中交二航局）</td>
-            <td class="severity-high">严重</td>
+            <td><span class="tag tag-error">严重</span></td>
+            <td><span style="color:var(--success);font-weight:600;">92%</span></td>
             <td><span class="tag tag-warning">待处理</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="showDetail('event')">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
           </tr>
           <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260515-0028</td>
             <td>2026-05-15 14:20</td>
             <td>油罐区</td>
             <td>违规吸烟</td>
-            <td><span class="tag tag-error" style="font-size:11px;">消防禁令</span></td>
+            <td><span class="tag tag-warning u-fs-11">消防禁令</span></td>
             <td>王强（华能检修）</td>
-            <td class="severity-high">严重</td>
-            <td><span class="tag tag-info">处理中</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="showDetail('event')">查看详情</button></td>
+            <td><span class="tag tag-error">严重</span></td>
+            <td><span style="color:var(--success);font-weight:600;">88%</span></td>
+            <td><span class="tag tag-info">已通知</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
           </tr>
           <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260514-0024</td>
             <td>2026-05-14 11:00</td>
             <td>主楼工地</td>
             <td>高处作业未系安全绳</td>
-            <td><span class="tag tag-error" style="font-size:11px;">高处作业</span></td>
+            <td><span class="tag tag-info u-fs-11">高处作业</span></td>
             <td>赵东（鹏程建设）</td>
-            <td class="severity-high">严重</td>
-            <td><span class="tag tag-success">已处理</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="showDetail('event')">查看详情</button></td>
+            <td><span class="tag tag-error">严重</span></td>
+            <td><span style="color:var(--warning);font-weight:600;">75%</span></td>
+            <td><span class="tag tag-success">已归档</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
           </tr>
           <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260513-0019</td>
             <td>2026-05-13 16:45</td>
             <td>散货码头</td>
             <td>未穿反光衣</td>
-            <td><span class="tag tag-warning" style="font-size:11px;">个人防护</span></td>
+            <td><span class="tag tag-error u-fs-11">个人防护</span></td>
             <td>李伟（中交二航局）</td>
-            <td class="severity-mid">一般</td>
-            <td><span class="tag tag-success">已处理</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="showDetail('event')">查看详情</button></td>
+            <td><span class="tag tag-warning">一般</span></td>
+            <td><span style="color:var(--success);font-weight:600;">85%</span></td>
+            <td><span class="tag tag-info">整改中</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
           </tr>
           <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260512-0015</td>
             <td>2026-05-12 08:15</td>
             <td>仓储区A</td>
             <td>违规进入禁区</td>
-            <td><span class="tag tag-warning" style="font-size:11px;">区域管控</span></td>
+            <td><span class="tag tag-purple u-fs-11">区域管控</span></td>
             <td>孙磊（临时人员）</td>
-            <td class="severity-mid">一般</td>
-            <td><span class="tag tag-warning">处理中</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="showDetail('event')">查看详情</button></td>
+            <td><span class="tag tag-warning">一般</span></td>
+            <td><span style="color:var(--warning);font-weight:600;">68%</span></td>
+            <td><span class="tag tag-info">整改中</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
           </tr>
           <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260511-0010</td>
             <td>2026-05-11 10:30</td>
             <td>3号泊位</td>
             <td>未佩戴安全帽</td>
-            <td><span class="tag tag-info" style="font-size:11px;">个人防护</span></td>
+            <td><span class="tag tag-error u-fs-11">个人防护</span></td>
             <td>张磊（中交二航局）</td>
-            <td class="severity-low">轻微</td>
-            <td><span class="tag tag-info">已归档</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="showDetail('event')">查看详情</button></td>
+            <td><span class="tag tag-info">轻微</span></td>
+            <td><span style="color:var(--text-disabled);">55%</span></td>
+            <td><span class="tag tag-error">已归档-误报</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260518-0042</td>
+            <td>2026-05-18 10:00</td>
+            <td>B区仓库</td>
+            <td>未按规程操作</td>
+            <td><span class="tag tag-success u-fs-11">操作规程</span></td>
+            <td>陈刚（华达物流）</td>
+            <td><span class="tag tag-warning">一般</span></td>
+            <td><span style="color:var(--success);font-weight:600;">82%</span></td>
+            <td><span class="tag tag-success">已处理</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;font-size:var(--font-size-12);color:var(--text-secondary);">BJ-20260510-0007</td>
+            <td>2026-05-10 15:20</td>
+            <td>油罐区</td>
+            <td>违规吸烟</td>
+            <td><span class="tag tag-warning u-fs-11">消防禁令</span></td>
+            <td>周明（华达物流）</td>
+            <td><span class="tag tag-error">严重</span></td>
+            <td><span style="color:var(--warning);font-weight:600;">72%</span></td>
+            <td><span class="tag" style="background:rgba(139,92,246,0.1);color:var(--chart-violet);">培训中</span></td>
+            <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="'event'">查看详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination-bar"><div class="pagination-info">共 47 条</div><div class="pagination"><div class="pagination-page active">1</div><div class="pagination-page">2</div><div class="pagination-page">3</div></div></div>
-
-      <!-- 事件详情面板 -->
-      <div id="detail-event" class="detail-panel" style="display:none;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h4 style="margin:0;">事件详情 - 未佩戴安全帽</h4>
-          <button class="btn btn-default btn-sm" onclick="document.getElementById('detail-event').style.display='none'">关闭</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;">
-          <div>
-            <h5 style="font-size:13px;font-weight:600;margin-bottom:8px;">视频截图</h5>
-            <div class="img-placeholder">视频截图</div>
-            <div class="img-placeholder" style="margin-top:8px;">视频截图</div>
-            <div style="font-size:12px;color:var(--text-description);margin-top:4px;">来源：视频监控预警系统自动捕获</div>
-          </div>
-          <div>
-            <div class="detail-row">
-              <div><span class="detail-label">事件时间：</span><span class="detail-value">2026-05-16 09:30</span></div>
-              <div><span class="detail-label">区域：</span><span class="detail-value">3号泊位</span></div>
-            </div>
-            <div class="detail-row">
-              <div><span class="detail-label">行为类型：</span><span class="detail-value">未佩戴安全帽</span></div>
-              <div><span class="detail-label">严重程度：</span><span class="detail-value severity-high">严重</span></div>
-            </div>
-            <div class="detail-row">
-              <div><span class="detail-label">涉及人员：</span><span class="detail-value">张磊（中交二航局）</span></div>
-              <div><span class="detail-label">该人员历史：</span><span class="detail-value" style="color:var(--error);">本月第3次同类行为</span></div>
-            </div>
-            <div style="margin-top:12px;">
-              <h5 style="font-size:13px;font-weight:600;margin-bottom:8px;">事件描述</h5>
-              <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
-                视频监控预警系统于2026-05-16 09:30自动捕获3号泊位区域作业人员未佩戴安全帽行为。该人员为中交二航局张磊，系本月第3次同类不安全行为，已触发重复性行为升级预警，需安排专项安全培训。
-              </div>
-            </div>
-            <div style="margin-top:12px;">
-              <h5 style="font-size:13px;font-weight:600;margin-bottom:8px;">处理记录</h5>
-              <div class="record-item">2026-05-16 09:35 - 系统自动发送通知至中交二航局安全负责人</div>
-              <div class="record-item">2026-05-16 10:00 - 安全负责人已查看通知</div>
-              <div class="record-item" style="color:var(--warning);">等待整改处理...</div>
-            </div>
-          </div>
-        </div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 8 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+
     </div>
 
     <!-- Tab2: 行为分析 -->
     <div id="tab-analysis" class="tab-content">
-      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-        <div class="filter-bar" style="margin-bottom:0;">
-          <select class="form-input form-select" style="width:160px">
+      <div class="card u-content-section">
+        <div class="filter-bar u-mb-0">
+          <div class="filter-field"><span class="filter-label">统计维度</span><select class="form-input form-select" >
             <option>按区域维度</option>
             <option>按类型维度</option>
             <option>按人员维度</option>
-          </select>
-          <select class="form-input form-select" style="width:140px">
+          </select></div>
+          <div class="filter-field"><span class="filter-label">时间范围</span><select class="form-input form-select" >
             <option>本月</option>
             <option>本季度</option>
             <option>本年度</option>
             <option>自定义范围</option>
-          </select>
+          </select></div>
           <button class="btn btn-primary btn-sm">生成分析</button>
         </div>
       </div>
 
       <!-- 按区域统计 -->
       <div style="margin-bottom:20px;">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">按区域统计</h3>
+        <h3 class="u-fs15-fw600-mb12">按区域统计</h3>
         <div class="chart-placeholder">
           [柱状图] 各区域不安全行为事件数量对比<br>
           3号泊位 15 | 油罐区 10 | 主楼工地 8 | 散货码头 7 | 仓储区 5 | 其他 2
@@ -267,14 +299,14 @@
       <!-- 按类型统计 -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
         <div>
-          <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">按行为类型统计</h3>
+          <h3 class="u-fs15-fw600-mb12">按行为类型统计</h3>
           <div class="chart-placeholder">
             [饼图] 行为类型分布<br>
             未佩戴安全帽 35% | 违规吸烟 20% | 未穿反光衣 15% | 高处作业未系绳 12% | 违规进入禁区 10% | 其他 8%
           </div>
         </div>
         <div>
-          <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">按人员统计（TOP5）</h3>
+          <h3 class="u-fs15-fw600-mb12">按人员统计（TOP5）</h3>
           <div class="chart-placeholder">
             [条形图] 不安全行为频次TOP5人员<br>
             张磊 5次 | 王强 3次 | 赵东 3次 | 李伟 2次 | 孙磊 2次
@@ -284,8 +316,9 @@
 
       <!-- 重复性行为分析 -->
       <div style="margin-bottom:20px;">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">重复性行为分析</h3>
-        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:#fff;">
+        <h3 class="u-fs15-fw600-mb12">重复性行为分析</h3>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--bg-card);">
+          <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
@@ -315,11 +348,12 @@
                 <td>2</td>
                 <td>3</td>
                 <td><span class="tag tag-warning">接近升级阈值</span></td>
-                <td><button class="btn btn-text btn-sm">查看详情</button></td>
+                <td><button class="btn btn-text btn-sm" data-action="showView" data-param="detail">查看详情</button></td>
               </tr>
             </tbody>
           </table>
-          <div style="font-size:12px;color:var(--text-description);margin-top:8px;">
+          </div>
+          <div style="font-size:var(--font-size-12);color:var(--text-description);margin-top:8px;">
             升级规则：同一人员3次以上不安全行为触发专项培训安排，重复性行为升级预警
           </div>
         </div>
@@ -327,10 +361,47 @@
 
       <!-- 趋势图 -->
       <div>
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">不安全行为趋势图</h3>
+        <h3 class="u-fs15-fw600-mb12">不安全行为趋势图</h3>
         <div class="chart-placeholder">
           [折线图] 近6个月不安全行为事件数量趋势<br>
           1月 52 | 2月 48 | 3月 61 | 4月 55 | 5月 47 | 呈下降趋势
+        </div>
+      </div>
+
+      <!-- AI预警质量分析 -->
+      <div style="margin-top:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3 class="u-fs15-fw600-mb0">AI预警质量分析</h3>
+          <button class="btn btn-default btn-sm" data-action="showModal" data-param="modal-threshold">预警阈值配置</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+          <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--bg-card);">
+            <div style="font-size:var(--font-size-13);color:var(--text-secondary);margin-bottom:8px;">月度误报趋势</div>
+            <div class="chart-placeholder" style="height:160px;">
+              [折线图] 近6个月误报率趋势<br>
+              1月 31% | 2月 28% | 3月 26% | 4月 25% | 5月 23% | 持续优化
+            </div>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--bg-card);">
+            <div style="font-size:var(--font-size-13);color:var(--text-secondary);margin-bottom:8px;">误报类型分布</div>
+            <div style="font-size:var(--font-size-13);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="flex:1;">光线干扰</span><div style="width:120px;height:8px;background:var(--bg-table-stripe);border-radius:4px;"><div style="width:38%;height:100%;background:var(--warning);border-radius:4px;"></div></div><span style="color:var(--text-secondary);">38%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="flex:1;">遮挡误判</span><div style="width:120px;height:8px;background:var(--bg-table-stripe);border-radius:4px;"><div style="width:27%;height:100%;background:var(--primary);border-radius:4px;"></div></div><span style="color:var(--text-secondary);">27%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="flex:1;">非作业区域</span><div style="width:120px;height:8px;background:var(--bg-table-stripe);border-radius:4px;"><div style="width:22%;height:100%;background:var(--chart-violet);border-radius:4px;"></div></div><span style="color:var(--text-secondary);">22%</span></div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="flex:1;">其他</span><div style="width:120px;height:8px;background:var(--bg-table-stripe);border-radius:4px;"><div style="width:13%;height:100%;background:var(--text-description);border-radius:4px;"></div></div><span style="color:var(--text-secondary);">13%</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px;background:var(--bg-card);font-size:var(--font-size-12);color:var(--text-secondary);display:flex;align-items:center;gap:12px;">
+          <span>当前置信度阈值：<strong style="color:var(--text-primary);">60%</strong></span>
+          <span style="color:var(--border);">|</span>
+          <span>本月AI预警 <strong style="color:var(--text-primary);">47</strong> 次</span>
+          <span style="color:var(--border);">|</span>
+          <span>确认违规 <strong style="color:var(--success);">36</strong> 次</span>
+          <span style="color:var(--border);">|</span>
+          <span>误报 <strong style="color:var(--error);">11</strong> 次</span>
+          <span style="color:var(--border);">|</span>
+          <span>模型上次更新：2026-05-10</span>
         </div>
       </div>
     </div>
@@ -338,8 +409,10 @@
     <!-- Tab3: 处理记录 -->
     <div id="tab-process" class="tab-content">
       <!-- 待处理事件列表 -->
+      <!-- 待处理事件列表 -->
       <div style="margin-bottom:20px;">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">待处理事件</h3>
+        <h3 class="u-fs15-fw600-mb12">待处理事件</h3>
+        <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
@@ -358,114 +431,54 @@
               <td>2026-05-16 09:30</td>
               <td>3号泊位</td>
               <td>未佩戴安全帽</td>
+              <td><span class="tag tag-error u-fs-11">个人防护</span></td>
               <td>张磊（中交二航局）</td>
-              <td class="severity-high">严重</td>
+              <td><span class="tag tag-error">严重</span></td>
               <td><span class="tag tag-warning">通知</span></td>
-              <td><button class="btn btn-text btn-sm" onclick="showDetail('process')">处理</button></td>
+              <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param='process'">处理</button></td>
             </tr>
             <tr>
               <td>2026-05-15 14:20</td>
               <td>油罐区</td>
               <td>违规吸烟</td>
+              <td><span class="tag tag-warning u-fs-11">消防禁令</span></td>
               <td>王强（华能检修）</td>
-              <td class="severity-high">严重</td>
+              <td><span class="tag tag-error">严重</span></td>
               <td><span class="tag tag-info">整改</span></td>
-              <td><button class="btn btn-text btn-sm" onclick="showDetail('process')">处理</button></td>
+              <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param='process'">处理</button></td>
             </tr>
             <tr>
               <td>2026-05-12 08:15</td>
               <td>仓储区A</td>
               <td>违规进入禁区</td>
+              <td><span class="tag tag-purple u-fs-11">区域管控</span></td>
               <td>孙磊（临时人员）</td>
-              <td class="severity-mid">一般</td>
+              <td><span class="tag tag-warning">一般</span></td>
               <td><span class="tag tag-info">整改</span></td>
-              <td><button class="btn btn-text btn-sm" onclick="showDetail('process')">处理</button></td>
+              <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param='process'">处理</button></td>
             </tr>
           </tbody>
         </table>
-      </div>
-
-      <!-- 处理面板 -->
-      <div id="detail-process" class="detail-panel" style="background:#fff;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h4 style="margin:0;">处理面板 - 未佩戴安全帽</h4>
-          <button class="btn btn-default btn-sm" onclick="document.getElementById('detail-process').style.display='none'">关闭</button>
-        </div>
-
-        <!-- 处理流程 -->
-        <div style="margin-bottom:16px;">
-          <h5 style="font-size:13px;font-weight:600;margin-bottom:8px;">处理流程</h5>
-          <div class="process-flow">
-            <div class="process-node">
-              <div class="process-circle done">&#10003;</div>
-              <div class="process-name">通知</div>
-            </div>
-            <div class="process-arrow">&rarr;</div>
-            <div class="process-node">
-              <div class="process-circle current">2</div>
-              <div class="process-name">整改</div>
-            </div>
-            <div class="process-arrow">&rarr;</div>
-            <div class="process-node">
-              <div class="process-circle pending">3</div>
-              <div class="process-name">培训</div>
-            </div>
-            <div class="process-arrow">&rarr;</div>
-            <div class="process-node">
-              <div class="process-circle pending">4</div>
-              <div class="process-name">关闭</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 当前步骤操作区 -->
-        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--bg-table-stripe);">
-          <h5 style="font-size:13px;font-weight:600;margin-bottom:8px;">当前步骤：整改处理</h5>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;gap:8px;align-items:center;font-size:13px;">
-              <span class="detail-label">整改措施：</span>
-              <input class="form-input" placeholder="输入整改措施..." style="flex:1;">
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;font-size:13px;">
-              <span class="detail-label">整改期限：</span>
-              <input class="form-input" type="date" style="width:160px;">
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;font-size:13px;">
-              <span class="detail-label">专项培训：</span>
-              <label style="display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text-primary);">
-                <input type="checkbox" checked> 该人员本月第3次同类行为，需安排专项安全培训
-              </label>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:4px;">
-              <button class="btn btn-primary btn-sm">提交整改</button>
-              <button class="btn btn-default btn-sm">跳至培训</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 历史记录 -->
-        <div style="margin-top:12px;">
-          <h5 style="font-size:13px;font-weight:600;margin-bottom:8px;">处理历史</h5>
-          <div class="record-item">2026-05-16 09:35 - 系统自动发送通知至中交二航局安全负责人 &#10003;</div>
-          <div class="record-item">2026-05-16 10:00 - 安全负责人已查看通知 &#10003;</div>
-          <div class="record-item" style="color:var(--warning);">2026-05-16 10:05 - 进入整改阶段（当前）</div>
         </div>
       </div>
+
+      <!-- 处理面板内容已移至 page-view -->
 
       <!-- 归档记录 -->
       <div style="margin-top:24px;">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">归档记录</h3>
-        <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-          <div class="filter-bar" style="margin-bottom:0;">
-            <input class="form-input" placeholder="搜索归档记录..." style="width:200px">
-            <select class="form-input form-select" style="width:140px">
-              <option>全部状态</option>
+        <h3 class="u-fs15-fw600-mb12">归档记录</h3>
+        <div class="card u-content-section">
+          <div class="filter-bar u-mb-0">
+            <div class="filter-field"><span class="filter-label">归档记录</span><input class="form-input" placeholder="请输入" ></div>
+            <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+              <option>全部</option>
               <option>已处理</option>
               <option>已归档</option>
-            </select>
-            <button class="btn btn-primary btn-sm">查询</button>
+            </select></div>
+            <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button></div>
           </div>
         </div>
+        <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
@@ -473,6 +486,7 @@
               <th>行为类型</th>
               <th>行为分类</th>
               <th>涉及人员</th>
+              <th>严重程度</th>
               <th>处理结果</th>
               <th>归档时间</th>
               <th>操作</th>
@@ -482,35 +496,314 @@
             <tr>
               <td>2026-05-14 11:00</td>
               <td>高处作业未系安全绳</td>
-              <td>赵东</td>
+              <td><span class="tag tag-info u-fs-11">高处作业</span></td>
+              <td>赵东（鹏程建设）</td>
+              <td><span class="tag tag-error">严重</span></td>
               <td><span class="tag tag-success">已归档</span></td>
               <td>2026-05-15</td>
-              <td><button class="btn btn-text btn-sm">查看</button></td>
+              <td><button class="btn btn-text btn-sm" data-action="showView" data-param="detail">查看</button></td>
             </tr>
             <tr>
               <td>2026-05-11 10:30</td>
               <td>未佩戴安全帽</td>
-              <td>张磊</td>
+              <td><span class="tag tag-error u-fs-11">个人防护</span></td>
+              <td>张磊（中交二航局）</td>
+              <td><span class="tag tag-info">轻微</span></td>
               <td><span class="tag tag-success">已处理</span></td>
               <td>-</td>
-              <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">归档</button></td>
+              <td><button class="btn btn-text btn-sm" data-action="showView" data-param="detail">查看</button><button class="btn btn-text btn-sm">归档</button></td>
             </tr>
           </tbody>
         </table>
-        <div class="pagination-bar"><div class="pagination-info">共 35 条</div><div class="pagination"><div class="pagination-page active">1</div><div class="pagination-page">2</div></div></div>
+        </div>
+        <div class="pagination-bar">
+  <span class="pagination-info">共 2 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+      </div>
+    </div>
+    </div>
+    </div>
+    <!-- /列表视图 -->
+
+    <!-- 事件详情视图 -->
+    <div id="view-detail" class="page-view">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="font-size:var(--font-size-16);font-weight:600;margin:0;">事件详情 - 未佩戴安全帽</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-default btn-sm" style="color:var(--warning);border-color:var(--warning);" data-action="showModal" data-param="modal-false-positive">标记误报</button>
+          <button class="btn btn-default btn-sm" data-action="showView" data-param="list">返回列表</button>
+        </div>
+      </div>
+      <div class="detail-panel" style="background:var(--bg-card);margin-top:0;">
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;">
+          <div>
+            <h5 style="font-size:var(--font-size-13);font-weight:600;margin-bottom:8px;">视频截图</h5>
+            <div class="img-placeholder">视频截图</div>
+            <div class="img-placeholder u-mt-8">视频截图</div>
+            <div style="font-size:var(--font-size-12);color:var(--text-description);margin-top:4px;">来源：视频监控预警系统自动捕获</div>
+          </div>
+          <div>
+            <div class="detail-row">
+              <div><span class="detail-label">事件时间：</span><span class="detail-value">2026-05-16 09:30</span></div>
+              <div><span class="detail-label">区域：</span><span class="detail-value">3号泊位</span></div>
+            </div>
+            <div class="detail-row">
+              <div><span class="detail-label">行为类型：</span><span class="detail-value">未佩戴安全帽</span></div>
+              <div><span class="detail-label">严重程度：</span><span class="detail-value severity-high">严重</span></div>
+            </div>
+            <div class="detail-row">
+              <div><span class="detail-label">涉及人员：</span><span class="detail-value">张磊（中交二航局）</span></div>
+              <div><span class="detail-label">该人员历史：</span><span class="detail-value u-text-error">本月第3次同类行为</span></div>
+            </div>
+            <div class="u-mt-12">
+              <h5 style="font-size:var(--font-size-13);font-weight:600;margin-bottom:8px;">事件描述</h5>
+              <div style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.6;">
+                视频监控预警系统于2026-05-16 09:30自动捕获3号泊位区域作业人员未佩戴安全帽行为。该人员为中交二航局张磊，系本月第3次同类不安全行为，已触发重复性行为升级预警，需安排专项安全培训。
+              </div>
+            </div>
+            <div class="u-mt-12">
+              <h5 style="font-size:var(--font-size-13);font-weight:600;margin-bottom:8px;">处理记录</h5>
+              <div class="timeline">
+                <div class="timeline-item done-item">
+                  <div class="timeline-dot done"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">2026-05-16 09:35</div>
+                    <div class="timeline-action">系统自动发送通知</div>
+                    <div class="timeline-operator">系统 → 中交二航局安全负责人</div>
+                  </div>
+                </div>
+                <div class="timeline-item done-item">
+                  <div class="timeline-dot done"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">2026-05-16 10:00</div>
+                    <div class="timeline-action">安全负责人已查看通知</div>
+                    <div class="timeline-operator">中交二航局 刘安全</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot current"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">2026-05-16 10:05</div>
+                    <div class="timeline-action u-text-warning">进入整改阶段（当前）</div>
+                    <div class="timeline-desc">等待整改处理...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /事件详情视图 -->
+
+    <!-- 处理视图 -->
+    <div id="view-process" class="page-view">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="font-size:var(--font-size-16);font-weight:600;margin:0;">处理面板 - 未佩戴安全帽</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-default btn-sm" style="color:var(--warning);border-color:var(--warning);" data-action="showModal" data-param="modal-false-positive">标记误报</button>
+          <button class="btn btn-default btn-sm" data-action="showView" data-param="list">返回列表</button>
+        </div>
+      </div>
+
+      <!-- 处置进度（纵向时间轴） -->
+      <div class="detail-panel" style="background:var(--bg-card);">
+        <h4>处置进度</h4>
+        <div class="timeline">
+          <div class="timeline-item done-item">
+            <div class="timeline-dot done"></div>
+            <div class="timeline-content">
+              <div class="timeline-action">通知</div>
+              <div class="timeline-time">2026-05-16 09:35 已完成</div>
+              <div class="timeline-operator">系统自动通知 → 中交二航局安全负责人</div>
+            </div>
+          </div>
+          <div class="timeline-item done-item">
+            <div class="timeline-dot done"></div>
+            <div class="timeline-content">
+              <div class="timeline-action">查看确认</div>
+              <div class="timeline-time">2026-05-16 10:00 已完成</div>
+              <div class="timeline-operator">中交二航局 刘安全</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot current"></div>
+            <div class="timeline-content">
+              <div class="timeline-action u-text-warning">整改（当前步骤）</div>
+              <div class="timeline-time">2026-05-16 10:05 起</div>
+              <div class="timeline-desc">填写整改措施并提交；同类行为本月第3次，需同步安排专项培训</div>
+            </div>
+          </div>
+          <div class="timeline-item pending-item">
+            <div class="timeline-dot pending"></div>
+            <div class="timeline-content">
+              <div class="timeline-action" style="color:var(--text-description);">专项培训</div>
+              <div class="timeline-desc">待整改完成后进入</div>
+            </div>
+          </div>
+          <div class="timeline-item pending-item">
+            <div class="timeline-dot pending"></div>
+            <div class="timeline-content">
+              <div class="timeline-action" style="color:var(--text-description);">关闭归档</div>
+              <div class="timeline-desc">培训完成且验收通过后关闭</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 当前步骤操作区 -->
+      <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--bg-card);margin-top:16px;">
+        <h5 style="font-size:var(--font-size-14);font-weight:600;margin-bottom:8px;">当前步骤：整改处理</h5>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:8px;align-items:center;font-size:var(--font-size-13);">
+            <span class="detail-label">整改措施：</span>
+            <input class="form-input u-flex-1" placeholder="输入整改措施...">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;font-size:var(--font-size-13);">
+            <span class="detail-label">整改期限：</span>
+            <input class="form-input" type="date">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;font-size:var(--font-size-13);">
+            <span class="detail-label">专项培训：</span>
+            <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-13);color:var(--text-primary);">
+              <input type="checkbox" checked> 该人员本月第3次同类行为，需安排专项安全培训
+            </label>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="btn btn-primary btn-sm">提交整改</button>
+            <button class="btn btn-default btn-sm">跳至培训</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 历史记录 -->
+      <div class="detail-panel" style="background:var(--bg-card);">
+        <h4>处理历史</h4>
+        <div class="timeline">
+          <div class="timeline-item done-item">
+            <div class="timeline-dot done"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2026-05-16 09:35</div>
+              <div class="timeline-action">系统自动发送通知</div>
+              <div class="timeline-operator">系统 → 中交二航局安全负责人</div>
+            </div>
+          </div>
+          <div class="timeline-item done-item">
+            <div class="timeline-dot done"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2026-05-16 10:00</div>
+              <div class="timeline-action">安全负责人已查看通知</div>
+              <div class="timeline-operator">中交二航局 刘安全</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot current"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2026-05-16 10:05</div>
+              <div class="timeline-action u-text-warning">进入整改阶段（当前）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /处理视图 -->
+  </div>
+
+
+  <!-- ==================== 预警阈值配置弹窗 ==================== -->
+  <div id="modal-threshold" class="modal-overlay">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <div>AI预警阈值配置</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-threshold">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="padding:10px 12px;background:var(--tag-info-bg);border-radius:var(--radius-md);margin-bottom:16px;font-size:var(--font-size-13);color:var(--tag-info-color);">
+          调整置信度阈值将影响AI预警的灵敏度。阈值越低，预警越多（误报率上升）；阈值越高，漏检风险越大。建议结合月度误报统计综合调整。
+        </div>
+        <div class="form-group">
+          <label class="form-label">AI识别置信度阈值</label>
+          <div class="form-content">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="range" min="30" max="90" value="60" id="threshold-slider" style="flex:1;" oninput="document.getElementById('threshold-val').textContent=this.value+'%'">
+              <span id="threshold-val" style="font-size:var(--font-size-16);font-weight:600;color:var(--primary);min-width:40px;">60%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:var(--font-size-11);color:var(--text-description);margin-top:4px;">
+              <span>30%（高灵敏度）</span>
+              <span>90%（高精确度）</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">预警行为类型</label>
+          <div class="form-content" style="display:flex;flex-wrap:wrap;gap:8px;">
+            <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-13);"><input type="checkbox" checked> 未佩戴安全帽</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-13);"><input type="checkbox" checked> 违规吸烟</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-13);"><input type="checkbox" checked> 未穿反光衣</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-13);"><input type="checkbox" checked> 高处作业未系绳</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:var(--font-size-13);"><input type="checkbox"> 违规进入禁区</label>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px;font-size:var(--font-size-12);color:var(--text-secondary);background:var(--bg-table-stripe);">
+          <div style="font-weight:600;color:var(--text-primary);margin-bottom:6px;">近期阈值调整记录</div>
+          <div style="display:flex;gap:16px;margin-bottom:4px;"><span>2026-05-10</span><span>60% → 60%</span><span>张明（维持）</span></div>
+          <div style="display:flex;gap:16px;margin-bottom:4px;"><span>2026-04-08</span><span>55% → 60%</span><span>李伟（误报率偏高上调）</span></div>
+          <div style="display:flex;gap:16px;"><span>2026-03-05</span><span>50% → 55%</span><span>李伟（初期调优）</span></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-threshold">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="saveThresholdConfig">保存配置</button>
       </div>
     </div>
   </div>
 
+  <!-- ==================== 标记误报弹窗 ==================== -->
+  <div id="modal-false-positive" class="modal-overlay">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <div>标记为误报</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-false-positive">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="padding:10px 12px;background:var(--tag-warning-bg);border-radius:var(--radius-md);margin-bottom:16px;font-size:var(--font-size-13);color:var(--tag-warning-color);">
+          确认后将事件状态变更为"已归档-误报"，误报数据将反馈至视频监控预警系统用于模型优化。
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>误报类型</label>
+          <div class="form-content">
+            <select class="form-input form-select" id="fp-type">
+              <option value="">请选择误报类型</option>
+              <option>光线干扰</option>
+              <option>遮挡误判</option>
+              <option>非作业区域</option>
+              <option>其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>误报说明</label>
+          <div class="form-content"><textarea class="form-input" id="fp-desc" style="height:100px;padding:8px 12px;resize:vertical;" placeholder="请说明判定为误报的原因，至少10个字"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-false-positive">取消</button>
+        <button class="btn btn-primary btn-sm" style="background:var(--warning);border-color:var(--warning);" data-action="submitFalsePositive">确认标记误报</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ==================== 上报行为事件弹窗 ==================== -->
-  <div id="modal-report-event" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:560px;box-shadow:var(--shadow-lg);">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:16px;font-weight:600;">上报行为事件</div>
-        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-report-event')">&times;</button>
+  <div id="modal-report-event" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div>上报行为事件</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-report-event">&times;</button>
       </div>
-      <div style="padding:20px 24px;">
+      <div class="modal-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>行为类型</label>
@@ -579,48 +872,103 @@
         <div class="form-group">
           <label class="form-label">证据附件</label>
           <div class="form-content">
-            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" onclick="document.getElementById('re-file').click()">
-              <div style="font-size:13px;color:var(--text-secondary);">点击上传截图或视频证据</div>
-              <input type="file" id="re-file" style="display:none" accept=".jpg,.png,.mp4">
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" data-action="triggerFileUpload">
+              <div style="font-size:var(--font-size-13);color:var(--text-secondary);">点击上传截图或视频证据</div>
+              <input type="file" id="re-file" class="u-none" accept=".jpg,.png,.mp4">
             </div>
           </div>
         </div>
       </div>
-      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
-        <button class="btn btn-default btn-sm" onclick="closeModal('modal-report-event')">取消</button>
-        <button class="btn btn-primary btn-sm" onclick="submitReportEvent()">提交上报</button>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-report-event">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="submitReportEvent">提交上报</button>
       </div>
     </div>
   </div>
 
+  <div id="toast-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;"></div>
   <script>
+    function showView(view) {
+      if (view === 'list') { setPageView('view-list', 'view-detail', 'list'); return; }
+      if (view === 'detail') { setPageView('view-list', 'view-detail', 'detail'); return; }
+      document.querySelectorAll('.page-view').forEach(function(v) { v.classList.remove('active'); });
+      var el = document.getElementById('view-' + view);
+      if (el) el.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    window.showView = showView;
     function switchTab(name) {
       document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
       document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
       if (typeof event !== 'undefined' && event.target) { event.target.classList.add('active'); }
-      document.getElementById('tab-' + name).classList.add('active');
+      var el = document.getElementById('tab-' + name); if(el) el.classList.add('active');
     }
     function showDetail(tab) {
-      var panel = document.getElementById('detail-' + tab);
-      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      var t = tab ? tab.replace(/'/g, '') : '';
+      if (t === 'event') showView('detail');
+      else showView(t);
     }
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function openReportEventModal() {
-      var fields = ['re-type','re-category','re-area','re-severity','re-person','re-time','re-desc'];
-      fields.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
-      openModal('modal-report-event');
-    }
+    window.showDetail = showDetail;
     function submitReportEvent() {
       var type = document.getElementById('re-type').value;
       var category = document.getElementById('re-category').value;
       var area = document.getElementById('re-area').value;
       var severity = document.getElementById('re-severity').value;
       var person = document.getElementById('re-person').value.trim();
-      if (!type || !category || !area || !severity || !person) { alert('请填写所有必填项'); return; }
-      closeModal('modal-report-event');
-      alert('行为事件已上报');
+      if (!type || !category || !area || !severity || !person) { showToast('请填写必填项','error'); return; }
+      hideModal('modal-report-event');
+      showToast('行为事件已上报');
     }
+    function submitFalsePositive() {
+      var fpType = document.getElementById('fp-type').value;
+      var fpDesc = document.getElementById('fp-desc').value.trim();
+      if (!fpType) { showToast('请选择误报类型','error'); return; }
+      if (fpDesc.length < 10) { showToast('误报说明至少10个字','error'); return; }
+      hideModal('modal-false-positive');
+      showToast('已标记为误报，状态变更为"已归档-误报"','success');
+    }
+    window.submitFalsePositive = submitFalsePositive;
+
+    /* 事件委托 */
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-action');
+      var param = btn.getAttribute('data-param');
+      switch (action) {
+        case 'showView':
+          showView(param);
+          break;
+        case 'showModal':
+          if (param) showModal(param);
+          break;
+        case 'hideModal':
+          if (param) hideModal(param);
+          break;
+        case 'openReportEventModal':
+          openReportEventModal();
+          break;
+        case 'saveThresholdConfig':
+          hideModal('modal-threshold');
+          showToast('阈值配置已保存，将在下次AI分析周期生效','success');
+          break;
+        case 'submitFalsePositive':
+          submitFalsePositive();
+          break;
+        case 'submitReportEvent':
+          submitReportEvent();
+          break;
+        case 'triggerFileUpload':
+          var reFile = document.getElementById('re-file');
+          if (reFile) reFile.click();
+          break;
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal-overlay')) {
+        hideModal(e.target.id);
+      }
+    });
   </script>
 </body>
 </html>

@@ -4,387 +4,406 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>危险作业管理 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
-    .stat-card { background:var(--bg-card); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); }
-    .stat-card-label { font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
-    .stat-card-value { font-size:28px; font-weight:700; color:var(--text-primary); }
-    .stat-card-sub { font-size:12px; color:var(--text-description); margin-top:4px; }
-    .stat-card.highlight .stat-card-value { color:var(--primary); }
-    .stat-card.success .stat-card-value { color:var(--success); }
-    .stat-card.warning .stat-card-value { color:var(--warning); }
-    .stat-card.error .stat-card-value { color:var(--error); }
+    .page-view { display:none; }
+    .page-view.active { display:block; }
+    .stat-cards { grid-template-columns:repeat(3,1fr); }
+    .stat-card-value { font-size:var(--font-size-28); }
     .detail-panel { border:1px solid var(--border); border-radius:var(--radius-md); padding:20px; margin-top:16px; background:var(--bg-table-stripe); }
-    .detail-panel h4 { font-size:14px; font-weight:600; margin-bottom:12px; color:var(--text-primary); }
-    .detail-row { display:flex; gap:24px; margin-bottom:8px; font-size:13px; }
+    .detail-panel h4 { font-size:var(--font-size-14); font-weight:600; margin-bottom:12px; color:var(--text-primary); }
+    .detail-row { display:flex; gap:24px; margin-bottom:8px; font-size:var(--font-size-13); }
     .detail-label { color:var(--text-secondary); min-width:80px; }
     .detail-value { color:var(--text-primary); }
-    .approval-chain { display:flex; align-items:center; gap:0; margin:16px 0; flex-wrap:wrap; }
-    .approval-node { display:flex; flex-direction:column; align-items:center; min-width:80px; }
-    .approval-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff; margin-bottom:4px; }
-    .approval-circle.done { background:var(--success); }
-    .approval-circle.current { background:var(--primary); }
-    .approval-circle.pending { background:var(--text-disabled); }
-    .approval-circle.rejected { background:var(--error); }
-    .approval-name { font-size:12px; color:var(--text-primary); }
-    .approval-status { font-size:11px; color:var(--text-description); }
-    .approval-arrow { font-size:16px; color:var(--text-description); margin:0 8px; margin-bottom:20px; }
+    .approval-timeline { margin:16px 0; padding-left:8px; border-left:2px solid var(--border-light); }
+    .timeline-item { position:relative; padding:0 0 20px 20px; }
+    .timeline-item:last-child { padding-bottom:0; }
+    .timeline-dot { position:absolute; left:-25px; top:2px; width:12px; height:12px; border-radius:50%; background:var(--success); border:2px solid var(--bg-card); box-shadow:0 0 0 2px var(--success); }
+    .timeline-item.current .timeline-dot { background:var(--primary); box-shadow:0 0 0 2px var(--primary); }
+    .timeline-item.pending .timeline-dot { background:var(--text-disabled); box-shadow:0 0 0 2px var(--text-disabled); }
+    .timeline-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); }
+    .timeline-meta { font-size:var(--font-size-12); color:var(--text-description); margin-top:4px; }
+    .timeline-opinion { font-size:var(--font-size-12); color:var(--text-secondary); margin-top:6px; padding:8px 10px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); }
     .recovery-panel { border:2px solid var(--warning); border-radius:var(--radius-md); padding:20px; margin-top:16px; background:rgba(233,124,0,0.04); }
     .recovery-panel h4 { color:var(--warning); }
     .recovery-step { display:flex; gap:16px; margin-top:12px; }
-    .recovery-col { flex:1; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; background:#fff; }
-    .recovery-col h5 { font-size:13px; font-weight:600; margin-bottom:8px; color:var(--text-primary); }
-    .recovery-item { font-size:13px; color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .recovery-col { flex:1; border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; background:var(--bg-card); }
+    .recovery-col h5 { font-size:var(--font-size-13); font-weight:600; margin-bottom:8px; color:var(--text-primary); }
+    .recovery-item { font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
     .recovery-item .icon-ok { color:var(--success); }
     .recovery-item .icon-pending { color:var(--text-disabled); }
-    .video-placeholder { width:100%; height:200px; background:#1a1a2e; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:#666; font-size:14px; position:relative; }
-    .video-placeholder .live-dot { position:absolute; top:12px; right:12px; width:8px; height:8px; background:#ff4444; border-radius:50%; animation:blink 1s infinite; }
+    .video-placeholder { width:100%; height:200px; background:var(--bg-dark-primary); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:var(--font-size-14); position:relative; }
+    .video-placeholder .live-dot { position:absolute; top:12px; right:12px; width:8px; height:8px; background:var(--color-red-bright); border-radius:50%; animation:blink 1s infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .record-section { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; background:#fff; }
-    .record-section h5 { font-size:14px; font-weight:600; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
-    .record-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0; color:var(--text-secondary); }
+    .record-section { border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; background:var(--bg-card); }
+    .record-section h5 { font-size:var(--font-size-14); font-weight:600; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
+    .record-item { display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); padding:4px 0; color:var(--text-secondary); }
     .record-item .file-icon { color:var(--primary); }
-    .timeout-alert { background:rgba(209,0,0,0.06); border:1px solid rgba(209,0,0,0.3); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:12px; font-size:13px; color:var(--error); display:flex; align-items:center; gap:8px; }
-    .btn-danger { background:var(--error); color:#fff; border-color:var(--error); }\n    .btn-danger:hover { opacity:0.9; }\n  </style>
+    .timeout-alert { background:rgba(209,0,0,0.06); border:1px solid rgba(209,0,0,0.3); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:12px; font-size:var(--font-size-13); color:var(--error); display:flex; align-items:center; gap:8px; }
+    .btn-danger { background:var(--error); color:var(--text-inverse); border-color:var(--error); }
+    .btn-danger:hover { opacity:0.9; }
+    .modal-close { background:none; border:none; font-size:var(--font-size-18); cursor:pointer; color:var(--text-secondary); }
+    /* 新增/编辑等弹窗：遮罩 flex 居中（与 framework .modal-overlay 一致） */
+    #modal-new-work.modal-overlay.show,
+    #modal-edit-work.modal-overlay.show,
+    #modal-close-work.modal-overlay.show,
+    #modal-review-work.modal-overlay.show,
+    #modal-approval-transfer.modal-overlay.show {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #modal-new-work .modal,
+    #modal-edit-work .modal {
+      margin:0;
+      max-height:min(80vh, calc(100vh - 48px));
+    }
+    .dw-field-readonly { background:var(--bg-page); cursor:default; color:var(--text-primary); }
+    /* 详情页：与列表分离，Tab 分区，避免内容与弹窗逻辑混排 */
+    #view-detail.page-view { padding:20px; }
+    #view-detail .dw-detail-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+    #view-detail .dw-detail-head h3 { margin:0; font-size:var(--font-size-18); font-weight:600; }
+    #view-detail .dw-detail-status { display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:12px 16px; margin-bottom:16px; background:rgba(35,102,236,0.06); border-left:4px solid var(--primary); border-radius:var(--radius-md); }
+    #view-detail .dw-detail-toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--border-light); }
+    #view-detail .dw-detail-toolbar .toolbar-group { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    #view-detail .dw-detail-toolbar .toolbar-label { font-size:var(--font-size-12); color:var(--text-description); margin-right:4px; }
+    #view-detail .dw-detail-tabs { margin-bottom:16px; padding:0; }
+    /* 概览：左右两张独立卡片，按内容区宽度约 62% : 38% 分布 */
+    #view-detail .dw-overview-split { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr); gap:16px; align-items:stretch; margin-bottom:16px; }
+    @media (max-width:1024px) { #view-detail .dw-overview-split { grid-template-columns:1fr; } }
+    #view-detail .dw-overview-card { margin-top:0; background:var(--bg-card); min-height:360px; display:flex; flex-direction:column; }
+    #view-detail .dw-overview-card h4 { margin:0 0 16px; font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); flex-shrink:0; }
+    #view-detail .dw-overview-card .dw-card-body { flex:1; min-height:0; }
+    #view-detail .dw-overview-lifecycle .dw-card-body { overflow-y:auto; max-height:520px; }
+    /* 全生命周期时间流（右侧卡片内） */
+    #view-detail .dw-lifecycle-timeline { position:relative; margin:0; padding:4px 0 4px 24px; list-style:none; }
+    #view-detail .dw-lifecycle-timeline::before { content:''; position:absolute; left:10px; top:10px; bottom:10px; width:2px; background:var(--border-light); border-radius:1px; }
+    #view-detail .dw-tl-item { position:relative; padding:0 0 18px; }
+    #view-detail .dw-tl-item:last-child { padding-bottom:0; }
+    #view-detail .dw-tl-item:not(:last-child)::after { content:''; position:absolute; left:-14px; top:16px; bottom:0; width:2px; background:var(--success); z-index:0; }
+    #view-detail .dw-tl-item.current:not(:last-child)::after { background:linear-gradient(to bottom, var(--success), var(--border-light)); }
+    #view-detail .dw-tl-item:last-child::after { display:none; }
+    #view-detail .dw-tl-dot { position:absolute; left:-20px; top:2px; width:14px; height:14px; border-radius:50%; border:2px solid var(--bg-card); background:var(--success); box-shadow:0 0 0 2px var(--success); z-index:1; box-sizing:border-box; }
+    #view-detail .dw-tl-item.current .dw-tl-dot { background:var(--primary); box-shadow:0 0 0 2px var(--primary); animation:dw-tl-pulse 1.6s ease-in-out infinite; }
+    #view-detail .dw-tl-item.pending .dw-tl-dot { background:var(--bg-card); border:2px dashed var(--text-disabled); box-shadow:none; }
+    #view-detail .dw-tl-body { min-width:0; }
+    #view-detail .dw-tl-head { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+    #view-detail .dw-tl-title { font-size:var(--font-size-13); font-weight:600; color:var(--text-primary); line-height:1.4; }
+    #view-detail .dw-tl-item.current .dw-tl-title { color:var(--primary); }
+    #view-detail .dw-tl-meta { font-size:var(--font-size-12); color:var(--text-description); margin-top:4px; line-height:1.4; }
+    #view-detail .dw-tl-opinion { font-size:var(--font-size-12); color:var(--text-secondary); margin-top:8px; padding:8px 10px; background:var(--bg-page); border-radius:var(--radius-sm); border-left:2px solid var(--border); line-height:1.5; }
+    #view-detail .dw-tl-extra { margin-top:8px; padding:8px 10px; background:var(--bg-page); border-radius:var(--radius-sm); font-size:var(--font-size-12); }
+    #view-detail .dw-tl-extra .record-item { padding:2px 0; }
+    @keyframes dw-tl-pulse { 0%,100%{ box-shadow:0 0 0 2px var(--primary), 0 0 0 0 rgba(35,102,236,0.35); } 50%{ box-shadow:0 0 0 2px var(--primary), 0 0 0 6px rgba(35,102,236,0); } }
+    #view-detail .dw-basic-info-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 32px; }
+    @media (max-width:640px) { #view-detail .dw-basic-info-grid { grid-template-columns:1fr; } }
+    #view-detail .dw-info-cell { padding:10px 0; border-bottom:1px solid var(--border-light); min-width:0; }
+    #view-detail .dw-info-cell.span-full { grid-column:1 / -1; }
+    #view-detail .dw-info-cell .info-label { display:block; font-size:var(--font-size-12); color:var(--text-secondary); margin-bottom:4px; }
+    #view-detail .dw-info-cell .info-value { display:block; font-size:var(--font-size-13); color:var(--text-primary); line-height:1.5; word-break:break-word; }
+    #view-detail .dw-rules-box { margin-top:12px; padding:12px; background:var(--bg-page); border-radius:var(--radius-md); font-size:var(--font-size-12); color:var(--text-secondary); line-height:1.7; }
+    .nw-approval-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 24px; }
+    .nw-approval-empty { font-size:var(--font-size-13); color:var(--text-description); padding:8px 0; }
+    .dw-approval-flow-wrap { flex:1 1 100%; width:100%; margin-bottom:8px; padding:10px 12px; background:var(--bg-page); border-radius:var(--radius-md); border:1px solid var(--border-light); }
+    .dw-flow-steps { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+    .dw-flow-step { font-size:var(--font-size-12); padding:4px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); color:var(--text-secondary); background:var(--bg-card); }
+    .dw-flow-step.done { border-color:rgba(0,128,0,0.35); color:var(--success); background:rgba(0,128,0,0.06); }
+    .dw-flow-step.current { border-color:var(--primary); color:var(--primary); background:rgba(35,102,236,0.08); font-weight:600; }
+    .dw-flow-step.pending { opacity:0.75; }
+    .dw-flow-hint { font-size:var(--font-size-12); color:var(--text-description); line-height:1.5; }
+    #view-detail .view-tab-bar { display:flex; gap:0; border-bottom:1px solid var(--border-light); margin-bottom:16px; }
+    #view-detail .view-tab-item { padding:10px 18px; cursor:pointer; font-size:var(--font-size-14); color:var(--text-secondary); border-bottom:2px solid transparent; margin-bottom:-1px; }
+    #view-detail .view-tab-item.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:500; }
+    #view-detail .view-tab-content { display:none; }
+    #view-detail .view-tab-content.active { display:block; }
+    /* 列表：复选框/序号 + 操作列固定（依赖 framework .table-wrap 横向滚动 + last-child sticky） */
+    .table-wrap .data-table.dw-list-table { min-width: 1280px; }
+    .table-wrap .data-table.dw-list-table th,
+    .table-wrap .data-table.dw-list-table td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .table-wrap .data-table.dw-list-table .col-check {
+      width: 48px;
+      text-align: center;
+      overflow: visible;
+    }
+    .table-wrap .data-table.dw-list-table .col-index {
+      width: 56px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    .table-wrap .data-table.dw-list-table .col-actions {
+      min-width: 200px;
+      padding-left: 16px;
+      padding-right: 16px;
+      overflow: visible;
+    }
+    .table-wrap .data-table.dw-list-table tbody td.col-actions > .cell-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+      justify-content: center;
+      padding: 2px 0;
+    }
+    .table-wrap .data-table.dw-list-table tbody td.col-actions .btn-text {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+    .table-wrap .data-table.dw-list-table tbody td[title] {
+      cursor: help;
+    }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <div class="card">
-    <!-- Tab切换 -->
-    <div class="tab-bar">
-      <div class="tab-item active" onclick="switchTab('ledger')">作业台账</div>
-      <div class="tab-item" onclick="switchTab('detail')">作业详情</div>
-      <div class="tab-item" onclick="switchTab('monitor')">作业监控</div>
+<body class="u-bg-page-px20">
+  <div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
+  <div class="card u-p-0">
+    <!-- 列表视图 -->
+    <div id="view-list" class="page-view active">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="ledger">作业台账</div>
+      <div class="tab-item" data-action="switchTab" data-param="monitor">作业监控</div>
     </div>
+    <div style="padding:0 20px 20px;">
 
     <!-- Tab1: 作业台账 -->
     <div id="tab-ledger" class="tab-content active">
       <!-- 统计卡片 -->
       <div class="stat-cards">
-        <div class="stat-card highlight">
-          <div class="stat-card-label">作业总数</div>
-          <div class="stat-card-value">89</div>
-          <div class="stat-card-sub">本月新增 23</div>
-        </div>
         <div class="stat-card" style="border-left:3px solid var(--primary);">
-          <div class="stat-card-label">动火作业</div>
-          <div class="stat-card-value" style="color:var(--primary);">28</div>
-          <div class="stat-card-sub">实施中 2 / 待审批 3</div>
-        </div>
-        <div class="stat-card" style="border-left:3px solid var(--warning);">
-          <div class="stat-card-label">受限空间</div>
-          <div class="stat-card-value" style="color:var(--warning);">15</div>
-          <div class="stat-card-sub">实施中 1 / 待审批 2</div>
+          <div class="stat-card-label">动火作业 / 受限空间</div>
+          <div class="stat-card-value u-text-primary">68</div>
+          <div class="stat-card-sub">动火 45（实施中 2 / 待关闭 1）| 受限空间 23（实施中 1 / 待复核 1）</div>
         </div>
         <div class="stat-card" style="border-left:3px solid var(--success);">
-          <div class="stat-card-label">高处/吊装</div>
-          <div class="stat-card-value" style="color:var(--success);">32</div>
-          <div class="stat-card-sub">高处 18 / 吊装 14</div>
+          <div class="stat-card-label">吊装作业 / 登高作业</div>
+          <div class="stat-card-value u-text-success">32</div>
+          <div class="stat-card-sub">吊装 14（实施中 1）| 登高 18（实施中 1 / 待审批 1）</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--chart-violet);">
+          <div class="stat-card-label">临时用电 / 动土作业</div>
+          <div class="stat-card-value" style="color:var(--chart-violet);">12</div>
+          <div class="stat-card-sub">临时用电 7（已批准 1）| 动土 5（待审批 1）</div>
         </div>
       </div>
 
       <!-- 筛选条件 -->
-      <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-        <div class="filter-bar" style="margin-bottom:0;">
-          <input class="form-input" id="dw-query-name" placeholder="搜索作业名称..." style="width:200px">
-          <select class="form-input form-select" style="width:160px">
-            <option>全部作业类型</option>
+      <div class="card u-content-section">
+        <div class="filter-bar u-mb-0">
+          <div class="filter-field"><span class="filter-label">作业名称</span><input class="form-input" id="dw-query-name" placeholder="请输入" ></div>
+          <div class="filter-field"><span class="filter-label">作业类型</span><select class="form-input form-select" >
+            <option>全部</option>
             <option>动火作业</option>
             <option>受限空间</option>
-            <option>高处作业</option>
+            <option>登高作业</option>
             <option>临时用电</option>
             <option>吊装作业</option>
-            <option>盲板抽堵</option>
             <option>动土作业</option>
-            <option>断路作业</option>
-          </select>
-          <select class="form-input form-select" style="width:140px">
-            <option>全部状态</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+            <option>全部</option>
             <option>待审批</option>
             <option>已批准</option>
-            <option>准备中</option>
+            <option>交底中</option>
             <option>实施中</option>
-            <option>恢复确认</option>
+            <option>待关闭</option>
+            <option>待复核</option>
             <option>已关闭</option>
+            <option>已退回</option>
             <option>已暂停</option>
-          </select>
-          <select class="form-input form-select" style="width:140px">
-            <option>全部区域</option>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">区域</span><select class="form-input form-select" >
+            <option>全部</option>
             <option>3号泊位</option>
             <option>油罐区</option>
             <option>主楼工地</option>
             <option>散货码头</option>
-          </select>
-          <input class="form-input" type="date" style="width:150px">
-          <button class="btn btn-primary btn-sm">查询</button>
-          <button class="btn btn-default btn-sm">重置</button>
+          </select></div>
+          <div class="filter-field"><span class="filter-label">日期</span><input class="form-input" type="date"></div>
+          <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-default btn-sm">重置</button></div>
         </div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" onclick="openNewWorkModal()">+ 新增作业单</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary btn-sm" data-action="openNewWorkModal">+ 新增作业单</button>
         <button class="btn btn-default">导出</button>
       </div>
 
       <!-- 数据列表 -->
-      <table class="data-table">
+      <div class="table-wrap">
+      <table class="data-table dw-list-table">
         <thead>
           <tr>
+            <th class="col-check"><input type="checkbox" id="dw-check-all-ledger" data-action="toggleDwLedgerCheckAll" aria-label="全选"></th>
+            <th class="col-index">序号</th>
             <th>作业名称</th>
             <th>作业类型</th>
+            <th>等级</th>
             <th>区域</th>
-            <th>申请人</th>
+            <th>作业人员</th>
             <th>审批人</th>
             <th>状态</th>
             <th>作业时间</th>
-            <th>操作</th>
+            <th class="col-actions">操作</th>
           </tr>
         </thead>
         <tbody>
           <tr>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">1</td>
             <td>3号泊位受限空间作业</td>
             <td>受限空间</td>
+            <td>—</td>
             <td>3号泊位</td>
             <td>张明</td>
             <td>李安全</td>
             <td><span class="tag tag-warning">实施中</span></td>
             <td>2026-05-16 08:00~17:00</td>
-            <td><button class="btn btn-text btn-sm" onclick="switchTab('detail')">查看详情</button></td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="impl">查看详情</button><button class="btn btn-text btn-sm" data-action="openEditWorkModal">修改</button></div></td>
           </tr>
           <tr>
-            <td>油罐区动火作业</td>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">2</td>
+            <td><span style="color:var(--error);font-size:var(--font-size-14);" title="存在持证不符">&#9888;</span> 3号泊位动火作业 <span class="tag" style="background:rgba(209,0,0,0.1);color:var(--error);font-size:var(--font-size-11);line-height:18px;padding:0 4px;">持证不符</span></td>
             <td>动火作业</td>
-            <td>油罐区</td>
+            <td>二级</td>
+            <td>3号泊位</td>
             <td>王强</td>
             <td>赵安全</td>
-            <td><span class="tag tag-info">待审批</span></td>
+            <td><span class="tag tag-info">待审批</span> <span style="color:var(--error);font-size:var(--font-size-12);font-weight:600;">28h</span></td>
             <td>2026-05-17 09:00~16:00</td>
-            <td><button class="btn btn-text btn-sm" onclick="switchTab('detail')">查看详情</button></td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="approval-bad">查看详情</button><button class="btn btn-text btn-sm u-text-primary" data-action="showDetail" data-dw-id="approval-bad" data-focus="approval">审批</button></div></td>
           </tr>
           <tr>
-            <td>主楼外立面高处作业</td>
-            <td>高处作业</td>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">3</td>
+            <td>油罐区动火作业</td>
+            <td>动火作业</td>
+            <td>一级</td>
+            <td>油罐区</td>
+            <td>李明</td>
+            <td>赵安全</td>
+            <td><span class="tag tag-info">待审批</span> <span style="color:var(--error);font-size:var(--font-size-12);font-weight:600;">5h</span></td>
+            <td>2026-05-18 09:00~16:00</td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="approval">查看详情</button><button class="btn btn-text btn-sm u-text-primary" data-action="showDetail" data-dw-id="approval" data-focus="approval">审批</button></div></td>
+          </tr>
+          <tr>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">4</td>
+            <td>主楼外立面登高作业</td>
+            <td>登高作业</td>
+            <td>—</td>
             <td>主楼工地</td>
             <td>刘工</td>
             <td>陈安全</td>
             <td><span class="tag tag-success">已关闭</span></td>
             <td>2026-05-14 07:30~15:30</td>
-            <td><button class="btn btn-text btn-sm" onclick="switchTab('detail')">查看详情</button></td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="closed">查看详情</button></div></td>
           </tr>
           <tr>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">5</td>
             <td>散货码头吊装作业</td>
             <td>吊装作业</td>
+            <td>—</td>
             <td>散货码头</td>
             <td>周建</td>
             <td>李安全</td>
-            <td><span class="tag tag-warning">恢复确认</span></td>
+            <td><span class="tag tag-warning">待复核</span></td>
             <td>2026-05-15 08:00~14:00</td>
-            <td><button class="btn btn-text btn-sm" onclick="switchTab('detail')">查看详情</button></td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="review">查看详情</button></div></td>
           </tr>
           <tr>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">6</td>
             <td>仓储区临时用电</td>
             <td>临时用电</td>
+            <td>—</td>
             <td>仓储区A</td>
             <td>孙磊</td>
             <td>赵安全</td>
             <td><span class="tag tag-info">已批准</span></td>
             <td>2026-05-18 09:00~17:00</td>
-            <td><button class="btn btn-text btn-sm" onclick="switchTab('detail')">查看详情</button></td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="approved">查看详情</button></div></td>
           </tr>
-        </tbody>
+          <tr>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">7</td>
+            <td>动火作业-油罐区焊接</td>
+            <td>动火作业</td>
+            <td>二级</td>
+            <td>油罐区</td>
+            <td>王磊</td>
+            <td>陈安全</td>
+            <td><span class="tag tag-warning">已暂停</span></td>
+            <td>2026-05-15 ~ 2026-05-16</td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="paused">查看详情</button></div></td>
+          </tr>
+          <tr>
+            <td class="col-check"><input type="checkbox" class="dw-row-check dw-ledger-check" aria-label="选择行"></td>
+            <td class="col-index">8</td>
+            <td>西港2号仓动火焊接</td>
+            <td>动火作业</td>
+            <td>一级</td>
+            <td>西港区</td>
+            <td>张建国</td>
+            <td>李安全</td>
+            <td><span class="tag tag-info">待关闭</span></td>
+            <td>2026-05-18 08:00~22:00</td>
+            <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="close">查看详情</button><button class="btn btn-text btn-sm u-text-primary" data-action="showDetail" data-dw-id="close" data-focus="close">提交关闭</button></div></td>
+          </tr>
+</tbody>
       </table>
+      </div>
       <div class="pagination-bar">
-          <div class="pagination-info">共 89 条</div>
-          <div class="pagination-size">
-            <select class="form-input form-select" style="width:80px;height:28px;font-size:12px;" id="dw-page-size">
-              <option>10</option>
-              <option>20</option>
-              <option>50</option>
-            </select>
-          </div>
-          <div class="pagination">
-            <div class="pagination-page active">1</div>
-            <div class="pagination-page">2</div>
-            <div class="pagination-page">3</div>
-          </div>
-          <div class="pagination-jump">前往 <input type="number" min="1" value="1" style="width:48px;height:28px;text-align:center;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;"> 页</div>
-        </div>
+  <span class="pagination-info">共 7 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
-    <!-- Tab2: 作业详情 -->
-    <div id="tab-detail" class="tab-content">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h3 style="font-size:16px;font-weight:600;margin:0;">作业详情 - 散货码头吊装作业</h3>
-        <div style="display:flex;gap:8px;">
-          <span class="tag tag-warning" style="height:28px;line-height:24px;">恢复确认</span>
-          <button class="btn btn-default btn-sm">返回台账</button>
-        </div>
-      </div>
 
-      <!-- 基本信息 -->
-      <div class="detail-panel" style="background:#fff;margin-top:0;">
-        <h4>作业基本信息</h4>
-        <div class="detail-row">
-          <div><span class="detail-label">作业名称：</span><span class="detail-value">散货码头吊装作业</span></div>
-          <div><span class="detail-label">作业类型：</span><span class="detail-value">吊装作业</span></div>
-          <div><span class="detail-label">区域：</span><span class="detail-value">散货码头</span></div>
-        </div>
-        <div class="detail-row">
-          <div><span class="detail-label">申请人：</span><span class="detail-value">周建</span></div>
-          <div><span class="detail-label">作业时间：</span><span class="detail-value">2026-05-15 08:00~14:00</span></div>
-          <div><span class="detail-label">监护人：</span><span class="detail-value">陈安全</span></div>
-        </div>
-        <div class="detail-row">
-          <div><span class="detail-label">持证校验：</span><span class="detail-value"><span class="tag tag-warning">存在过期证件</span> <span style="font-size:12px;color:var(--warning);margin-left:4px;">王强-动火作业证已于2026-04到期</span></span></div>
-          <div><span class="detail-label">关联项目：</span><span class="detail-value">散货码头改造工程</span></div>
-          <div><span class="detail-label">视频监控：</span><span class="detail-value" style="color:var(--primary);">CAM-07（已关联）</span></div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:12px;margin-bottom:16px;">
-        <button class="btn btn-primary btn-sm" onclick="alert('作业票已生成，编号：SZP-DW-20260515-001')">生成作业票</button>
-        <button class="btn btn-default btn-sm" onclick="alert('审批通过（原型演示）')">审批通过</button>
-        <button class="btn btn-danger btn-sm" onclick="alert('审批退回（原型演示）')">审批退回</button>
-      </div>
-
-      <!-- 审批进度链 -->
-      <div class="detail-panel" style="background:#fff;">
-        <h4>审批进度链</h4>
-        <div class="approval-chain">
-          <div class="approval-node">
-            <div class="approval-circle done">&#10003;</div>
-            <div class="approval-name">周建</div>
-            <div class="approval-status">已提交</div>
-          </div>
-          <div class="approval-arrow">&rarr;</div>
-          <div class="approval-node">
-            <div class="approval-circle done">&#10003;</div>
-            <div class="approval-name">项目负责人</div>
-            <div class="approval-status">已通过</div>
-          </div>
-          <div class="approval-arrow">&rarr;</div>
-          <div class="approval-node">
-            <div class="approval-circle done">&#10003;</div>
-            <div class="approval-name">安全管理人员</div>
-            <div class="approval-status">已通过</div>
-          </div>
-          <div class="approval-arrow">&rarr;</div>
-          <div class="approval-node">
-            <div class="approval-circle done">&#10003;</div>
-            <div class="approval-name">公司安办</div>
-            <div class="approval-status">已通过</div>
-          </div>
-          <div class="approval-arrow">&rarr;</div>
-          <div class="approval-node">
-            <div class="approval-circle current">5</div>
-            <div class="approval-name">恢复确认</div>
-            <div class="approval-status">进行中</div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text-description);margin-top:4px;">
-          审批超时规则：审批超过24小时自动提醒审批人 | 审批人可转派至其他具备权限的人员 | 动火作业一级需上报上级单位审批
-        </div>
-      </div>
-
-      <!-- 准备记录 -->
-      <div class="detail-panel" style="background:#fff;">
-        <h4>准备记录</h4>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-          <div class="record-section">
-            <h5>安全措施</h5>
-            <div class="record-item"><span class="icon-ok">&#10003;</span> 设置警戒区域</div>
-            <div class="record-item"><span class="icon-ok">&#10003;</span> 配备灭火器材</div>
-            <div class="record-item"><span class="icon-ok">&#10003;</span> 作业人员佩戴安全帽/安全带</div>
-            <div class="record-item"><span class="icon-ok">&#10003;</span> 专人监护到场</div>
-          </div>
-          <div class="record-section">
-            <h5>操作规程</h5>
-            <div class="record-item"><span class="file-icon">&#128196;</span> 吊装作业安全操作规程.pdf</div>
-            <div class="record-item"><span class="file-icon">&#128196;</span> 大型设备吊装专项方案.pdf</div>
-          </div>
-          <div class="record-section">
-            <h5>旁站照片</h5>
-            <div class="record-item"><span class="file-icon">&#128247;</span> 现场警戒区域布置.jpg</div>
-            <div class="record-item"><span class="file-icon">&#128247;</span> 安全防护用品穿戴.jpg</div>
-            <div class="record-item"><span class="file-icon">&#128247;</span> 监护人到场确认.jpg</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 实施记录 -->
-      <div class="detail-panel" style="background:#fff;">
-        <h4>实施记录</h4>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-          <div class="record-section">
-            <h5>过程材料</h5>
-            <div class="record-item"><span class="file-icon">&#128196;</span> 吊装过程记录表.docx</div>
-            <div class="record-item"><span class="file-icon">&#128247;</span> 吊装作业过程照片 (6张)</div>
-            <div class="record-item"><span class="icon-ok" style="color:var(--success);">&#10003;</span> 监护人全程在场</div>
-          </div>
-          <div class="record-section">
-            <h5>视频监控</h5>
-            <div class="video-placeholder">
-              <span>视频监控回放 - CAM-07</span>
-              <div class="live-dot"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 恢复确认面板（重点） -->
-      <div class="recovery-panel">
-        <h4>作业恢复确认（双重确认机制）</h4>
-        <div style="font-size:12px;color:var(--text-description);margin-bottom:12px;">
-          恢复确认超时触发预警但不强制关闭作业 | 作业负责人提交 + 安全管理人员复核
-        </div>
-        <div class="recovery-step">
-          <!-- 作业负责人提交 -->
-          <div class="recovery-col">
-            <h5>第一步：作业负责人提交</h5>
-            <div class="recovery-item"><span class="icon-ok">&#10003;</span> 现场照片（3张）- <span style="color:var(--primary);cursor:pointer;">查看</span></div>
-            <div class="recovery-item"><span class="icon-ok">&#10003;</span> 恢复安全检查清单（8/8项完成）- <span style="color:var(--primary);cursor:pointer;">查看</span></div>
-            <div class="recovery-item"><span class="icon-pending">&#9675;</span> 作业人员撤离确认签字 - <span style="color:var(--warning);">待签字</span></div>
-            <div style="margin-top:8px;">
-              <button class="btn btn-primary btn-sm">提交恢复确认</button>
-            </div>
-          </div>
-          <!-- 安全管理人员复核 -->
-          <div class="recovery-col" style="opacity:0.6;">
-            <h5>第二步：安全管理人员复核</h5>
-            <div class="recovery-item"><span class="icon-pending">&#9675;</span> 现场照片复核</div>
-            <div class="recovery-item"><span class="icon-pending">&#9675;</span> 检查清单复核</div>
-            <div class="recovery-item"><span class="icon-pending">&#9675;</span> 撤离签字确认</div>
-            <div class="recovery-item"><span class="icon-pending">&#9675;</span> 复核结论</div>
-            <div style="margin-top:8px;">
-              <button class="btn btn-default btn-sm" disabled>等待负责人提交</button>
-              <button class="btn btn-danger btn-sm" style="margin-left:4px;" disabled>退回</button>
-            </div>
-          </div>
-        </div>
-        <!-- 超时预警 -->
-        <div class="timeout-alert" style="margin-top:12px;">
-          &#9888; 恢复确认已持续 2小时30分，请注意时效（超时仅预警，不强制关闭作业）
-        </div>
-      </div>
-
-      <!-- 关闭按钮 -->
-      <div style="margin-top:16px;text-align:right;">
-        <button class="btn btn-default">暂停作业</button>
-        <button class="btn btn-primary" disabled>关闭作业（恢复确认通过后可用）</button>
-      </div>
-    </div>
-
-    <!-- Tab3: 作业监控 -->
+    <!-- Tab2: 作业监控 -->
     <div id="tab-monitor" class="tab-content">
-      <!-- 当前进行中作业列表 -->
+      <div class="stat-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+        <div class="stat-card" style="border-left:3px solid var(--warning);">
+          <div class="stat-card-label">实施中</div>
+          <div class="stat-card-value u-text-warning">1</div>
+          <div class="stat-card-sub">含已暂停 1（油罐区焊接）</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--primary);">
+          <div class="stat-card-label">待关闭</div>
+          <div class="stat-card-value u-text-primary">1</div>
+          <div class="stat-card-sub">作业结束待提交关闭材料</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--chart-violet);">
+          <div class="stat-card-label">待复核</div>
+          <div class="stat-card-value" style="color:var(--chart-violet);">1</div>
+          <div class="stat-card-sub">已提交关闭，待安全工程师复核</div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid var(--error);">
+          <div class="stat-card-label">预警</div>
+          <div class="stat-card-value u-text-error">2</div>
+          <div class="stat-card-sub">实施超时 1 · 持证不符 1</div>
+        </div>
+      </div>
       <div style="margin-bottom:20px;">
-        <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">当前进行中作业</h3>
-        <table class="data-table">
+        <h3 class="u-fs15-fw600-mb12">监控作业列表（实施中 / 待关闭 / 待复核）</h3>
+        <div class="table-wrap">
+        <table class="data-table dw-list-table">
           <thead>
             <tr>
+              <th class="col-check"><input type="checkbox" id="dw-check-all-monitor" data-action="toggleDwMonitorCheckAll" aria-label="全选"></th>
+              <th class="col-index">序号</th>
               <th>作业名称</th>
               <th>作业类型</th>
               <th>区域</th>
@@ -392,83 +411,371 @@
               <th>已持续</th>
               <th>监护人</th>
               <th>状态</th>
-              <th>操作</th>
+              <th class="col-actions">操作</th>
             </tr>
           </thead>
           <tbody>
             <tr>
+              <td class="col-check"><input type="checkbox" class="dw-row-check dw-monitor-check" aria-label="选择行"></td>
+              <td class="col-index">1</td>
               <td>3号泊位受限空间作业</td>
               <td>受限空间</td>
               <td>3号泊位</td>
               <td>2026-05-16 08:00</td>
-              <td style="color:var(--warning);">9小时</td>
+              <td class="u-text-warning">9小时</td>
               <td>李安全</td>
               <td><span class="tag tag-warning">实施中</span></td>
-              <td><button class="btn btn-text btn-sm">查看监控</button></td>
+              <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="impl">查看监控</button></div></td>
             </tr>
             <tr>
+              <td class="col-check"><input type="checkbox" class="dw-row-check dw-monitor-check" aria-label="选择行"></td>
+              <td class="col-index">2</td>
               <td>散货码头吊装作业</td>
               <td>吊装作业</td>
               <td>散货码头</td>
               <td>2026-05-15 08:00</td>
-              <td style="color:var(--error);">超时</td>
+              <td class="u-text-error">超时</td>
               <td>陈安全</td>
-              <td><span class="tag tag-warning">恢复确认</span></td>
-              <td><button class="btn btn-text btn-sm">查看监控</button></td>
+              <td><span class="tag tag-warning">待复核</span></td>
+              <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="review">查看监控</button></div></td>
+            </tr>
+            <tr>
+              <td class="col-check"><input type="checkbox" class="dw-row-check dw-monitor-check" aria-label="选择行"></td>
+              <td class="col-index">3</td>
+              <td>西港2号仓动火焊接</td>
+              <td>动火作业</td>
+              <td>西港区</td>
+              <td>2026-05-18 08:00</td>
+              <td>—</td>
+              <td>陈安全</td>
+              <td><span class="tag tag-info">待关闭</span></td>
+              <td class="col-actions"><div class="cell-actions"><button class="btn btn-text btn-sm" data-action="showDetail" data-dw-id="close">查看监控</button></div></td>
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
-      <!-- 视频监控窗口 -->
+      <!-- 视频监控（2×2 网格，关联视频可选） -->
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px;">
         <div>
-          <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">视频监控</h3>
-          <div class="video-placeholder" style="height:280px;">
-            <div style="text-align:center;">
-              <div style="font-size:16px;margin-bottom:4px;">3号泊位受限空间作业 - CAM-03</div>
-              <div style="font-size:12px;color:#888;">实时监控画面</div>
+          <h3 class="u-fs15-fw600-mb12">关联视频监控（2×2）</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="video-placeholder" style="height:140px;">
+              <div style="text-align:center;font-size:var(--font-size-12);">CAM-03 · 3号泊位<br>受限空间</div>
+              <div class="live-dot"></div>
             </div>
-            <div class="live-dot"></div>
+            <div class="video-placeholder" style="height:140px;">
+              <div style="text-align:center;font-size:var(--font-size-12);">CAM-07 · 散货码头<br>吊装（待关闭）</div>
+              <div class="live-dot"></div>
+            </div>
+            <div class="video-placeholder" style="height:140px;opacity:0.5;">
+              <div style="text-align:center;font-size:var(--font-size-12);color:var(--text-description);">未关联</div>
+            </div>
+            <div class="video-placeholder" style="height:140px;">
+              <div style="text-align:center;font-size:var(--font-size-12);">CAM-12 · 油罐区<br>动火（已暂停）</div>
+            </div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:8px;">
-            <button class="btn btn-default btn-sm">CAM-03（3号泊位）</button>
-            <button class="btn btn-default btn-sm">CAM-07（散货码头）</button>
-            <button class="btn btn-default btn-sm">CAM-12（油罐区）</button>
-          </div>
+          <div style="font-size:var(--font-size-12);color:var(--text-description);margin-top:8px;">行为识别、智能预警为实施期增强能力（原型示意）</div>
         </div>
         <div>
-          <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">持证校验结果</h3>
-          <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:#fff;">
-            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">3号泊位受限空间作业</div>
-            <div class="record-item"><span class="icon-ok" style="color:var(--success);">&#10003;</span> 张明 - 受限空间作业证（有效至2027-03）</div>
-            <div class="record-item"><span class="icon-ok" style="color:var(--success);">&#10003;</span> 王磊 - 受限空间作业证（有效至2027-06）</div>
-            <div class="record-item"><span class="icon-ok" style="color:var(--success);">&#10003;</span> 李安全 - 安全管理人员证（有效至2027-01）</div>
+          <h3 class="u-fs15-fw600-mb12">持证校验结果</h3>
+          <div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;background:var(--bg-card);">
+            <div style="font-size:var(--font-size-13);font-weight:600;margin-bottom:8px;">3号泊位受限空间作业</div>
+            <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 张明 - 受限空间作业证（有效至2027-03）</div>
+            <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 王磊 - 受限空间作业证（有效至2027-06）</div>
+            <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 李安全 - 安全管理人员证（有效至2027-01）</div>
             <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light);">
               <span class="tag tag-success">全员持证有效</span>
             </div>
-            <div style="font-size:13px;font-weight:600;margin:12px 0 8px;">散货码头吊装作业</div>
-            <div class="record-item"><span class="icon-ok" style="color:var(--success);">&#10003;</span> 周建 - 起重作业证（有效至2026-12）</div>
-            <div class="record-item"><span class="icon-ok" style="color:var(--success);">&#10003;</span> 赵强 - 起重作业证（有效至2027-02）</div>
+            <div style="font-size:var(--font-size-13);font-weight:600;margin:12px 0 8px;">散货码头吊装作业</div>
+            <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 周建 - 起重作业证（有效至2026-12）</div>
+            <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 赵强 - 起重作业证（有效至2027-02）</div>
             <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light);">
               <span class="tag tag-success">全员持证有效</span>
+            </div>
+            <div style="font-size:var(--font-size-13);font-weight:600;margin:12px 0 8px;">3号泊位动火作业</div>
+            <div class="record-item"><span class="u-text-error">&#10007;</span> 王强 - 动火作业证（<span class="u-text-error">已过期，2026-04</span>）</div>
+            <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 李明 - 动火作业证（有效至2027-06）</div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light);">
+              <span class="tag" style="background:rgba(209,0,0,0.1);color:var(--error);">存在持证不符</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+    </div>
+    </div><!-- end view-list -->
+
+    <!-- 详情视图（与列表同级，Tab 仅用 view-tab-content） -->
+    <div id="view-detail" class="page-view">
+      <div class="dw-detail-head">
+        <div>
+          <h3 id="dw-detail-title">散货码头吊装作业</h3>
+          <div id="dw-detail-subtitle" style="font-size:var(--font-size-12);color:var(--text-secondary);margin-top:4px;">作业单号 SZP-DW-20260515-001 · 吊装作业 · 散货码头</div>
+        </div>
+        <button class="btn btn-default btn-sm" data-action="backToLedger">返回台账</button>
+      </div>
+
+      <div class="dw-detail-status">
+        <span id="dw-detail-status-tag" class="tag tag-warning">待复核</span>
+        <span id="dw-detail-status-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);">关闭材料已提交 · 待安全工程师李安全复核 · 作业时间 2026-05-15 08:00~14:00</span>
+      </div>
+
+      <div class="dw-detail-toolbar">
+        <div class="toolbar-group" id="dw-toolbar-default">
+          <span class="toolbar-label">当前可操作</span>
+          <button class="btn btn-primary btn-sm" id="dw-btn-review" data-action="openReviewWorkModal">作业复核</button>
+          <button class="btn btn-default btn-sm" id="dw-btn-edit" data-action="openEditWorkModal">修改作业</button>
+        </div>
+        <div class="toolbar-group" id="dw-toolbar-close" style="display:none;">
+          <span class="toolbar-label">现场负责人</span>
+          <button class="btn btn-primary btn-sm" data-action="openCloseWorkModal">提交关闭材料</button>
+        </div>
+        <div class="toolbar-group" id="dw-toolbar-approve" style="display:none;flex-wrap:wrap;">
+          <div class="dw-approval-flow-wrap" id="dw-approval-flow-wrap" style="display:none;">
+            <div class="dw-flow-steps" id="dw-approval-flow-steps"></div>
+            <div class="dw-flow-hint" id="dw-approval-current-hint"></div>
+          </div>
+          <span class="toolbar-label">审批中</span>
+          <button class="btn btn-primary btn-sm" id="btn-gen-ticket" data-action="showToast" data-param="作业票已生成">生成作业票</button>
+          <button class="btn btn-default btn-sm" id="btn-approve" data-action="submitApprovalPass">审批通过</button>
+          <button class="btn btn-danger btn-sm" data-action="submitApprovalReject">审批退回</button>
+          <button class="btn btn-default btn-sm" data-action="openApprovalTransferModal">转派流转</button>
+        </div>
+      </div>
+
+      <div class="view-tab-bar dw-detail-tabs">
+        <div class="view-tab-item active" data-action="switchDetailTab" data-param="overview">概览</div>
+        <div class="view-tab-item" data-action="switchDetailTab" data-param="handover">作业交底</div>
+        <div class="view-tab-item" data-action="switchDetailTab" data-param="impl">实施记录</div>
+        <div class="view-tab-item" data-action="switchDetailTab" data-param="close">关闭与复核</div>
+      </div>
+
+      <!-- Tab：概览（左卡：基本信息 · 右卡：全生命周期） -->
+      <div id="detail-tab-overview" class="view-tab-content active">
+        <div class="dw-overview-split">
+          <div class="detail-panel dw-overview-card dw-overview-basic">
+            <h4>作业基本信息</h4>
+            <div class="dw-card-body">
+              <div class="dw-basic-info-grid" id="dw-basic-info-grid">
+                <div class="dw-info-cell"><span class="info-label">作业名称</span><span class="info-value">散货码头吊装作业</span></div>
+                <div class="dw-info-cell"><span class="info-label">作业类型</span><span class="info-value">吊装作业</span></div>
+                <div class="dw-info-cell"><span class="info-label">作业区域</span><span class="info-value">散货码头</span></div>
+                <div class="dw-info-cell"><span class="info-label">作业单号</span><span class="info-value">SZP-DW-20260515-001</span></div>
+                <div class="dw-info-cell"><span class="info-label">作业人员</span><span class="info-value">周建、赵强</span></div>
+                <div class="dw-info-cell"><span class="info-label">监护人</span><span class="info-value">陈安全</span></div>
+                <div class="dw-info-cell"><span class="info-label">计划开始</span><span class="info-value">2026-05-15 08:00</span></div>
+                <div class="dw-info-cell"><span class="info-label">计划结束</span><span class="info-value">2026-05-15 14:00</span></div>
+                <div class="dw-info-cell"><span class="info-label">持证校验</span><span class="info-value"><span class="tag tag-success">作业人员有效</span></span></div>
+                <div class="dw-info-cell"><span class="info-label">关联项目</span><span class="info-value">散货码头改造工程</span></div>
+                <div class="dw-info-cell span-full"><span class="info-label">阶段审批人</span><span class="info-value">部门审批：李安全 · 公司安办：王安监 · 安全复核：李安全</span></div>
+                <div class="dw-info-cell span-full"><span class="info-label">关联视频</span><span class="info-value u-text-primary">CAM-07（吊装作业面）</span></div>
+              </div>
+              <details id="dw-appendix-block" style="margin-top:12px;font-size:var(--font-size-12);display:none;">
+                <summary style="cursor:pointer;color:var(--primary);">附录：动火一级提级审批（不进主流程时间轴）</summary>
+                <div id="dw-appendix-body" style="margin-top:8px;padding:10px 12px;background:var(--bg-page);border-radius:var(--radius-md);color:var(--text-secondary);"></div>
+              </details>
+            </div>
+          </div>
+          <div class="detail-panel dw-overview-card dw-overview-lifecycle">
+            <h4>全生命周期</h4>
+            <div class="dw-card-body">
+              <div class="dw-lifecycle-timeline" id="dw-lifecycle-timeline" role="list">
+                <div class="dw-tl-item done" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">作业申请</span><span class="tag tag-success" style="font-size:11px;line-height:18px;padding:0 6px;">已完成</span></div>
+                    <div class="dw-tl-meta">周建 · 2026-05-20 08:30</div>
+                  </div>
+                </div>
+                <div class="dw-tl-item done" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">持证校验</span><span class="tag tag-success" style="font-size:11px;line-height:18px;padding:0 6px;">通过</span></div>
+                    <div class="dw-tl-meta">系统自动 · 2026-05-20 08:31</div>
+                  </div>
+                </div>
+                <div class="dw-tl-item done" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">部门审批</span><span class="tag tag-success" style="font-size:11px;line-height:18px;padding:0 6px;">已通过</span></div>
+                    <div class="dw-tl-meta">李安全 · 2026-05-20 10:15</div>
+                    <div class="dw-tl-opinion">意见：现场条件具备，同意作业。</div>
+                  </div>
+                </div>
+                <div class="dw-tl-item done" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">公司安办</span><span class="tag tag-success" style="font-size:11px;line-height:18px;padding:0 6px;">已通过</span></div>
+                    <div class="dw-tl-meta">王安监 · 2026-05-20 14:00</div>
+                  </div>
+                </div>
+                <div class="dw-tl-item done" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">作业交底</span><span class="tag tag-success" style="font-size:11px;line-height:18px;padding:0 6px;">已完成</span></div>
+                    <div class="dw-tl-meta">现场负责人 陈安全 · 2026-05-20 16:00</div>
+                  </div>
+                </div>
+                <div class="dw-tl-item done" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">实施</span><span class="tag tag-success" style="font-size:11px;line-height:18px;padding:0 6px;">已结束</span></div>
+                    <div class="dw-tl-meta">作业人员 周建等 · 2026-05-15 08:00~14:00</div>
+                  </div>
+                </div>
+                <div class="dw-tl-item current" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">作业关闭</span><span class="tag tag-warning" style="font-size:11px;line-height:18px;padding:0 6px;">材料已提交</span></div>
+                    <div class="dw-tl-meta">现场负责人 陈安全 · 2026-05-15 14:20</div>
+                    <div class="dw-tl-extra">
+                      <div class="record-item"><span class="icon-ok">&#10003;</span> 现场照片（3张）</div>
+                      <div class="record-item"><span class="icon-ok">&#10003;</span> 恢复安全检查清单（8/8）</div>
+                      <div class="record-item"><span class="icon-pending">&#9675;</span> 撤离签字（1人待签）</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="dw-tl-item pending" role="listitem">
+                  <div class="dw-tl-dot" aria-hidden="true"></div>
+                  <div class="dw-tl-body">
+                    <div class="dw-tl-head"><span class="dw-tl-title">作业复核</span><span class="tag tag-info" style="font-size:11px;line-height:18px;padding:0 6px;">待处理</span></div>
+                    <div class="dw-tl-meta">安全工程师 李安全</div>
+                    <div class="dw-tl-meta" style="color:var(--text-description);">复核不通过将退回「待关闭」</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-panel" style="background:var(--bg-card);">
+          <h4>持证校验明细</h4>
+          <div class="table-wrap">
+            <table class="data-table u-fs-13">
+              <thead>
+                <tr><th>人员姓名</th><th>证书类型</th><th>证书状态</th><th>有效期至</th></tr>
+              </thead>
+              <tbody id="dw-cert-tbody">
+                <tr><td>周建</td><td>起重作业证</td><td><span class="u-text-success">有效</span></td><td>2026-12</td></tr>
+                <tr><td>赵强</td><td>起重作业证</td><td><span class="u-text-success">有效</span></td><td>2027-02</td></tr>
+                <tr><td>陈安全</td><td>安全管理人员证</td><td><span class="u-text-success">有效</span></td><td>2027-01</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="dw-rules-box">
+          <strong>预警与审批规则（只读）</strong><br>
+          1. 作业审批超过 24 小时提醒审批人 · 2. 作业超期未关闭提醒 · 3. 高危作业实施中超时预警 · 4. 持证不符阻断审批 · 5. 暂停超过 24 小时未恢复提醒负责人<br>
+          审批人可转派；动火一级可触发集团安委办提级（见附录）。
+        </div>
+      </div>
+
+      <!-- Tab：作业交底 -->
+      <div id="detail-tab-handover" class="view-tab-content">
+        <div class="detail-panel" style="background:var(--bg-card);">
+          <h4>作业交底（现场负责人）</h4>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div class="record-section">
+              <h5>安全措施</h5>
+              <div class="record-item"><span class="icon-ok">&#10003;</span> 设置警戒区域</div>
+              <div class="record-item"><span class="icon-ok">&#10003;</span> 配备灭火器材</div>
+              <div class="record-item"><span class="icon-ok">&#10003;</span> 作业人员佩戴安全帽/安全带</div>
+              <div class="record-item"><span class="icon-ok">&#10003;</span> 专人监护到场</div>
+            </div>
+            <div class="record-section">
+              <h5>操作规程</h5>
+              <div class="record-item"><span class="file-icon">&#128196;</span> 吊装作业安全操作规程.pdf</div>
+              <div class="record-item"><span class="file-icon">&#128196;</span> 大型设备吊装专项方案.pdf</div>
+            </div>
+            <div class="record-section">
+              <h5>旁站照片</h5>
+              <div class="record-item"><span class="file-icon">&#128247;</span> 现场警戒区域布置.jpg</div>
+              <div class="record-item"><span class="file-icon">&#128247;</span> 安全防护用品穿戴.jpg</div>
+              <div class="record-item"><span class="file-icon">&#128247;</span> 监护人到场确认.jpg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab：实施记录 -->
+      <div id="detail-tab-impl" class="view-tab-content">
+        <div class="detail-panel" style="background:var(--bg-card);">
+          <h4>实施记录</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="record-section">
+              <h5>过程材料</h5>
+              <div class="record-item"><span class="file-icon">&#128196;</span> 吊装过程记录表.docx</div>
+              <div class="record-item"><span class="file-icon">&#128247;</span> 吊装作业过程照片 (6张)</div>
+              <div class="record-item"><span class="icon-ok u-text-success">&#10003;</span> 监护人全程在场</div>
+            </div>
+            <div class="record-section">
+              <h5>视频监控</h5>
+              <div class="video-placeholder">
+                <span>视频监控回放 - CAM-07</span>
+                <div class="live-dot"></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:var(--bg-page);border-radius:var(--radius-md);font-size:var(--font-size-12);color:var(--text-secondary);">
+            实施中「开始/暂停」仅作业人员在移动端操作；PC 端只读查看。
+            <button class="btn btn-text btn-sm" type="button" data-action="pauseWork">尝试暂停（演示拦截）</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab：关闭与复核（摘要 + 入口，表单在弹窗） -->
+      <div id="detail-tab-close" class="view-tab-content">
+        <div class="detail-panel" style="background:var(--bg-card);">
+          <h4>作业关闭材料</h4>
+          <p style="font-size:var(--font-size-12);color:var(--text-description);margin:0 0 12px;">先关闭后复核；无独立「恢复确认」环节，清单与撤离签字并入关闭材料。</p>
+          <div class="record-item"><span class="icon-ok">&#10003;</span> 现场照片（3张）</div>
+          <div class="record-item"><span class="icon-ok">&#10003;</span> 恢复安全检查清单（8/8）</div>
+          <div class="record-item"><span class="icon-pending">&#9675;</span> 作业人员撤离签字（1人待签）</div>
+          <div style="margin-top:12px;">
+            <button class="btn btn-default btn-sm" data-action="openCloseWorkModal">查看/补充关闭材料</button>
+          </div>
+        </div>
+        <div class="detail-panel" style="background:var(--bg-card);border-left:3px solid var(--primary);">
+          <h4>作业复核（安全工程师）</h4>
+          <p style="font-size:var(--font-size-12);color:var(--text-description);margin:0 0 12px;">复核不通过退回「待关闭」，由现场负责人补充材料后再次提交。</p>
+          <button class="btn btn-primary btn-sm" data-action="openReviewWorkModal">打开复核弹窗</button>
+        </div>
+      </div>
+    </div>
+    <!-- /详情视图 -->
   </div>
 
-
-  <!-- ==================== 新增作业单弹窗 ==================== -->
-  <div id="modal-new-work" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:720px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:16px;font-weight:600;">新增危险作业单</div>
-        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-new-work')">&times;</button>
+  <!-- ==================== 弹窗区（与 page-view 平级，避免与详情内容混排） ==================== -->
+  <div id="modal-new-work" class="modal-overlay">
+    <div class="modal" style="width:720px;">
+      <div class="modal-header">
+        <div>新增危险作业单</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-new-work">&times;</button>
       </div>
-      <div style="padding:20px 24px;">
+      <div class="modal-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">
+          <div class="form-group" style="grid-column:1 / -1;">
+            <label class="form-label">所属单位</label>
+            <div class="form-content">
+              <input class="form-input dw-field-readonly" id="nw-unit-display" type="text" readonly tabindex="-1" aria-readonly="true">
+              <div id="nw-unit-hint" style="font-size:var(--font-size-12);color:var(--text-description);margin-top:4px;">根据当前登录账号主职自动带出，不可修改</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>所属项目</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="nw-project">
+                <option value="">请选择</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">申请人</label>
+            <div class="form-content">
+              <input class="form-input dw-field-readonly" id="nw-applicant-display" type="text" readonly tabindex="-1" aria-readonly="true">
+            </div>
+          </div>
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>作业名称</label>
             <div class="form-content"><input class="form-input" id="nw-name" placeholder="请输入作业名称"></div>
@@ -476,16 +783,14 @@
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>作业类型</label>
             <div class="form-content">
-              <select class="form-input form-select" id="nw-type">
+              <select class="form-input form-select" id="nw-type" data-action="switchTypeFields">
                 <option value="">请选择</option>
                 <option>动火作业</option>
                 <option>受限空间</option>
-                <option>高处作业</option>
+                <option>登高作业</option>
                 <option>临时用电</option>
                 <option>吊装作业</option>
-                <option>盲板抽堵</option>
                 <option>动土作业</option>
-                <option>断路作业</option>
               </select>
             </div>
           </div>
@@ -503,8 +808,14 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label"><span class="required">*</span>申请人</label>
-            <div class="form-content"><input class="form-input" id="nw-applicant" placeholder="申请人姓名"></div>
+            <label class="form-label"><span class="required">*</span>作业人员（多人）</label>
+            <div class="form-content">
+              <div style="display:flex;gap:8px;">
+                <input class="form-input" id="nw-applicant" placeholder="输入姓名后点击添加" style="flex:1;">
+                <button class="btn btn-primary btn-sm" data-action="addPersonnel">添加人员</button>
+              </div>
+              <div id="nw-personnel-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>作业开始时间</label>
@@ -515,12 +826,20 @@
             <div class="form-content"><input class="form-input" id="nw-end" type="datetime-local"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">监护人</label>
+            <label class="form-label">监护人（可选）</label>
             <div class="form-content"><input class="form-input" id="nw-guardian" placeholder="监护人姓名"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">关联项目</label>
-            <div class="form-content"><input class="form-input" id="nw-project" placeholder="关联项目名称"></div>
+            <label class="form-label">关联视频监控（可选）</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="nw-camera">
+                <option value="">不关联</option>
+                <option>CAM-03（3号泊位）</option>
+                <option>CAM-07（散货码头）</option>
+                <option>CAM-12（油罐区）</option>
+                <option>CAM-15（仓储区A）</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="form-group">
@@ -530,72 +849,199 @@
         <div class="form-group">
           <label class="form-label">安全措施附件</label>
           <div class="form-content">
-            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" onclick="document.getElementById('nw-file').click()">
-              <div style="font-size:13px;color:var(--text-secondary);">点击上传安全措施方案</div>
-              <input type="file" id="nw-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.png">
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" data-action="triggerFileUpload">
+              <div style="font-size:var(--font-size-13);color:var(--text-secondary);">点击上传安全措施方案</div>
+              <input type="file" id="nw-file" class="u-none" accept=".pdf,.doc,.docx,.jpg,.png">
             </div>
           </div>
         </div>
+
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);">
+          <div style="font-size:var(--font-size-13);font-weight:600;color:var(--text-primary);margin-bottom:8px;">各阶段审批人</div>
+          <div id="nw-approval-chain-hint" style="font-size:var(--font-size-12);color:var(--text-description);margin-bottom:12px;line-height:1.5;">请先选择作业类型；将按所属单位在 §3.13.6 配置的默认审批链自动匹配节点与候选人，可调整。审批中支持同节点转派流转。</div>
+          <div id="nw-approval-stages" class="nw-approval-grid"></div>
+        </div>
+
+        <!-- 动态专属字段区域 -->
+        <div id="dynamic-fields" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);">
+          <div style="font-size:var(--font-size-13);font-weight:600;color:var(--text-primary);margin-bottom:12px;">作业类型专属字段</div>
+
+          <div id="fields-fire" class="type-fields u-none">
+            <div class="form-group"><label class="form-label"><span class="required">*</span>作业等级</label><div class="form-content"><select class="form-input form-select" id="nw-level" data-action="renderNewWorkApprovalStages"><option value="">请选择</option><option>一级（特殊动火）</option><option>二级（一级动火）</option><option>三级（二级动火）</option></select></div></div>
+            <div class="form-group"><label class="form-label">动火地点</label><div class="form-content"><input class="form-input" placeholder="具体动火位置"></div></div>
+            <div class="form-group"><label class="form-label">动火方式</label><div class="form-content"><select class="form-input form-select"><option value="">请选择</option><option>电焊</option><option>气焊</option><option>切割</option><option>打磨</option></select></div></div>
+          </div>
+
+          <div id="fields-confined" class="type-fields u-none">
+            <div class="form-group"><label class="form-label">受限空间名称</label><div class="form-content"><input class="form-input" placeholder="受限空间名称/编号"></div></div>
+            <div class="form-group"><label class="form-label">危害辨识</label><div class="form-content"><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:var(--font-size-13);"><label><input type="checkbox"> 毒气</label><label><input type="checkbox"> 窒息</label><label><input type="checkbox"> 易燃</label><label><input type="checkbox"> 腐蚀</label><label><input type="checkbox"> 粉尘</label><label><input type="checkbox"> 高温</label><label><input type="checkbox"> 噪音</label><label><input type="checkbox"> 触电</label><label><input type="checkbox"> 坍塌</label></div></div></div>
+            <div class="form-group"><label class="form-label">涉及特殊作业</label><div class="form-content"><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:var(--font-size-13);"><label><input type="checkbox"> 动火</label><label><input type="checkbox"> 登高</label><label><input type="checkbox"> 临时用电</label><label><input type="checkbox"> 吊装</label></div></div></div>
+          </div>
+
+          <div id="fields-hoist" class="type-fields u-none">
+            <div class="form-group"><label class="form-label">吊装机具</label><div class="form-content"><input class="form-input" placeholder="吊车/起重机型规格"></div></div>
+            <div class="form-group"><label class="form-label">起重司机</label><div class="form-content"><input class="form-input" placeholder="姓名 + 作业证号"></div></div>
+            <div class="form-group"><label class="form-label">指挥工</label><div class="form-content"><input class="form-input" placeholder="姓名 + 作业证号"></div></div>
+            <div class="form-group"><label class="form-label">起吊重物质量</label><div class="form-content"><input class="form-input" placeholder="单位：吨"></div></div>
+          </div>
+
+          <div id="fields-height" class="type-fields u-none">
+            <div class="form-group"><label class="form-label">作业高度</label><div class="form-content"><input class="form-input" type="number" placeholder="单位：米"></div></div>
+          </div>
+
+          <div id="fields-electric" class="type-fields u-none">
+            <div class="form-group"><label class="form-label">用电设备及功率</label><div class="form-content"><input class="form-input" placeholder="设备名称 + 功率(kW)"></div></div>
+            <div class="form-group"><label class="form-label">电源接入点</label><div class="form-content"><input class="form-input" placeholder="配电箱编号/位置"></div></div>
+            <div class="form-group"><label class="form-label">工作电压</label><div class="form-content"><select class="form-input form-select"><option value="">请选择</option><option>220V</option><option>380V</option><option>其他</option></select></div></div>
+          </div>
+
+          <div id="fields-excavate" class="type-fields u-none">
+            <div class="form-group"><label class="form-label">动土作业范围/方式</label><div class="form-content"><input class="form-input" placeholder="开挖范围及作业方式"></div></div>
+            <div class="form-group"><label class="form-label">开挖深度及面积</label><div class="form-content"><input class="form-input" placeholder="深度(m) × 面积(m²)"></div></div>
+            <div class="form-group"><label class="form-label">地下设施情况</label><div class="form-content"><select class="form-input form-select"><option value="">请选择</option><option>无地下设施</option><option>有地下管线（已确认位置）</option><option>有地下管线（需人工探查）</option><option>有地下电缆</option></select></div></div>
+          </div>
+        </div>
+        <!-- /动态专属字段区域 -->
       </div>
-      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
-        <button class="btn btn-default btn-sm" onclick="closeModal('modal-new-work')">取消</button>
-        <button class="btn btn-primary btn-sm" onclick="submitNewWork()">提交审批</button>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-new-work">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="submitNewWork">提交审批</button>
       </div>
     </div>
   </div>
 
-  <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-      var tabItems = document.querySelectorAll('.tab-item');
-      var tabMap = {'ledger':0, 'detail':1, 'monitor':2};
-      if (typeof event !== 'undefined' && event.target) {
-        event.target.classList.add('active');
-      } else {
-        tabItems[tabMap[name]].classList.add('active');
-      }
-      document.getElementById('tab-' + name).classList.add('active');
-    }
+  <!-- 修改作业（重审） -->
+  <div id="modal-edit-work" class="modal-overlay">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header">
+        <div>修改作业单</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-edit-work">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="padding:10px 12px;background:rgba(233,124,0,0.08);border:1px solid rgba(233,124,0,0.3);border-radius:var(--radius-md);font-size:var(--font-size-13);color:var(--warning);margin-bottom:16px;">
+          修改关键信息（时间、区域、作业人员、类型专属字段等）将<strong>重新进入审批</strong>，原审批记录保留在时间轴中。
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>作业结束时间</label>
+          <div class="form-content"><input class="form-input" id="ew-end" type="datetime-local" value="2026-05-16T17:00"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">作业内容描述</label>
+          <div class="form-content"><textarea class="form-input" id="ew-content" style="height:72px;padding:8px 12px;resize:vertical;">受限空间内部清罐及检测作业</textarea></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">修改原因</label>
+          <div class="form-content"><textarea class="form-input" id="ew-reason" style="height:60px;padding:8px 12px;resize:vertical;" placeholder="请说明修改原因"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-edit-work">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="submitEditWork">提交并重审</button>
+      </div>
+    </div>
+  </div>
 
-    function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
-    }
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+  <!-- 提交关闭材料（现场负责人） -->
+  <div id="modal-close-work" class="modal-overlay">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header">
+        <div>提交作业关闭材料</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-close-work">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:var(--font-size-12);color:var(--text-description);margin-bottom:12px;">现场负责人提交：现场照片 + 恢复安全检查清单 + 作业人员撤离签字（PRD：清单与撤离签字并入关闭材料，无独立恢复确认环节）</div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>现场照片</label>
+          <div class="form-content">
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:12px;text-align:center;font-size:var(--font-size-13);color:var(--text-secondary);cursor:pointer;">上传现场照片（至少 1 张）</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>恢复安全检查清单</label>
+          <div class="form-content">
+            <div class="record-item"><span class="icon-ok">&#10003;</span> 警戒撤除</div>
+            <div class="record-item"><span class="icon-ok">&#10003;</span> 火种残留检查</div>
+            <div class="record-item"><span class="icon-pending">&#9675;</span> 工具清点（7/8）</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>撤离确认签字</label>
+          <div class="form-content">
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;font-size:var(--font-size-13);color:var(--text-secondary);">作业人员电子签字（2/3 已完成）</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-close-work">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="submitCloseWork">提交关闭</button>
+      </div>
+    </div>
+  </div>
 
-    function openNewWorkModal() {
-      var fields = ['nw-name','nw-type','nw-area','nw-applicant','nw-start','nw-end','nw-guardian','nw-project','nw-content'];
-      fields.forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
-      openModal('modal-new-work');
-    }
+  <!-- 审批转派（同节点流转） -->
+  <div id="modal-approval-transfer" class="modal-overlay">
+    <div class="modal" style="width:520px;">
+      <div class="modal-header">
+        <div>审批转派</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-approval-transfer">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:var(--font-size-12);color:var(--text-description);margin-bottom:12px;line-height:1.5;">仅将当前待审节点转派给本单位具备同节点审批权限的人员；转派后由新审批人继续处理，流程节点不变。</div>
+        <div class="form-group">
+          <label class="form-label">当前审批节点</label>
+          <div class="form-content"><input class="form-input dw-field-readonly" id="at-current-node" readonly></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">当前指定审批人</label>
+          <div class="form-content"><input class="form-input dw-field-readonly" id="at-current-assignee" readonly></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>转派给</label>
+          <div class="form-content">
+            <select class="form-input form-select" id="at-target">
+              <option value="">请选择</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>转派原因</label>
+          <div class="form-content">
+            <textarea class="form-input" id="at-reason" style="height:72px;padding:8px 12px;resize:vertical;" placeholder="请说明转派原因（必填）"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-approval-transfer">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="submitApprovalTransfer">确认转派</button>
+      </div>
+    </div>
+  </div>
 
-    function submitNewWork() {
-      var name = document.getElementById('nw-name').value.trim();
-      var type = document.getElementById('nw-type').value;
-      var area = document.getElementById('nw-area').value;
-      var applicant = document.getElementById('nw-applicant').value.trim();
-      var start = document.getElementById('nw-start').value;
-      var end = document.getElementById('nw-end').value;
-      var content = document.getElementById('nw-content').value.trim();
-      if (!name || !type || !area || !applicant || !start || !end || !content) {
-        alert('请填写所有必填项');
-        return;
-      }
-      closeModal('modal-new-work');
-      alert('作业单已提交审批');
-    }
+  <!-- 作业复核（安全工程师） -->
+  <div id="modal-review-work" class="modal-overlay">
+    <div class="modal" style="width:560px;">
+      <div class="modal-header">
+        <div>作业复核</div>
+        <button class="modal-close" data-action="hideModal" data-param="modal-review-work">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:var(--font-size-12);color:var(--text-description);margin-bottom:12px;">散货码头吊装作业 · 待复核。复核通过则状态变为「已关闭」；不通过退回「待关闭」。</div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>复核意见</label>
+          <div class="form-content">
+            <textarea class="form-input" id="rw-opinion" style="height:80px;padding:8px 12px;resize:vertical;" placeholder="请输入复核意见"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-review-work">取消</button>
+        <button class="btn btn-default btn-sm" data-action="submitReviewWork" data-param="reject">退回待关闭</button>
+        <button class="btn btn-primary btn-sm" data-action="submitReviewWork" data-param="pass">复核通过</button>
+      </div>
+    </div>
+  </div>
 
-    function queryWorkList() {
-      alert('查询功能（原型演示）');
-    }
-    function resetWorkQuery() {
-      document.getElementById('dw-query-name').value = '';
-      document.getElementById('dw-query-type').selectedIndex = 0;
-      document.getElementById('dw-query-status').selectedIndex = 0;
-      document.getElementById('dw-query-area').selectedIndex = 0;
-    }
-  </script>
+  <script src="dangerous-work-data.js"></script>
+  <script src="dangerous-work-logic.js"></script>
 </body>
 </html>

@@ -4,61 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>培训档案与持证管理 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>    .tab-bar { gap: 0; }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-valid { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-expiring { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-expired { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-renewed { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-completed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-inprogress { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-incomplete { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .completion-bar { width:80px; height:8px; background:#F0F0F0; border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; }
+    .tag-valid { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-expiring { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-renewed { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-inprogress { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-incomplete { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .completion-bar { width:80px; height:8px; background:var(--border-light); border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; }
     .completion-fill { height:100%; border-radius:4px; }
     .completion-fill.green { background:var(--success); }
     .completion-fill.orange { background:var(--warning); }
     .completion-fill.red { background:var(--error); }
-    .info-block { padding:10px 14px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-md); font-size:12px; color:#0958D9; line-height:1.6; margin-bottom:16px; }
-    .warn-block { padding:10px 14px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-md); font-size:12px; color:#D48806; line-height:1.6; margin-bottom:16px; }
-    .alert-block { padding:10px 14px; background:#FFF1F0; border:1px solid #FFA39E; border-radius:var(--radius-md); font-size:12px; color:#CF1322; line-height:1.6; margin-bottom:16px; }
-    .detail-panel { display:none; margin-top:16px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-md); padding:16px; }
-    .detail-panel.show { display:block; }
-    .detail-panel h4 { font-size:14px; font-weight:500; margin-bottom:12px; }
+    .info-block { padding:10px 14px; background:var(--tag-info-bg); border-color:var(--tag-info-border); border-radius:var(--radius-md); font-size:var(--font-size-12); color:var(--tag-info-color); line-height:1.6; margin-bottom:16px; }
+    .warn-block { padding:10px 14px; background:var(--tag-warning-bg); border-color:var(--tag-warning-border); border-radius:var(--radius-md); font-size:var(--font-size-12); color:var(--tag-warning-color); line-height:1.6; margin-bottom:16px; }
+    .alert-block { padding:10px 14px; background:var(--tag-error-bg); border-color:var(--tag-error-border); border-radius:var(--radius-md); font-size:var(--font-size-12); color:var(--tag-error-color); line-height:1.6; margin-bottom:16px; }
+    .page-view { display:none; }
+    .page-view.active { display:block; }
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:12px; padding-left:10px; border-left:3px solid var(--primary); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
+    .detail-row .label { color:var(--text-secondary); }
+    .detail-row .value { color:var(--text-primary); font-weight:500; }
     .timeline { position:relative; padding-left:20px; }
     .timeline::before { content:''; position:absolute; left:6px; top:0; bottom:0; width:2px; background:var(--border); }
     .timeline-item { position:relative; padding-bottom:16px; }
     .timeline-item::before { content:''; position:absolute; left:-17px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--primary); border:2px solid #fff; box-shadow:0 0 0 2px var(--primary); }
-    .timeline-item .tl-date { font-size:12px; color:var(--text-description); margin-bottom:2px; }
-    .timeline-item .tl-content { font-size:13px; color:var(--text-primary); }
+    .timeline-item .tl-date { font-size:var(--font-size-12); color:var(--text-description); margin-bottom:2px; }
+    .timeline-item .tl-content { font-size:var(--font-size-13); color:var(--text-primary); }
     .warning-panel { margin-top:16px; }
     .warning-card { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-md); margin-bottom:8px; }
-    .warning-card .wc-name { font-size:13px; font-weight:500; width:80px; }
-    .warning-card .wc-cert { font-size:13px; flex:1; }
-    .warning-card .wc-date { font-size:12px; color:var(--text-description); }
-    .warning-card .wc-level { font-size:12px; padding:2px 8px; border-radius:var(--radius-sm); }
-    .warning-card .wc-level.urgent { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .warning-card .wc-level.warn { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .warning-card .wc-block { font-size:12px; color:#CF1322; font-weight:500; }
+    .warning-card .wc-name { font-size:var(--font-size-13); font-weight:500; width:80px; }
+    .warning-card .wc-cert { font-size:var(--font-size-13); flex:1; }
+    .warning-card .wc-date { font-size:var(--font-size-12); color:var(--text-description); }
+    .warning-card .wc-level { font-size:var(--font-size-12); padding:2px 8px; border-radius:var(--radius-sm); }
+    .warning-card .wc-level.urgent { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .warning-card .wc-level.warn { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .warning-card .wc-block { font-size:var(--font-size-12); color:var(--tag-error-color); font-weight:500; }
 </style>
+<script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('archive')">培训档案</div>
-    <div class="tab-item" onclick="switchTab('cert')">持证管理</div>
-  </div>
-
-  <!-- Tab1 培训档案 -->
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="archive">培训档案</div>
+      <div class="tab-item" data-action="switchTab" data-param="cert">持证管理</div>
+    </div>
+    <div style="padding:0 20px 20px;">
   <div id="tab-archive" class="tab-content active">
     <!-- 统计概览 -->
     <div class="stat-bar">
       <div class="stat-item"><div class="stat-num">2860</div><div class="stat-label">全员培训档案</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--success)">2450</div><div class="stat-label">已完成年度培训</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">320</div><div class="stat-label">培训中</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--error)">90</div><div class="stat-label">未完成</div></div>
+      <div class="stat-item"><div class="stat-num u-text-success">2450</div><div class="stat-label">已完成年度培训</div></div>
+      <div class="stat-item"><div class="stat-num u-text-primary">320</div><div class="stat-label">培训中</div></div>
+      <div class="stat-item"><div class="stat-num u-text-error">90</div><div class="stat-label">未完成</div></div>
     </div>
 
     <div class="info-block">
@@ -66,8 +70,9 @@
     </div>
 
     <!-- 分类统计 -->
-    <div class="card" style="margin-bottom:16px;">
-      <div style="font-size:14px; font-weight:500; margin-bottom:12px;">培训数据统计</div>
+    <div class="card u-mb-16">
+      <div style="font-size:var(--font-size-14); font-weight:500; margin-bottom:12px;">培训数据统计</div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -85,7 +90,7 @@
             <td>26</td>
             <td>
               <div class="completion-bar"><div class="completion-fill green" style="width:93%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">93%</span>
+              <span class="u-fs12-ml4">93%</span>
             </td>
             <td><span class="tag tag-completed">达标</span></td>
           </tr>
@@ -95,7 +100,7 @@
             <td>79</td>
             <td>
               <div class="completion-bar"><div class="completion-fill green" style="width:92%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">92%</span>
+              <span class="u-fs12-ml4">92%</span>
             </td>
             <td><span class="tag tag-completed">达标</span></td>
           </tr>
@@ -105,7 +110,7 @@
             <td>285</td>
             <td>
               <div class="completion-bar"><div class="completion-fill orange" style="width:89%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">89%</span>
+              <span class="u-fs12-ml4">89%</span>
             </td>
             <td><span class="tag tag-inprogress">关注</span></td>
           </tr>
@@ -115,7 +120,7 @@
             <td>38</td>
             <td>
               <div class="completion-bar"><div class="completion-fill orange" style="width:84%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">84%</span>
+              <span class="u-fs12-ml4">84%</span>
             </td>
             <td><span class="tag tag-inprogress">关注</span></td>
           </tr>
@@ -125,44 +130,46 @@
             <td>138</td>
             <td>
               <div class="completion-bar"><div class="completion-fill orange" style="width:88%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">88%</span>
+              <span class="u-fs12-ml4">88%</span>
             </td>
             <td><span class="tag tag-inprogress">关注</span></td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 人员档案列表 -->
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索姓名..." style="width:160px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部单位</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">姓名</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">单位</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>集团本部</option>
           <option>集装箱码头公司</option>
           <option>油品码头公司</option>
           <option>散货码头公司</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部部门</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">部门</span><select class="form-input form-select" >
+          <option>全部</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>已完成</option>
           <option>培训中</option>
           <option>未完成</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
 
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+    <div class="filter-actions-row">
       <button class="btn btn-default">导出</button>
     </div>
 
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -186,11 +193,11 @@
             <td>安全主管</td>
             <td>48h / 40h</td>
             <td>
-              <div class="completion-bar"><div class="completion-fill green" style="width:100%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">120%</span>
+              <div class="completion-bar"><div class="completion-fill green u-w-full"></div></div>
+              <span class="u-fs12-ml4">120%</span>
             </td>
             <td><span class="tag tag-completed">已完成</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="toggleDetail('detail1')">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-1'">查看详情</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -201,10 +208,10 @@
             <td>32h / 40h</td>
             <td>
               <div class="completion-bar"><div class="completion-fill orange" style="width:80%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">80%</span>
+              <span class="u-fs12-ml4">80%</span>
             </td>
             <td><span class="tag tag-inprogress">培训中</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="toggleDetail('detail2')">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-2'">查看详情</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -215,10 +222,10 @@
             <td>16h / 40h</td>
             <td>
               <div class="completion-bar"><div class="completion-fill red" style="width:40%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">40%</span>
+              <span class="u-fs12-ml4">40%</span>
             </td>
             <td><span class="tag tag-incomplete">未完成</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="toggleDetail('detail3')">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-3'">查看详情</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -228,93 +235,33 @@
             <td>起重操作员</td>
             <td>42h / 40h</td>
             <td>
-              <div class="completion-bar"><div class="completion-fill green" style="width:100%"></div></div>
-              <span style="font-size:12px; margin-left:4px;">105%</span>
+              <div class="completion-bar"><div class="completion-fill green u-w-full"></div></div>
+              <span class="u-fs12-ml4">105%</span>
             </td>
             <td><span class="tag tag-completed">已完成</span></td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-4'">查看详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 2860 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
-        <div class="pagination-page">3</div>
-        <div class="pagination-page">...</div>
-        <div class="pagination-page">286</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
-    <!-- 培训记录时间线详情 -->
-    <div class="detail-panel" id="detail1">
-      <h4>张明 — 培训记录时间线（2026年度）</h4>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="tl-date">2026-05-10</div>
-          <div class="tl-content">安全月知识竞赛 — 92分，排名第3</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-04-22</div>
-          <div class="tl-content">消防安全专项培训 — 4学时，已通过</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-03-15</div>
-          <div class="tl-content">Q1安全教育培训 — 8学时，已通过</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-02-20</div>
-          <div class="tl-content">新员工三级安全教育 — 24学时，已通过</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-01-10</div>
-          <div class="tl-content">年度安全第一课 — 8学时，已通过</div>
-        </div>
-      </div>
-    </div>
-    <div class="detail-panel" id="detail2">
-      <h4>李华 — 培训记录时间线（2026年度）</h4>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="tl-date">2026-05-08</div>
-          <div class="tl-content">危化品安全专项培训 — 进行中</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-03-20</div>
-          <div class="tl-content">Q1安全教育培训 — 8学时，已通过</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-01-10</div>
-          <div class="tl-content">年度安全第一课 — 8学时，已通过</div>
-        </div>
-      </div>
-    </div>
-    <div class="detail-panel" id="detail3">
-      <h4>王刚 — 培训记录时间线（2026年度）</h4>
-      <div class="timeline">
-        <div class="timeline-item">
-          <div class="tl-date">2026-04-15</div>
-          <div class="tl-content">特种设备操作培训 — 8学时，已通过</div>
-        </div>
-        <div class="timeline-item">
-          <div class="tl-date">2026-02-20</div>
-          <div class="tl-content">机械安全培训 — 8学时，已通过</div>
-        </div>
-      </div>
-      <div style="margin-top:8px; font-size:12px; color:var(--error);">
-        该员工年度培训完成率仅40%，低于80%标准，需尽快安排补训。
-      </div>
-    </div>
   </div>
 
   <!-- Tab2 持证管理 -->
   <div id="tab-cert" class="tab-content">
     <div class="stat-bar">
       <div class="stat-item"><div class="stat-num">386</div><div class="stat-label">证书总数</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--success)">298</div><div class="stat-label">有效</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--warning)">42</div><div class="stat-label">即将到期</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--error)">36</div><div class="stat-label">已过期</div></div>
-      <div class="stat-item"><div class="stat-num" style="color:var(--primary)">10</div><div class="stat-label">已换证</div></div>
+      <div class="stat-item"><div class="stat-num u-text-success">298</div><div class="stat-label">有效</div></div>
+      <div class="stat-item"><div class="stat-num u-text-warning">42</div><div class="stat-label">即将到期</div></div>
+      <div class="stat-item"><div class="stat-num u-text-error">36</div><div class="stat-label">已过期</div></div>
+      <div class="stat-item"><div class="stat-num u-text-primary">10</div><div class="stat-label">已换证</div></div>
     </div>
 
     <div class="warn-block">
@@ -325,36 +272,43 @@
       员工可在移动端查看个人档案和持证情况。
     </div>
 
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索持证人..." style="width:160px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部证书类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">持证人</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">证书类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>特种作业操作证</option>
           <option>安全管理人员资格证</option>
           <option>特种设备作业人员证</option>
           <option>安全培训合格证</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>有效</option>
           <option>即将到期</option>
           <option>已过期</option>
           <option>已换证</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部关联岗位</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">关联岗位</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>起重操作</option>
           <option>电气作业</option>
           <option>焊接作业</option>
           <option>高处作业</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
 
     <div class="card">
+      <div class="filter-actions-row">
+        <button type="button" class="btn btn-default" data-action="showModal" data-param="modal-cert-warning">
+          <span class="u-text-warning">到期预警</span>（4 条待处理）
+        </button>
+        <button class="btn btn-default">导出</button>
+      </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -379,7 +333,7 @@
             <td>2028-03-15</td>
             <td>起重操作</td>
             <td><span class="tag tag-valid">有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-5'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -390,7 +344,7 @@
             <td>2026-08-20</td>
             <td>安全管理</td>
             <td><span class="tag tag-expiring">即将到期</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">提醒换证</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-6'">查看</button><button class="btn btn-text btn-sm u-text-warning">提醒换证</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -401,7 +355,7 @@
             <td>2026-02-10</td>
             <td>设备维护</td>
             <td><span class="tag tag-expired">已过期</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--error)">阻断作业</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-7'">查看</button><button class="btn btn-text btn-sm u-text-error">阻断作业</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -412,7 +366,7 @@
             <td>2028-06-01</td>
             <td>电气作业</td>
             <td><span class="tag tag-valid">有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-8'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -423,7 +377,7 @@
             <td>2026-11-05</td>
             <td>焊接作业</td>
             <td><span class="tag tag-expiring">即将到期</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--warning)">提醒换证</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-9'">查看</button><button class="btn btn-text btn-sm u-text-warning">提醒换证</button></td>
           </tr>
           <tr>
             <td>6</td>
@@ -434,71 +388,274 @@
             <td>2025-05-15</td>
             <td>安全管理</td>
             <td><span class="tag tag-renewed">已换证</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openArchiveDetail" data-param="'archive-10'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 386 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
-        <div class="pagination-page">3</div>
-        <div class="pagination-page">...</div>
-        <div class="pagination-page">39</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 4 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
-    <!-- 到期预警面板 -->
-    <div class="card" style="margin-top:16px;">
-      <div style="font-size:15px; font-weight:500; margin-bottom:12px;">到期预警</div>
-      <div class="warning-panel">
-        <div class="warning-card" style="background:#FFF1F0; border-color:#FFA39E;">
-          <div class="wc-name">马超</div>
-          <div class="wc-cert">特种设备作业人员证 — 已过期</div>
-          <div class="wc-date">到期：2026-02-10</div>
-          <div class="wc-level urgent">已过期</div>
-          <div class="wc-block">作业申请已阻断</div>
+  </div>
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <!-- 详情视图 -->
+  <div class="modal-overlay" id="modal-cert-warning">
+    <div class="modal" style="width:var(--modal-lg); max-width:720px;">
+      <div class="modal-header"><h3>持证到期预警</h3><button class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-cert-warning">&times;</button></div>
+      <div class="modal-body">
+        <div class="warning-panel" style="margin-top:0;">
+          <div class="warning-card" style="background:var(--tag-error-bg); border-color:var(--tag-error-border);">
+            <div class="wc-name">马超</div>
+            <div class="wc-cert">特种设备作业人员证 — 已过期</div>
+            <div class="wc-date">到期：2026-02-10</div>
+            <div class="wc-level urgent">已过期</div>
+            <div class="wc-block">作业申请已阻断</div>
+          </div>
+          <div class="warning-card">
+            <div class="wc-name">孙丽</div>
+            <div class="wc-cert">安全管理人员资格证 — 7天内到期</div>
+            <div class="wc-date">到期：2026-08-20</div>
+            <div class="wc-level urgent">7天预警</div>
+          </div>
+          <div class="warning-card">
+            <div class="wc-name">郑华</div>
+            <div class="wc-cert">特种作业操作证（焊接）— 30天内到期</div>
+            <div class="wc-date">到期：2026-11-05</div>
+            <div class="wc-level warn">30天预警</div>
+          </div>
+          <div class="warning-card">
+            <div class="wc-name">李强</div>
+            <div class="wc-cert">特种作业操作证（高处作业）— 60天预警</div>
+            <div class="wc-date">到期：2026-07-20</div>
+            <div class="wc-level warn">60天预警</div>
+          </div>
         </div>
-        <div class="warning-card">
-          <div class="wc-name">孙丽</div>
-          <div class="wc-cert">安全管理人员资格证 — 7天内到期</div>
-          <div class="wc-date">到期：2026-08-20</div>
-          <div class="wc-level urgent">7天预警</div>
-        </div>
-        <div class="warning-card">
-          <div class="wc-name">郑华</div>
-          <div class="wc-cert">特种作业操作证（焊接）— 30天内到期</div>
-          <div class="wc-date">到期：2026-11-05</div>
-          <div class="wc-level warn">30天预警</div>
-        </div>
-        <div class="warning-card">
-          <div class="wc-name">李强</div>
-          <div class="wc-cert">特种作业操作证（高处作业）— 特种60天预警</div>
-          <div class="wc-date">到期：2026-07-20</div>
-          <div class="wc-level warn">60天预警</div>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-cert-warning">关闭</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="modal-cert-warning">批量提醒换证</button>
       </div>
     </div>
   </div>
 
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="archive-detail-title" style="font-size:var(--font-size-16);font-weight:600;">培训档案详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showArchiveList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">基本信息</div>
+                <div id="archive-detail-basic"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">2026 年度培训记录</div>
+                <div id="archive-detail-records" class="timeline"></div>
+                <div id="archive-detail-warn" class="u-mt-8" style="display:none;font-size:var(--font-size-12);color:var(--error);"></div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-panel">
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">办理时间轴</div>
+                <div id="archive-detail-timeline" class="timeline"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /view-detail -->
+
   <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
+    function showArchiveList() {
+      setPageView('view-list', 'view-detail', 'list');
+    }
+    window.showArchiveList = showArchiveList;
+
+    var archiveDetailDataFallback = {
+      name: '档案详情', unit: '—', dept: '—', post: '—',
+      hours: '—', rate: '—', status: '—', statusClass: 'tag-inprogress',
+      records: [{ date: '—', content: '暂无培训记录' }],
+      warn: '',
+      timeline: [
+        { status: 'done', time: '2026-01-05', event: '档案建立' },
+        { status: 'active', time: '进行中', event: '年度培训归集' }
+      ]
+    };
+
+    var archiveDetailData = {
+      'archive-1': {
+        name: '张明', unit: '集装箱码头公司', dept: '安全管理部', post: '安全主管',
+        hours: '48h / 40h', rate: '120%', status: '已完成', statusClass: 'tag-completed',
+        records: [
+          { date: '2026-05-10', content: '安全月知识竞赛 — 92分，排名第3' },
+          { date: '2026-04-22', content: '消防安全专项培训 — 4学时，已通过' },
+          { date: '2026-03-15', content: 'Q1安全教育培训 — 8学时，已通过' },
+          { date: '2026-02-20', content: '新员工三级安全教育 — 24学时，已通过' },
+          { date: '2026-01-10', content: '年度安全第一课 — 8学时，已通过' }
+        ],
+        warn: '',
+        timeline: [
+          { status: 'done', time: '2026-01-08', event: '年度培训计划下达' },
+          { status: 'done', time: '2026-05-10', event: '竞赛成绩归集' },
+          { status: 'done', time: '2026-05-18', event: '年度培训达标确认' }
+        ]
+      },
+      'archive-2': {
+        name: '李华', unit: '油品码头公司', dept: '生产运营部', post: '操作员',
+        hours: '32h / 40h', rate: '80%', status: '培训中', statusClass: 'tag-inprogress',
+        records: [
+          { date: '2026-05-08', content: '危化品安全专项培训 — 进行中' },
+          { date: '2026-03-20', content: 'Q1安全教育培训 — 8学时，已通过' },
+          { date: '2026-01-10', content: '年度安全第一课 — 8学时，已通过' }
+        ],
+        warn: '',
+        timeline: [
+          { status: 'done', time: '2026-01-08', event: '年度培训计划下达' },
+          { status: 'active', time: '2026-05-08', event: '危化品专项培训进行中' }
+        ]
+      },
+      'archive-3': {
+        name: '王刚', unit: '散货码头公司', dept: '设备维护部', post: '维修工',
+        hours: '16h / 40h', rate: '40%', status: '未完成', statusClass: 'tag-incomplete',
+        records: [
+          { date: '2026-04-15', content: '特种设备操作培训 — 8学时，已通过' },
+          { date: '2026-02-20', content: '机械安全培训 — 8学时，已通过' }
+        ],
+        warn: '该员工年度培训完成率仅40%，低于80%标准，需尽快安排补训。',
+        timeline: [
+          { status: 'done', time: '2026-01-08', event: '年度培训计划下达' },
+          { status: 'active', time: '待安排', event: '补训任务待下发' }
+        ]
+      },
+      'archive-4': {
+        name: '周强', unit: '集装箱码头公司', dept: '装卸作业部', post: '起重操作员',
+        hours: '42h / 40h', rate: '105%', status: '已完成', statusClass: 'tag-completed',
+        records: [
+          { date: '2026-05-05', content: '起重作业安全培训 — 8学时，已通过' },
+          { date: '2026-03-18', content: 'Q1安全教育培训 — 8学时，已通过' },
+          { date: '2026-01-10', content: '年度安全第一课 — 8学时，已通过' }
+        ],
+        warn: '',
+        timeline: [
+          { status: 'done', time: '2026-01-08', event: '年度培训计划下达' },
+          { status: 'done', time: '2026-05-05', event: '起重作业培训通过' },
+          { status: 'done', time: '2026-05-18', event: '年度培训达标确认' }
+        ]
+      },
+      'archive-5': {
+        name: '陈建国', unit: '集装箱码头公司', dept: '设备部', post: '电工',
+        hours: '40h / 40h', rate: '100%', status: '持证有效', statusClass: 'tag-completed',
+        records: [{ date: '2026-04-01', content: '电工操作证复审培训 — 已通过' }],
+        warn: '',
+        timeline: [{ status: 'done', time: '2026-04-10', event: '证件信息复核通过' }]
+      },
+      'archive-6': {
+        name: '赵丽', unit: '油品码头公司', dept: '装卸部', post: '叉车司机',
+        hours: '—', rate: '—', status: '即将到期', statusClass: 'tag-inprogress',
+        records: [{ date: '2025-06-01', content: '叉车操作证 — 2026-06-20 到期' }],
+        warn: '证件 30 天内到期，请安排换证培训。',
+        timeline: [
+          { status: 'done', time: '2026-05-01', event: '到期预警推送' },
+          { status: 'active', time: '待换证', event: '换证培训安排中' }
+        ]
+      },
+      'archive-7': {
+        name: '孙强', unit: '散货码头公司', dept: '作业部', post: '起重工',
+        hours: '—', rate: '—', status: '已过期', statusClass: 'tag-incomplete',
+        records: [{ date: '2024-12-01', content: '特种作业操作证 — 已过期' }],
+        warn: '证件已过期，系统已阻断相关作业授权。',
+        timeline: [
+          { status: 'done', time: '2026-05-10', event: '过期自动阻断' },
+          { status: 'active', time: '待恢复', event: '换证复审待完成' }
+        ]
+      },
+      'archive-8': {
+        name: '周敏', unit: '集团本部', dept: '行政部', post: '安全员',
+        hours: '—', rate: '—', status: '持证有效', statusClass: 'tag-completed',
+        records: [{ date: '2026-03-01', content: '注册安全工程师继续教育 — 8学时' }],
+        warn: '',
+        timeline: [{ status: 'done', time: '2026-03-15', event: '继续教育登记完成' }]
+      },
+      'archive-9': {
+        name: '吴涛', unit: '海盾安防', dept: '物业部', post: '消防管理员',
+        hours: '—', rate: '—', status: '即将到期', statusClass: 'tag-inprogress',
+        records: [{ date: '2025-08-01', content: '消防设施操作员证 — 2026-08-05 到期' }],
+        warn: '',
+        timeline: [{ status: 'active', time: '2026-05-20', event: '换证提醒已发送' }]
+      },
+      'archive-10': {
+        name: '郑华', unit: '中交二航局', dept: '施工队', post: '焊工',
+        hours: '—', rate: '—', status: '持证有效', statusClass: 'tag-completed',
+        records: [{ date: '2026-02-01', content: '焊接作业证 — 有效至 2027-11-05' }],
+        warn: '',
+        timeline: [{ status: 'done', time: '2026-02-10', event: '入场证件核验通过' }]
+      }
+    };
+
+    function renderArchiveTrainingRecords(records) {
+      var html = '';
+      for (var i = 0; i < records.length; i++) {
+        var r = records[i];
+        html += '<div class="timeline-item"><div class="tl-date">' + r.date + '</div><div class="tl-content">' + r.content + '</div></div>';
+      }
+      return html;
     }
 
-    function toggleDetail(id) {
-      const panel = document.getElementById(id);
-      if (panel.classList.contains('show')) {
-        panel.classList.remove('show');
+    function openArchiveDetail(id) {
+      var cleanId = id ? String(id).replace(/'/g, '') : '';
+      var d = archiveDetailData[cleanId] || archiveDetailDataFallback;
+
+      document.getElementById('archive-detail-title').textContent = d.name + ' — 培训档案';
+      var basicHtml = '';
+      basicHtml += '<div class="detail-row"><span class="label">所属单位</span><span class="value">' + d.unit + '</span></div>';
+      basicHtml += '<div class="detail-row"><span class="label">部门</span><span class="value">' + d.dept + '</span></div>';
+      basicHtml += '<div class="detail-row"><span class="label">岗位</span><span class="value">' + d.post + '</span></div>';
+      basicHtml += '<div class="detail-row"><span class="label">年度培训学时</span><span class="value">' + d.hours + '</span></div>';
+      basicHtml += '<div class="detail-row"><span class="label">完成率</span><span class="value">' + d.rate + '</span></div>';
+      basicHtml += '<div class="detail-row"><span class="label">状态</span><span class="value"><span class="tag ' + d.statusClass + '">' + d.status + '</span></span></div>';
+      document.getElementById('archive-detail-basic').innerHTML = basicHtml;
+      document.getElementById('archive-detail-records').innerHTML = renderArchiveTrainingRecords(d.records || []);
+      renderApprovalTimeline('archive-detail-timeline', d.timeline || archiveDetailDataFallback.timeline);
+
+      var warnEl = document.getElementById('archive-detail-warn');
+      if (d.warn) {
+        warnEl.textContent = d.warn;
+        warnEl.style.display = 'block';
       } else {
-        // Close other panels
-        document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('show'));
-        panel.classList.add('show');
+        warnEl.textContent = '';
+        warnEl.style.display = 'none';
       }
+
+      setPageView('view-list', 'view-detail', 'detail');
     }
+    window.openArchiveDetail = openArchiveDetail;
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      var tab = document.querySelector('.tab-item[data-param="' + name + '"]');
+      if (tab) tab.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
+    }
+    window.switchTab = switchTab;
   </script>
 </body>
 </html>

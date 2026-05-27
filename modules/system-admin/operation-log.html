@@ -4,225 +4,303 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>操作日志 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>
-    /* 操作类型标签 */
-    .tag-perm { background:#F0F5FF; color:#2366EC; border:1px solid #ADC6FF; }
-    .tag-user { background:#E6FFFB; color:#13C2C2; border:1px solid #87E8DE; }
-    .tag-org { background:#F6FFED; color:#52C41A; border:1px solid #B7EB8F; }
-    .tag-config { background:#FFF7E6; color:#FA8C16; border:1px solid #FFD591; }
-    /* 操作结果 */
-    .tag-success { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-fail { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    /* 操作类型标签 — 统一使用 tag 色板 */
+    .tag-perm { background:var(--tag-blue-bg); color:var(--tag-blue-color); border-color:var(--tag-blue-border); }
+    .tag-user { background:var(--tag-purple-bg); color:var(--tag-purple-color); border-color:var(--tag-purple-border); }
+    .tag-org { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-config { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+
+    /* 统计卡突出 */
+    .log-stat-bar {
+      display: flex;
+      gap: var(--spacing-4);
+      margin-bottom: var(--spacing-4);
+    }
+    .log-stat-item {
+      flex: 1;
+      padding: var(--spacing-4) var(--spacing-5);
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border-top: 3px solid var(--primary);
+      transition: box-shadow var(--duration-fast) var(--ease-out);
+    }
+    .log-stat-item:hover { box-shadow: var(--shadow-card); }
+    .log-stat-item.highlight { border-top-color: var(--warning); }
+    .log-stat-num {
+      font-size: var(--font-size-24);
+      font-weight: var(--font-weight-bold);
+      color: var(--text-primary);
+      line-height: var(--line-height-tight);
+    }
+    .log-stat-item.highlight .log-stat-num { color: var(--warning); }
+    .log-stat-label {
+      font-size: var(--font-size-12);
+      color: var(--text-secondary);
+      margin-top: var(--spacing-1);
+    }
+
+    /* 操作内容列截断 */
+    .cell-content {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 固定列居中 */
+    .data-table td:nth-child(1),
+    .data-table td:nth-child(8),
+    .data-table td:nth-child(9) { text-align: center; }
+    .data-table th:nth-child(1),
+    .data-table th:nth-child(8),
+    .data-table th:nth-child(9) { text-align: center; }
+
     /* 详情弹窗 */
     .detail-section { margin-bottom:16px; }
-    .detail-section-title { font-size:13px; font-weight:500; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); }
-    .detail-grid { display:grid; grid-template-columns:90px 1fr; gap:6px 12px; font-size:13px; }
+    .detail-section-title {
+      font-size:var(--font-size-13);
+      font-weight:var(--font-weight-semibold);
+      color:var(--text-primary);
+      margin-bottom:8px;
+      padding-bottom:6px;
+      border-bottom:1px solid var(--border);
+    }
+    .detail-grid {
+      display:grid;
+      grid-template-columns:90px 1fr;
+      gap:6px 12px;
+      font-size:var(--font-size-13);
+    }
     .detail-label { color:var(--text-description); text-align:right; }
     .detail-value { color:var(--text-primary); }
+
     /* 变更对比 */
-    .diff-box { border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; font-size:12px; font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace; line-height:1.6; background:var(--bg-page); white-space:pre-wrap; word-break:break-all; }
+    .diff-box {
+      border:1px solid var(--border);
+      border-radius:var(--radius-sm);
+      padding:10px 12px;
+      font-size:var(--font-size-12);
+      font-family:var(--font-family-code);
+      line-height:1.6;
+      background:var(--bg-page);
+      white-space:pre-wrap;
+      word-break:break-all;
+    }
     .diff-before { border-left:3px solid var(--error); }
     .diff-after { border-left:3px solid var(--success); }
-    .diff-label { font-size:12px; font-weight:500; margin-bottom:4px; }
+    .diff-label { font-size:var(--font-size-12); font-weight:var(--font-weight-semibold); margin-bottom:4px; }
     .diff-label-before { color:var(--error); }
     .diff-label-after { color:var(--success); }
   </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
 
   <!-- 统计概览 -->
-  <div class="stat-bar">
-    <div class="stat-item"><div class="stat-num">47</div><div class="stat-label">今日操作</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">283</div><div class="stat-label">本周操作</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:#722ED1">18</div><div class="stat-label">权限类操作</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:#13C2C2">12</div><div class="stat-label">用户类操作</div></div>
+  <div class="log-stat-bar">
+    <div class="log-stat-item">
+      <div class="log-stat-num">47</div>
+      <div class="log-stat-label">今日操作</div>
+    </div>
+    <div class="log-stat-item">
+      <div class="log-stat-num">283</div>
+      <div class="log-stat-label">本周操作</div>
+    </div>
+    <div class="log-stat-item highlight">
+      <div class="log-stat-num">18</div>
+      <div class="log-stat-label">权限类操作</div>
+    </div>
+    <div class="log-stat-item">
+      <div class="log-stat-num">12</div>
+      <div class="log-stat-label">用户类操作</div>
+    </div>
   </div>
 
   <!-- 查询栏 -->
-  <div class="card" style="margin-bottom:16px;">
+  <div class="card u-mb-16">
     <div class="filter-bar">
-      <div class="filter-item">
-        <label class="filter-label">操作时间</label>
-        <input type="date" class="form-input" style="width:140px" value="2026-05-12">
-        <span style="color:var(--text-description)">—</span>
-        <input type="date" class="form-input" style="width:140px" value="2026-05-19">
-      </div>
-      <div class="filter-item">
-        <label class="filter-label">操作类型</label>
-        <select class="form-select" style="width:120px">
+      <div class="filter-field"><span class="filter-label">开始日期</span><input type="date" class="form-input" value="2026-05-12" style="width:150px"></div>
+      <div class="filter-field"><span class="filter-label">结束日期</span><input type="date" class="form-input" value="2026-05-19" style="width:150px"></div>
+      <div class="filter-field"><span class="filter-label">操作类型</span><select class="form-select">
           <option value="">全部</option>
           <option value="perm">权限类</option>
           <option value="user">用户类</option>
           <option value="org">组织类</option>
           <option value="config">配置类</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label class="filter-label">操作人</label>
-        <input type="text" class="form-input" style="width:120px" placeholder="姓名搜索">
-      </div>
-      <div class="filter-item">
-        <label class="filter-label">操作模块</label>
-        <select class="form-select" style="width:130px">
-          <option value="">全部模块</option>
+        </select></div>
+      <div class="filter-field"><span class="filter-label">操作人</span><input type="text" class="form-input" placeholder="请输入"></div>
+      <div class="filter-field"><span class="filter-label">操作模块</span><select class="form-select">
+          <option value="">全部</option>
           <option>组织架构</option>
           <option>用户管理</option>
           <option>权限管理</option>
           <option>流程管理</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label class="filter-label">操作内容</label>
-        <input type="text" class="form-input" style="width:140px" placeholder="关键词搜索">
-      </div>
-      <div class="filter-actions">
+        </select></div>
+      <div class="filter-field"><span class="filter-label">操作内容</span><input type="text" class="form-input" placeholder="请输入"></div>
+      <div class="filter-bar-actions">
         <button class="btn btn-primary btn-sm">查询</button>
         <button class="btn btn-default btn-sm">重置</button>
-        <button class="btn btn-default btn-sm" onclick="showToast('已导出 283 条日志记录', 'success')">导出</button>
+        <button class="btn btn-default btn-sm" data-action="showToast" data-param="已导出 283 条日志记录">导出</button>
       </div>
     </div>
   </div>
 
   <!-- 数据表 -->
-  <div class="card">
-    <table class="table">
+  <div class="card" style="padding:0; overflow:hidden;">
+    <div class="table-wrap" style="margin-top:0;">
+    <table class="data-table" style="min-width:1100px;">
+      <colgroup>
+        <col style="width:56px">
+        <col style="width:150px">
+        <col style="width:72px">
+        <col style="width:160px">
+        <col style="width:72px">
+        <col style="width:88px">
+        <col>
+        <col style="width:72px">
+        <col style="width:56px">
+      </colgroup>
       <thead>
         <tr>
-          <th style="width:50px">序号</th>
-          <th style="width:160px">操作时间</th>
-          <th style="width:80px">操作人</th>
+          <th>序号</th>
+          <th>操作时间</th>
+          <th>操作人</th>
           <th>所属组织</th>
-          <th style="width:80px">操作类型</th>
-          <th style="width:90px">操作模块</th>
+          <th>操作类型</th>
+          <th>操作模块</th>
           <th>操作内容</th>
-          <th style="width:70px">操作结果</th>
-          <th style="width:70px">操作</th>
+          <th>操作结果</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>1</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-19 14:32:18</td>
+          <td class="u-mono-fs12">2026-05-19 14:32:18</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-perm">权限类</span></td>
           <td>权限管理</td>
-          <td>修改角色【集团安全管理员】权限配置，新增"风险统计分析"菜单权限</td>
+          <td><div class="cell-content" title="修改角色【集团安全管理员】权限配置，新增"风险统计分析"菜单权限">修改角色【集团安全管理员】权限配置，新增"风险统计分析"菜单权限</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(0)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="0">详情</button></td>
         </tr>
         <tr>
           <td>2</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-19 14:28:05</td>
+          <td class="u-mono-fs12">2026-05-19 14:28:05</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-perm">权限类</span></td>
           <td>权限管理</td>
-          <td>停用菜单【风险统计分析】，级联停用其下2个按钮权限</td>
+          <td><div class="cell-content" title="停用菜单【风险统计分析】，级联停用其下2个按钮权限">停用菜单【风险统计分析】，级联停用其下2个按钮权限</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(1)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="1">详情</button></td>
         </tr>
         <tr>
           <td>3</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-19 11:45:33</td>
+          <td class="u-mono-fs12">2026-05-19 11:45:33</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-user">用户类</span></td>
           <td>用户管理</td>
-          <td>新增用户【李明辉】，所属组织：盐田港股份安全管理部，分配角色：公司安全管理员</td>
+          <td><div class="cell-content" title="新增用户【李明辉】，所属组织：盐田港股份安全管理部，分配角色：公司安全管理员">新增用户【李明辉】，所属组织：盐田港股份安全管理部，分配角色：公司安全管理员</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(2)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="2">详情</button></td>
         </tr>
         <tr>
           <td>4</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-19 10:12:47</td>
+          <td class="u-mono-fs12">2026-05-19 10:12:47</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-org">组织类</span></td>
           <td>组织架构</td>
-          <td>编辑组织节点【盐田港股份安全管理部】，修改负责人为王志强</td>
+          <td><div class="cell-content" title="编辑组织节点【盐田港股份安全管理部】，修改负责人为王志强">编辑组织节点【盐田港股份安全管理部】，修改负责人为王志强</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(3)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="3">详情</button></td>
         </tr>
         <tr>
           <td>5</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-19 09:38:21</td>
+          <td class="u-mono-fs12">2026-05-19 09:38:21</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-config">配置类</span></td>
           <td>流程管理</td>
-          <td>新建审批流程【危险作业审批流程】，适用模块：现场管理</td>
+          <td><div class="cell-content" title="新建审批流程【危险作业审批流程】，适用模块：现场管理">新建审批流程【危险作业审批流程】，适用模块：现场管理</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(4)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="4">详情</button></td>
         </tr>
         <tr>
           <td>6</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-18 16:55:09</td>
+          <td class="u-mono-fs12">2026-05-18 16:55:09</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-perm">权限类</span></td>
           <td>权限管理</td>
-          <td>新建角色【检查员】，类型：通用角色，关联层级：集团</td>
+          <td><div class="cell-content" title="新建角色【检查员】，类型：通用角色，关联层级：集团">新建角色【检查员】，类型：通用角色，关联层级：集团</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(5)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="5">详情</button></td>
         </tr>
         <tr>
           <td>7</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-18 15:22:14</td>
+          <td class="u-mono-fs12">2026-05-18 15:22:14</td>
           <td>王丽</td>
           <td>盐田港股份安全管理部</td>
           <td><span class="tag tag-user">用户类</span></td>
           <td>用户管理</td>
-          <td>重置用户【赵伟】密码</td>
+          <td><div class="cell-content" title="重置用户【赵伟】密码">重置用户【赵伟】密码</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(6)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="6">详情</button></td>
         </tr>
         <tr>
           <td>8</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-18 14:08:36</td>
+          <td class="u-mono-fs12">2026-05-18 14:08:36</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-perm">权限类</span></td>
           <td>权限管理</td>
-          <td>分配角色数据权限【检查员】，组织范围：本人，业务数据：隐患、安全检查</td>
+          <td><div class="cell-content" title="分配角色数据权限【检查员】，组织范围：本人，业务数据：隐患、安全检查">分配角色数据权限【检查员】，组织范围：本人，业务数据：隐患、安全检查</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(7)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="7">详情</button></td>
         </tr>
         <tr>
           <td>9</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-18 11:34:52</td>
+          <td class="u-mono-fs12">2026-05-18 11:34:52</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-org">组织类</span></td>
           <td>组织架构</td>
-          <td>新增组织节点【大铲湾码头安全部】，父级：大铲湾码头</td>
+          <td><div class="cell-content" title="新增组织节点【大铲湾码头安全部】，父级：大铲湾码头">新增组织节点【大铲湾码头安全部】，父级：大铲湾码头</div></td>
           <td><span class="tag tag-success">成功</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(8)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="8">详情</button></td>
         </tr>
         <tr>
           <td>10</td>
-          <td style="font-family:monospace; font-size:12px">2026-05-18 10:15:08</td>
+          <td class="u-mono-fs12">2026-05-18 10:15:08</td>
           <td>张建国</td>
           <td>集团信息部</td>
           <td><span class="tag tag-config">配置类</span></td>
           <td>流程管理</td>
-          <td>停用流程【旧版隐患整改审批】，关联3个在途审批自动失效</td>
+          <td><div class="cell-content" title="停用流程【旧版隐患整改审批】，关联3个在途审批自动失效">停用流程【旧版隐患整改审批】，关联3个在途审批自动失效</div></td>
           <td><span class="tag tag-fail">失败</span></td>
-          <td><button class="btn btn-text btn-sm" onclick="showDetail(9)">详情</button></td>
+          <td><button class="btn btn-text btn-sm" data-action="showDetail" data-param="9">详情</button></td>
         </tr>
       </tbody>
     </table>
+    </div>
     <!-- 分页栏 -->
-    <div class="pagination" style="margin-top:12px;">
-      <div class="pagination-info">共 283 条记录</div>
+    <div class="pagination" style="padding:12px 30px;">
+      <div class="pagination-info">共 10 条记录</div>
       <div class="pagination-controls">
         <button class="btn btn-default btn-sm" disabled>上一页</button>
         <button class="btn btn-primary btn-sm">1</button>
         <button class="btn btn-default btn-sm">2</button>
         <button class="btn btn-default btn-sm">3</button>
-        <span style="color:var(--text-description)">...</span>
+        <span class="u-text-description">...</span>
         <button class="btn btn-default btn-sm">29</button>
         <button class="btn btn-default btn-sm">下一页</button>
         <select class="form-select" style="width:80px; margin-left:8px;">
@@ -235,23 +313,20 @@
   </div>
 
   <!-- 日志详情弹窗 -->
-  <div class="modal-overlay" id="modal-detail" style="display:none">
-    <div class="modal" style="width:560px">
+  <div class="modal-overlay" id="modal-detail">
+    <div class="modal" style="width:var(--modal-md)">
       <div class="modal-header">
         <h3 class="modal-title">操作详情</h3>
-        <button class="modal-close" onclick="closeModal('modal-detail')">&times;</button>
+        <button class="modal-close" data-action="hideModal" data-param="modal-detail">&times;</button>
       </div>
       <div class="modal-body" id="detail-body">
         <!-- 动态内容 -->
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default btn-sm" onclick="closeModal('modal-detail')">关闭</button>
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-detail">关闭</button>
       </div>
     </div>
   </div>
-
-  <!-- Toast 提示 -->
-  <div class="toast" id="toast" style="display:none;"></div>
 
   <script>
     // ========== 日志示例数据 ==========
@@ -422,18 +497,16 @@
       var log = LOG_DATA[idx];
       var html = '';
 
-      // 操作基本信息
       html += '<div class="detail-section">';
       html += '<div class="detail-section-title">操作基本信息</div>';
       html += '<div class="detail-grid">';
-      html += '<div class="detail-label">操作时间</div><div class="detail-value" style="font-family:monospace; font-size:12px">' + log.time + '</div>';
+      html += '<div class="detail-label">操作时间</div><div class="detail-value u-mono-fs12">' + log.time + '</div>';
       html += '<div class="detail-label">操作人</div><div class="detail-value">' + log.operator + '</div>';
       html += '<div class="detail-label">所属组织</div><div class="detail-value">' + log.org + '</div>';
-      html += '<div class="detail-label">IP地址</div><div class="detail-value" style="font-family:monospace; font-size:12px">' + log.ip + '</div>';
+      html += '<div class="detail-label">IP地址</div><div class="detail-value u-mono-fs12">' + log.ip + '</div>';
       html += '<div class="detail-label">终端类型</div><div class="detail-value">' + log.terminal + '</div>';
       html += '</div></div>';
 
-      // 操作内容
       html += '<div class="detail-section">';
       html += '<div class="detail-section-title">操作内容</div>';
       html += '<div class="detail-grid">';
@@ -443,7 +516,6 @@
       html += '<div class="detail-label">操作动作</div><div class="detail-value">' + log.action + '</div>';
       html += '</div></div>';
 
-      // 变更详情
       if (log.hasDiff) {
         html += '<div class="detail-section">';
         html += '<div class="detail-section-title">变更详情</div>';
@@ -453,42 +525,20 @@
         html += '</div></div>';
       }
 
-      // 操作结果
       html += '<div class="detail-section">';
       html += '<div class="detail-section-title">操作结果</div>';
       html += '<div class="detail-grid">';
       html += '<div class="detail-label">结果</div><div class="detail-value"><span class="tag ' + log.resultTag + '">' + log.result + '</span></div>';
       if (log.failReason) {
-        html += '<div class="detail-label">失败原因</div><div class="detail-value" style="color:var(--error)">' + log.failReason + '</div>';
+        html += '<div class="detail-label">失败原因</div><div class="detail-value u-text-error">' + log.failReason + '</div>';
       }
       html += '</div></div>';
 
       document.getElementById('detail-body').innerHTML = html;
-      document.getElementById('modal-detail').style.display = 'flex';
+      showModal('modal-detail');
     }
 
-    // ========== 弹窗控制 ==========
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    // 点击遮罩关闭
-    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
-      overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) {
-          overlay.style.display = 'none';
-        }
-      });
-    });
-
-    // ========== Toast提示 ==========
-    function showToast(msg, type) {
-      var toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.className = 'toast toast-' + (type || 'info');
-      toast.style.display = 'block';
-      setTimeout(function() { toast.style.display = 'none'; }, 2000);
-    }
+    // Toast 提示由 common.js 的 showToast() 处理
   </script>
 </body>
 </html>

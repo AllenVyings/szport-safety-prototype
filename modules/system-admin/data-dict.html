@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据字典 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    /* 左右分栏布局 */
+    .dict-layout { display:flex; gap:16px; flex:1; min-height:0; }
+    .dict-left { width:280px; min-width:280px; display:flex; flex-direction:column; }
+    .dict-right { flex:1; display:flex; flex-direction:column; min-width:0; }
+
+    /* 分类树面板 */
+    .category-panel { background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; flex:1; min-height:0; }
+    .category-header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .category-header h4 { font-size:var(--font-size-14); font-weight:var(--font-weight-semibold); color:var(--text-primary); margin:0; }
+    .category-search { padding:8px 12px; border-bottom:1px solid var(--border-light); }
+    .category-search input { width:100%; height:28px; font-size:var(--font-size-12); padding:0 8px; border:1px solid var(--border); border-radius:var(--radius-sm); }
+    .category-list { flex:1; overflow-y:auto; padding:4px 0; }
+    .category-item { display:flex; align-items:center; padding:8px 16px; cursor:pointer; font-size:var(--font-size-13); color:var(--text-primary); transition:background var(--duration-fast); }
+    .category-item:hover { background:var(--bg-hover); }
+    .category-item.active { background:var(--primary-light); color:var(--primary); font-weight:var(--font-weight-semibold); }
+    .category-item .cat-icon { margin-right:8px; font-size:var(--font-size-14); }
+    .category-item .cat-count { margin-left:auto; font-size:var(--font-size-11); color:var(--text-tertiary); background:var(--bg-page); padding:1px 6px; border-radius:var(--radius-full); }
+
+    /* 字典项表格区 */
+    .dict-table-panel { background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; flex:1; min-height:0; }
+    .dict-table-header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .dict-table-header h4 { font-size:var(--font-size-14); font-weight:var(--font-weight-semibold); color:var(--text-primary); margin:0; }
+    .dict-table-header .header-actions { display:flex; gap:8px; }
+    .dict-table-body { flex:1; overflow-y:auto; }
+
+    /* 字典项表格 */
+    .dict-table { width:100%; border-collapse:collapse; font-size:var(--font-size-13); }
+    .dict-table thead th { position:sticky; top:0; background:var(--bg-table-header); font-weight:var(--font-weight-semibold); text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); z-index:2; }
+    .dict-table tbody td { padding:10px 12px; border-bottom:1px solid var(--border-light); }
+    .dict-table tbody tr:hover { background:var(--bg-hover); }
+    .dict-table tbody tr:nth-child(even) { background:var(--bg-table-stripe); }
+    .dict-table tbody tr:nth-child(even):hover { background:var(--bg-hover); }
+
+    /* 状态标签 */
+    .tag-enabled { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-disabled { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+
+    /* 系统内置标记 */
+    .builtin-badge { font-size:var(--font-size-11); color:var(--text-tertiary); background:var(--bg-page); padding:1px 6px; border-radius:var(--radius-sm); margin-left:6px; }
+
+    /* 弹窗表单 */
+    .form-grid { display:grid; grid-template-columns:80px 1fr; gap:12px 12px; align-items:start; }
+    .form-grid .form-label { font-size:var(--font-size-13); color:var(--text-secondary); line-height:32px; text-align:right; }
+    .form-grid .form-field { display:flex; align-items:center; gap:8px; }
+    .form-grid .form-field input,
+    .form-grid .form-field select,
+    .form-grid .form-field textarea { flex:1; }
+    .form-grid .form-field textarea { height:64px; resize:vertical; }
+
+    /* 分类编辑弹窗 */
+    .category-form-grid { display:grid; grid-template-columns:80px 1fr; gap:12px 12px; }
+
+    /* 统计概览 */
+    .stat-bar { display:flex; gap:16px; margin-bottom:16px; }
+    .stat-item { flex:1; background:var(--bg-card); border-radius:var(--radius-md); padding:16px 20px; box-shadow:var(--shadow-sm); text-align:center; }
+    .stat-num { font-size:var(--font-size-24); font-weight:var(--font-weight-bold); color:var(--text-primary); line-height:1.2; }
+    .stat-label { font-size:var(--font-size-12); color:var(--text-tertiary); margin-top:4px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body class="u-bg-page-px20">
+
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">字典分类</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">156</div><div class="stat-label">字典项总数</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--chart-green)">142</div><div class="stat-label">启用项</div></div>
+    <div class="stat-item"><div class="stat-num u-text-tertiary">14</div><div class="stat-label">停用项</div></div>
+  </div>
+
+  <!-- 主布局：左侧分类 + 右侧字典项 -->
+  <div class="dict-layout" style="height:calc(100vh - 180px);">
+
+    <!-- 左侧：字典分类列表 -->
+    <div class="dict-left">
+      <div class="category-panel">
+        <div class="category-header">
+          <h4>字典分类</h4>
+          <div style="display:flex; gap:4px;">
+            <button class="btn btn-text btn-sm" data-action="showModal" data-param="'modal-category-add'" title="新增分类">+ 新增</button>
+          </div>
+        </div>
+        <div class="category-search">
+          <input type="text" placeholder="搜索分类..." data-action="filterCategory">
+        </div>
+        <div class="category-list" id="category-list">
+          <!-- 动态渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：字典项表格 -->
+    <div class="dict-right">
+      <div class="dict-table-panel">
+        <div class="dict-table-header">
+          <h4 id="dict-title">风险等级</h4>
+          <div class="header-actions">
+            <button class="btn btn-primary btn-sm" data-action="showModal" data-param="'modal-dict-add'">新增字典项</button>
+            <button class="btn btn-default btn-sm" data-action="showToast" data-param="已导出字典数据">导出</button>
+          </div>
+        </div>
+        <!-- 查询栏 -->
+        <div style="padding:8px 16px; border-bottom:1px solid var(--border-light); display:flex; align-items:center; gap:12px;">
+          <div class="filter-field"><span class="filter-label">字典项名称</span><input type="text" class="form-input" id="filter-name" placeholder="请输入" style="width:160px;"></div>
+          <div class="filter-field"><span class="filter-label">状态</span><select class="form-select" id="filter-status" style="width:100px;">
+              <option value="">全部</option>
+              <option value="enabled">启用</option>
+              <option value="disabled">停用</option>
+            </select></div>
+          <div class="filter-bar-actions">
+            <button class="btn btn-primary btn-sm" data-action="filterDictItems">查询</button>
+            <button class="btn btn-default btn-sm" data-action="resetFilter">重置</button>
+          </div>
+        </div>
+        <div class="dict-table-body">
+          <table class="dict-table">
+            <thead>
+              <tr>
+                <th style="width:60px;">序号</th>
+                <th style="width:120px;">字典项编码</th>
+                <th>字典项名称</th>
+                <th class="u-w-80">排序</th>
+                <th class="u-w-80">状态</th>
+                <th>备注</th>
+                <th style="width:140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="dict-tbody">
+              <!-- 动态渲染 -->
+            </tbody>
+          </table>
+        </div>
+        <!-- 分页 -->
+        <div class="pagination" style="padding:8px 16px;">
+          <div class="pagination-info" id="page-info">共 0 条记录</div>
+          <div class="pagination-controls">
+            <button class="btn btn-default btn-sm" disabled>上一页</button>
+            <button class="btn btn-primary btn-sm">1</button>
+            <button class="btn btn-default btn-sm">下一页</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑字典分类弹窗 -->
+  <div class="modal-overlay" id="modal-category-add" class="u-none">
+    <div class="modal" style="width:var(--modal-sm);">
+      <div class="modal-header">
+        <h3 class="modal-title" id="category-modal-title">新增字典分类</h3>
+        <button class="modal-close" data-action="hideModal" data-param="'modal-category-add'">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="category-form-grid">
+          <div class="form-label">分类编码</div>
+          <div class="form-field"><input type="text" class="form-input" id="cat-code" placeholder="如 risk_level"></div>
+          <div class="form-label">分类名称</div>
+          <div class="form-field"><input type="text" class="form-input" id="cat-name" placeholder="如 风险等级"></div>
+          <div class="form-label">描述</div>
+          <div class="form-field"><textarea class="form-input" id="cat-desc" placeholder="分类用途说明"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="'modal-category-add'">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="saveCategory">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新增/编辑字典项弹窗 -->
+  <div class="modal-overlay" id="modal-dict-add" class="u-none">
+    <div class="modal" style="width:var(--modal-sm);">
+      <div class="modal-header">
+        <h3 class="modal-title" id="dict-modal-title">新增字典项</h3>
+        <button class="modal-close" data-action="hideModal" data-param="'modal-dict-add'">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-label">所属分类</div>
+          <div class="form-field"><input type="text" class="form-input" id="dict-category" readonly></div>
+          <div class="form-label">项编码</div>
+          <div class="form-field"><input type="text" class="form-input" id="dict-code" placeholder="如 major"></div>
+          <div class="form-label">项名称</div>
+          <div class="form-field"><input type="text" class="form-input" id="dict-name" placeholder="如 重大风险"></div>
+          <div class="form-label">排序号</div>
+          <div class="form-field"><input type="number" class="form-input" id="dict-sort" placeholder="1" class="u-w-80"></div>
+          <div class="form-label">状态</div>
+          <div class="form-field"><select class="form-select" id="dict-status">
+              <option value="enabled">启用</option>
+              <option value="disabled">停用</option>
+            </select></div>
+          <div class="form-label">备注</div>
+          <div class="form-field"><textarea class="form-input" id="dict-remark" placeholder="备注说明"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="'modal-dict-add'">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="saveDictItem">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div class="modal-overlay" id="modal-delete" class="u-none">
+    <div class="modal" style="width:400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">确认删除</h3>
+        <button class="modal-close" data-action="hideModal" data-param="'modal-delete'">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="delete-msg" style="font-size:var(--font-size-14); color:var(--text-primary);">确定要删除该字典项吗？</p>
+        <p style="font-size:var(--font-size-12); color:var(--text-tertiary); margin-top:8px;">删除后不可恢复，关联的业务数据可能受影响。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="'modal-delete'">取消</button>
+        <button class="btn btn-primary btn-sm" style="background:var(--error);" data-action="confirmDelete">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 字典项详情页 -->
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="dict-detail-title" style="font-size:var(--font-size-16);font-weight:600;">字典项详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showDictList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">基础信息</div>
+                <div id="dict-detail-basic"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">使用说明</div>
+                <div id="dict-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-panel">
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">修改记录</div>
+                <div id="dict-detail-timeline" class="timeline"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data-dict-data.js?v=2.0"></script>
+  <script src="data-dict-logic.js?v=2.0"></script>
+</body>
+</html>

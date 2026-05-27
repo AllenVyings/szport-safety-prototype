@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>组织架构 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>
     /* Tab 内容切换 */
     .tab-content { display:none; }
@@ -15,11 +16,11 @@
     /* 反向分栏：org 页面右侧树面板 320px + 间距 */
     .split-layout.reverse { gap:16px; }
     .split-layout.reverse .split-right { width:320px; min-width:320px; }
-    .src-search { width:100%; height:28px; font-size:12px; margin-bottom:8px; padding:0 8px; border:1px solid var(--border); border-radius:var(--radius-sm); }
+    .src-search { width:100%; height:28px; font-size:var(--font-size-12); margin-bottom:8px; padding:0 8px; border:1px solid var(--border); border-radius:var(--radius-sm); }
 
     /* 组织列表表格 - 基于 data-table 扩展 */
     .org-table-wrap { background:var(--bg-card); border-radius:0; box-shadow:none; overflow:hidden; flex:1; display:flex; flex-direction:column; min-height:0; }
-    .org-table-wrap .table-scroll { overflow-y:auto; flex:1; }
+    .org-table-wrap .table-scroll { overflow:auto; flex:1; min-height:0; }
     /* 使用 data-table 基类，仅覆盖组织树特有样式 */
     .org-table thead th { position:sticky; top:0; z-index:2; }
     /* data-table 偶数行条纹与特殊行冲突，覆盖 */
@@ -33,64 +34,68 @@
     .org-table tbody tr.row-deleted:hover td { opacity:0.65; }
     .org-table .name-cell { display:flex; align-items:center; gap:8px; }
     .org-table .indent { display:inline-block; width:20px; flex-shrink:0; }
-    .org-table .toggle-btn { cursor:pointer; font-size:9px; color:var(--text-tertiary); width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); flex-shrink:0; transition:all var(--duration-fast); }
+    .org-table .toggle-btn { cursor:pointer; font-size:var(--font-size-9); color:var(--text-tertiary); width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border-radius:var(--radius-sm); flex-shrink:0; transition:all var(--duration-fast); }
     .org-table .toggle-btn:hover { background:var(--bg-hover); color:var(--text-secondary); }
     .org-table .toggle-btn.open { transform:rotate(90deg); }
     .org-table .toggle-btn.empty { visibility:hidden; }
-    /* 类型图标 - 使用 framework.css .node-icon */
+    /* 类型图标 - 使用 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .node-icon */
 
     /* 状态指示条 */
     .org-table .status-bar { width:3px; height:14px; border-radius:2px; flex-shrink:0; }
     .org-table .status-bar.normal { background:var(--success); }
     .org-table .status-bar.abnormal { background:var(--error); }
     .org-table .status-bar.deleted { background:var(--text-description); }
-    /* 操作列 - 扩展 framework.css .action-btns */
-    .org-table .action-btns .btn { padding:2px 8px; font-size:12px; }
+    /* 操作列 - 扩展 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .action-btns */
+    .org-table .action-btns .btn { padding:2px 8px; font-size:var(--font-size-12); }
     .org-table .action-btns .btn:disabled { opacity:0.35; cursor:not-allowed; pointer-events:none; }
 
     /* 映射计数标签 */
     /* #1 fix: hover 用 --brand-10 替代不存在的 --brand-15 */
-    .mapping-count { font-size:11px; padding:2px 8px; border-radius:var(--radius-sm); background:var(--brand-7); color:var(--brand); border:1px solid var(--brand-30); cursor:pointer; transition:background var(--duration-fast); }
+    .mapping-count { font-size:var(--font-size-11); padding:2px 8px; border-radius:var(--radius-sm); background:var(--brand-7); color:var(--brand); border:1px solid var(--brand-30); cursor:pointer; transition:background var(--duration-fast); }
     .mapping-count:hover { background:var(--brand-10); }
 
     /* 脏标记 */
     .dirty-dot { display:none; width:6px; height:6px; border-radius:50%; background:var(--warning); margin-left:4px; vertical-align:middle; }
     .dirty-dot.show { display:inline-block; }
 
-    /* 管控级别 - 使用 framework.css .tag + 语义修饰 */
+    /* 管控级别 - 使用 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .tag + 语义修饰 */
 
     /* 源组织树节点 */
-    .src-node { padding:4px 6px; border-radius:var(--radius-sm); font-size:12px; cursor:default; color:var(--text-primary); display:flex; align-items:center; gap:4px; }
+    .src-node { padding:4px 6px; border-radius:var(--radius-sm); font-size:var(--font-size-12); cursor:default; color:var(--text-primary); display:flex; align-items:center; gap:4px; }
     .src-node:hover { background:var(--bg-hover); }
     .src-node.hidden { display:none; }
-    .src-node .arrow { font-size:9px; color:var(--text-description); width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform var(--duration-fast); }
+    .src-node .arrow { font-size:var(--font-size-9); color:var(--text-description); width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:transform var(--duration-fast); }
     .src-node .arrow.open { transform:rotate(90deg); }
     .src-node .arrow.empty { visibility:hidden; }
     /* #15 fix: 红色感叹号加 title */
-    .src-node .unmapped-mark { color:var(--error); font-weight:600; font-size:11px; flex-shrink:0; cursor:help; }
+    .src-node .unmapped-mark { color:var(--error); font-weight:600; font-size:var(--font-size-11); flex-shrink:0; cursor:help; }
     .src-children { padding-left:14px; }
     .src-children.collapsed { display:none; }
 
-    /* 弹窗 - 使用 framework.css .modal 三段式结构 */
+    /* 弹窗 - 使用 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .modal 三段式结构 */
 
     /* 映射下拉选择器 */
     .mapping-select-trigger { display:flex; align-items:flex-start; justify-content:space-between; min-height:32px; padding:4px 10px; border:1px solid var(--border-input); border-radius:var(--radius-sm); cursor:pointer; background:var(--bg-card); transition:border-color var(--duration-fast); }
     .mapping-select-trigger:hover { border-color:var(--primary); }
     .mapping-select-trigger.open { border-color:var(--primary); box-shadow:0 0 0 2px var(--primary-10); }
     .mapping-trigger-tags { display:flex; flex-wrap:wrap; gap:4px; flex:1; min-width:0; }
-    .mapping-placeholder { font-size:13px; color:var(--text-tertiary); line-height:24px; }
-    .mapping-trigger-tag { display:inline-flex; align-items:center; gap:2px; padding:2px 6px 2px 8px; background:var(--brand-7); color:var(--brand); border:1px solid var(--brand-30); border-radius:var(--radius-sm); font-size:11px; line-height:18px; white-space:nowrap; max-width:180px; overflow:hidden; text-overflow:ellipsis; }
-    .mapping-trigger-tag .tag-remove { cursor:pointer; color:var(--text-tertiary); font-size:13px; line-height:1; flex-shrink:0; transition:color var(--duration-fast); }
+    .mapping-placeholder { font-size:var(--font-size-13); color:var(--text-tertiary); line-height:24px; }
+    .mapping-trigger-tag { display:inline-flex; align-items:center; gap:2px; padding:2px 6px 2px 8px; background:var(--brand-7); color:var(--brand); border:1px solid var(--brand-30); border-radius:var(--radius-sm); font-size:var(--font-size-11); line-height:18px; white-space:nowrap; max-width:180px; overflow:hidden; text-overflow:ellipsis; }
+    .mapping-trigger-tag .tag-remove { cursor:pointer; color:var(--text-tertiary); font-size:var(--font-size-13); line-height:1; flex-shrink:0; transition:color var(--duration-fast); }
     .mapping-trigger-tag .tag-remove:hover { color:var(--error); }
     .mapping-dropdown { display:none; position:fixed; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-dropdown); z-index:1002; overflow:hidden; }
     .mapping-dropdown.show { display:block; }
     .mapping-dropdown-search { padding:8px; border-bottom:1px solid var(--border-light); }
     .mapping-dropdown-list { max-height:240px; overflow-y:auto; }
-    .mapping-option { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; font-size:13px; transition:background var(--duration-fast); }
+    .mapping-option { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; font-size:var(--font-size-13); transition:background var(--duration-fast); }
     .mapping-option:hover { background:var(--bg-hover); }
     .mapping-option.selected { background:var(--primary-light); }
     .mapping-option.disabled { opacity:0.4; cursor:not-allowed; pointer-events:none; }
-    .mapping-option .opt-icon { width:16px; height:16px; border-radius:3px; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:600; flex-shrink:0; }
+    .mapping-option .opt-icon { width:16px; height:16px; border-radius:3px; display:inline-flex; align-items:center; justify-content:center; font-size:var(--font-size-9); font-weight:600; flex-shrink:0; }
     .mapping-option .opt-icon.unit { background:var(--primary-light); color:var(--primary); }
     .mapping-option .opt-icon.dept { background:var(--warning-light); color:var(--warning); }
     .mapping-option .opt-check { width:16px; height:16px; border:1.5px solid var(--border-dark); border-radius:3px; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; transition:all var(--duration-fast); }
@@ -99,16 +104,16 @@
     .mapping-option.disabled .opt-check { border-color:var(--text-quaternary); background:var(--bg-page); }
     .mapping-option .opt-label { flex:1; min-width:0; }
     .mapping-option .opt-label .opt-name { color:var(--text-primary); }
-    .mapping-option .opt-label .opt-path { font-size:11px; color:var(--text-description); }
-    .mapping-option .opt-linked { font-size:11px; color:var(--text-description); flex-shrink:0; }
+    .mapping-option .opt-label .opt-path { font-size:var(--font-size-11); color:var(--text-description); }
+    .mapping-option .opt-linked { font-size:var(--font-size-11); color:var(--text-description); flex-shrink:0; }
 
     /* 框架图样式 */
     .chart-container { display:flex; flex-direction:column; align-items:center; padding:30px 20px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); overflow-x:auto; }
     .chart-row { display:flex; flex-direction:column; align-items:center; }
     .chart-node { padding:8px 16px; border:2px solid var(--primary); border-radius:var(--radius-md); background:var(--primary-light); text-align:center; min-width:120px; cursor:pointer; transition:box-shadow var(--duration-fast); }
     .chart-node:hover { box-shadow:0 2px 8px rgba(35,102,236,0.2); }
-    .chart-node .node-name { font-size:13px; font-weight:600; color:var(--primary); margin-bottom:2px; }
-    .chart-node .node-info { font-size:11px; color:var(--text-secondary); }
+    .chart-node .node-name { font-size:var(--font-size-13); font-weight:600; color:var(--primary); margin-bottom:2px; }
+    .chart-node .node-info { font-size:var(--font-size-11); color:var(--text-secondary); }
     .chart-node.dept-node { border-color:var(--warning); background:var(--warning-light); }
     .chart-node.dept-node .node-name { color:var(--warning); }
     .chart-connector-v { width:2px; height:20px; background:var(--primary-30); margin:0 auto; }
@@ -117,20 +122,24 @@
     /* #13 fix: 框架图二级展开区 */
     .chart-sub { display:flex; justify-content:center; gap:12px; margin-top:8px; }
     .chart-sub.collapsed { display:none; }
-    .chart-expand-hint { font-size:11px; color:var(--text-description); margin-top:4px; }
+    .chart-expand-hint { font-size:var(--font-size-11); color:var(--text-description); margin-top:4px; }
 
-    /* 删除确认 - 使用 framework.css .alert.alert-error */
-    .delete-scope { margin-top:8px; font-size:12px; color:var(--text-secondary); }
+    /* 删除确认 - 使用 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .alert.alert-error */
+    .delete-scope { margin-top:8px; font-size:var(--font-size-12); color:var(--text-secondary); }
     .delete-scope li { margin-top:4px; }
 
-    /* 空状态 - 使用 framework.css .empty-state */
+    /* 空状态 - 使用 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .empty-state */
 
-    /* 弹窗表单 - 双列 grid + 顶部标签（覆盖 framework.css 左标签布局） */
+    /* 弹窗表单 - 双列 grid + 顶部标签（覆盖 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css 左标签布局） */
     .modal-body .form-group { flex-direction:column; gap:0; margin-bottom:16px; }
-    .modal-body .form-label { width:auto; min-width:0; text-align:left; line-height:1; margin-bottom:6px; font-size:13px; }
+    .modal-body .form-label { width:auto; min-width:0; text-align:left; line-height:1; margin-bottom:6px; font-size:var(--font-size-13); }
     .modal-body .form-content { width:100%; }
 
-    /* 树形选择器 - 使用 framework.css .tree-select-* */
+    /* 树形选择器 - 使用 framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css .tree-select-* */
 
     /* 地图选点按钮 */
     .map-pin-btn { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; padding:0; flex-shrink:0; }
@@ -138,7 +147,7 @@
 
     /* 地图选点弹窗 */
     .map-container { position:relative; width:100%; height:360px; border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--border); margin-bottom:12px; }
-    .map-placeholder { width:100%; height:100%; background:linear-gradient(135deg, #E8F0F8 0%, #D4E4F1 30%, #C5D9EA 60%, #B8CFE0 100%); position:relative; }
+    .map-placeholder { width:100%; height:100%; background:linear-gradient(135deg, var(--bg-slate-light) 0%, var(--bg-slate) 30%, var(--bg-slate-medium) 60%, var(--bg-slate-dark) 100%); position:relative; }
     .map-grid-lines { position:absolute; inset:0; background-image:
       linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px);
@@ -146,7 +155,7 @@
     .map-center-pin { position:absolute; top:50%; left:50%; transform:translate(-50%, -100%); z-index:2; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transition:all 0.3s ease; }
     .map-center-pin.bounce { animation:pinBounce 0.5s ease; }
     @keyframes pinBounce { 0%{transform:translate(-50%,-100%) scale(0.6);} 50%{transform:translate(-50%,-120%) scale(1.1);} 100%{transform:translate(-50%,-100%) scale(1);} }
-    .map-watermark { position:absolute; bottom:12px; right:16px; font-size:12px; color:rgba(0,0,0,0.2); font-weight:600; letter-spacing:1px; }
+    .map-watermark { position:absolute; bottom:12px; right:16px; font-size:var(--font-size-12); color:rgba(0,0,0,0.2); font-weight:600; letter-spacing:1px; }
 
     .map-search-results { max-height:180px; overflow-y:auto; }
     .map-result-item { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:background var(--duration-fast); }
@@ -155,70 +164,59 @@
     .map-result-item .result-icon { flex-shrink:0; margin-top:2px; }
     .map-result-item .result-icon svg { color:var(--error); }
     .map-result-item .result-info { flex:1; min-width:0; }
-    .map-result-item .result-name { font-size:13px; color:var(--text-primary); font-weight:500; }
-    .map-result-item .result-addr { font-size:12px; color:var(--text-description); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .map-result-item .result-name { font-size:var(--font-size-13); color:var(--text-primary); font-weight:500; }
+    .map-result-item .result-addr { font-size:var(--font-size-12); color:var(--text-description); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    .map-selected-info { display:flex; align-items:center; gap:6px; padding:10px 12px; background:var(--success-light); border:1px solid var(--success-border); border-radius:var(--radius-sm); font-size:13px; color:var(--text-primary); margin-bottom:0; }
+    .map-selected-info { display:flex; align-items:center; gap:6px; padding:10px 12px; background:var(--success-light); border:1px solid var(--success-border); border-radius:var(--radius-sm); font-size:var(--font-size-13); color:var(--text-primary); margin-bottom:0; }
     .map-selected-info svg { flex-shrink:0; }
   </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
 <body style="padding:20px 20px 0 20px; background:var(--bg-page); height:100vh; display:flex; flex-direction:column; overflow:hidden;">
   <!-- 主卡片：Tab + 筛选 + 内容 -->
   <div class="card" style="padding:0; overflow:hidden; flex:1; display:flex; flex-direction:column; min-height:0;">
     <!-- Tab栏嵌入卡片顶部 -->
     <div class="tab-bar" style="padding:0 20px;">
-      <div class="tab-item active" onclick="switchTab('list', event)">组织列表</div>
-      <div class="tab-item" onclick="switchTab('chart', event)">框架图展示</div>
+      <div class="tab-item active" data-action="switchTab" data-param="list">组织列表</div>
+      <div class="tab-item" data-action="switchTab" data-param="chart">框架图展示</div>
     </div>
 
     <!-- Tab1 组织列表 -->
     <div id="tab-list" class="tab-content active">
-      <div class="query-bar">
-        <div class="query-item">
-          <span class="query-label">组织名称</span>
-          <input class="form-input" id="filter-keyword" placeholder="请输入">
-        </div>
-        <div class="query-item">
-          <span class="query-label">管控级别</span>
-          <select class="form-input form-select filter-select" data-filter="level">
+      <div class="filter-bar" style="padding:0 30px;">
+        <div class="filter-field"><span class="filter-label">组织名称</span><input class="form-input" id="filter-keyword" placeholder="请输入"></div>
+        <div class="filter-field"><span class="filter-label">管控级别</span><select class="form-input form-select filter-select" data-filter="level">
             <option value="">全部</option>
             <option value="A">A级管控</option>
             <option value="B">B级管控</option>
             <option value="C">C级管控</option>
-          </select>
-        </div>
-        <div class="query-item">
-          <span class="query-label">组织类型</span>
-          <select class="form-input form-select filter-select" data-filter="type">
+          </select></div>
+        <div class="filter-field"><span class="filter-label">组织类型</span><select class="form-input form-select filter-select" data-filter="type">
             <option value="">全部</option>
             <option value="单位">单位</option>
             <option value="部门">部门</option>
-          </select>
-        </div>
-        <div class="query-item">
-          <span class="query-label">同步状态</span>
-          <select class="form-input form-select filter-select" data-filter="sync">
+          </select></div>
+        <div class="filter-field"><span class="filter-label">同步状态</span><select class="form-input form-select filter-select" data-filter="sync">
             <option value="">全部</option>
             <option value="正常">正常</option>
             <option value="异常">异常</option>
             <option value="已删除">已删除</option>
-          </select>
-        </div>
-        <button class="btn btn-primary query-btn" onclick="applyFilters()">查询</button>
-        <button class="btn btn-default query-btn" onclick="resetFilters()">重置</button>
-        <div class="query-actions">
-          <button class="btn btn-default query-btn" onclick="expandAll()">全部展开</button>
-          <button class="btn btn-default query-btn" onclick="collapseAll()">全部折叠</button>
-          <button class="btn btn-primary query-btn" onclick="openModal('modal-add')">+ 新增</button>
-          <button class="btn btn-default query-btn" onclick="syncOrg()">同步</button>
-        </div>
+          </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary query-btn" data-action="applyFilters">查询</button>
+        <button class="btn btn-default query-btn" data-action="resetFilters">重置</button></div>
+      </div>
+      <div class="filter-actions-row" style="padding:0 30px;">
+        <button class="btn btn-default" data-action="expandAll">全部展开</button>
+        <button class="btn btn-default" data-action="collapseAll">全部折叠</button>
+        <button class="btn btn-primary" data-action="showModal" data-param="modal-add">+ 新增</button>
+        <button class="btn btn-default" data-action="syncOrg">同步</button>
       </div>
 
       <div class="split-layout reverse">
         <!-- 左侧：组织列表 -->
-        <div class="split-left">
+        <div class="split-left" style="padding:0 30px 30px 30px;">
           <div class="org-table-wrap" style="border-radius:0; box-shadow:none;">
-            <div class="table-scroll">
+            <div class="table-scroll table-wrap" style="margin-top:0;">
               <table class="data-table org-table">
                 <thead>
                   <tr>
@@ -228,7 +226,7 @@
                     <th>管控级别</th>
                     <th>同步状态</th>
                     <th>映射</th>
-                    <th style="width:160px;">操作</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="org-tbody"></tbody>
@@ -245,9 +243,9 @@
         <div class="split-right">
           <div class="split-left-title">
             <span>源组织架构（统一身份认证平台）</span>
-            <span style="font-size:11px; color:var(--text-description);"><span style="color:var(--error); font-weight:600;" title="该源组织未被本系统映射">!</span> 未映射</span>
+            <span style="font-size:var(--font-size-11); color:var(--text-description);"><span style="color:var(--error); font-weight:600;" title="该源组织未被本系统映射">!</span> 未映射</span>
           </div>
-          <input class="src-search" placeholder="搜索源组织..." oninput="filterSrcTree(this.value)">
+          <input class="src-search" placeholder="搜索源组织..." data-action="filterSrcTree">
           <div id="source-tree" style="overflow-y:auto; flex:1; min-height:0;"></div>
         </div>
       </div>
@@ -259,1024 +257,8 @@
     </div>
   </div>
 
-  <!-- 新增组织弹窗 -->
-  <div class="modal-overlay" id="modal-add">
-    <div class="modal" style="width:640px;">
-      <div class="modal-header">新增组织</div>
-      <div class="modal-body">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 20px;">
-          <div class="form-group">
-            <div class="form-label"><span class="required">*</span>组织类型</div>
-            <div class="form-content" style="display:flex; gap:20px; height:32px; align-items:center;">
-              <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="add-type" value="单位" checked> 单位</label>
-              <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:pointer;"><input type="radio" name="add-type" value="部门"> 部门</label>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label"><span class="required">*</span>上级组织</div>
-            <div class="form-content">
-              <div class="tree-select-trigger" id="add-parent-trigger" onclick="toggleTreeSelect('add')">
-                <span class="tree-select-text" id="add-parent-text">请选择上级组织</span>
-                <svg width="12" height="12" viewBox="0 0 12 12" style="flex-shrink:0; color:var(--text-tertiary);"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label"><span class="required">*</span>组织名称</div>
-            <div class="form-content"><input class="form-input" id="add-name" placeholder="请输入组织名称"></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">组织编码</div>
-            <div class="form-content"><input class="form-input" id="add-code" placeholder="保存后自动生成" disabled style="background:var(--bg-page); color:var(--text-description);"></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label"><span class="required" id="add-level-required" style="display:inline;">*</span>管控级别</div>
-            <div class="form-content"><select class="form-input form-select" id="add-level"><option value="">请选择</option><option value="A级管控">A级管控</option><option value="B级管控">B级管控</option><option value="C级管控">C级管控</option></select></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label"><span class="required">*</span>排序</div>
-            <div class="form-content"><input class="form-input" type="number" id="add-sort" min="0" placeholder="请输入排序号"></div>
-          </div>
-          <div class="form-group" style="grid-column:span 2;">
-            <div class="form-label">所属区划</div>
-            <div class="form-content">
-              <div style="display:flex; gap:8px;">
-                <select class="form-input form-select" style="flex:1;"><option value="">请选择</option><option>广东省</option></select>
-                <select class="form-input form-select" style="flex:1;"><option value="">请选择</option><option>深圳市</option><option>汕尾市</option><option>赣州市</option></select>
-                <select class="form-input form-select" style="flex:1;"><option value="">请选择</option><option>南山区</option><option>盐田区</option><option>宝安区</option><option>深汕特别合作区</option></select>
-              </div>
-            </div>
-          </div>
-          <div class="form-group" style="grid-column:span 2;">
-            <div class="form-label">详细地址</div>
-            <div class="form-content">
-              <div style="display:flex; gap:8px;">
-                <input class="form-input" id="add-addr" placeholder="请输入详细地址" style="flex:1;">
-                <button class="btn btn-default btn-sm map-pin-btn" onclick="openMapPicker('add')" title="地图选点">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-add')">取消</button>
-        <button class="btn btn-primary">确认新增</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 编辑组织弹窗（含映射配置 + 脏标记） -->
-  <div class="modal-overlay" id="modal-edit">
-    <div class="modal" style="width:640px;">
-      <div class="modal-header">编辑组织信息</div>
-      <div class="modal-body">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 20px;">
-          <div class="form-group">
-            <div class="form-label">组织类型</div>
-            <div class="form-content" style="display:flex; gap:20px; height:32px; align-items:center;">
-              <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:default; opacity:0.85;"><input type="radio" name="edit-type" value="单位" disabled> 单位</label>
-              <label style="display:flex; align-items:center; gap:4px; font-size:13px; cursor:default; opacity:0.85;"><input type="radio" name="edit-type" value="部门" disabled> 部门</label>
-            </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">上级组织</div>
-            <div class="form-content"><input class="form-input" id="edit-parent" disabled style="background:var(--bg-page); color:var(--text-description);"></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">组织名称 <span class="dirty-dot" id="dirty-name" title="已本地修改"></span></div>
-            <div class="form-content"><input class="form-input" id="edit-name"></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">组织编码</div>
-            <div class="form-content"><input class="form-input" id="edit-code" disabled style="background:var(--bg-page); color:var(--text-description);"></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">管控级别 <span class="dirty-dot" id="dirty-level" title="已本地修改"></span></div>
-            <div class="form-content"><select class="form-input form-select" id="edit-level"><option value="">无</option><option value="A级管控">A级管控</option><option value="B级管控">B级管控</option><option value="C级管控">C级管控</option></select></div>
-          </div>
-          <div class="form-group">
-            <div class="form-label">排序 <span class="dirty-dot" id="dirty-sort" title="已本地修改"></span></div>
-            <div class="form-content"><input class="form-input" type="number" id="edit-sort" min="0"></div>
-          </div>
-          <div class="form-group" style="grid-column:span 2;">
-            <div class="form-label">所属区划 <span class="dirty-dot" id="dirty-region" title="已本地修改"></span></div>
-            <div class="form-content">
-              <div style="display:flex; gap:8px;">
-                <select class="form-input form-select" style="flex:1;"><option>广东省</option></select>
-                <select class="form-input form-select" style="flex:1;"><option>深圳市</option></select>
-                <select class="form-input form-select" style="flex:1;"><option>南山区</option></select>
-              </div>
-            </div>
-          </div>
-          <div class="form-group" style="grid-column:span 2;">
-            <div class="form-label">详细地址 <span class="dirty-dot" id="dirty-addr" title="已本地修改"></span></div>
-            <div class="form-content">
-              <div style="display:flex; gap:8px;">
-                <input class="form-input" id="edit-addr" style="flex:1;">
-                <button class="btn btn-default btn-sm map-pin-btn" onclick="openMapPicker('edit')" title="地图选点">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-edit')">取消</button>
-        <button class="btn btn-primary">保存</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 映射配置弹窗 -->
-  <div class="modal-overlay" id="modal-mapping" style="z-index:1001;">
-    <div class="modal" style="width:560px;">
-      <div class="modal-header">源组织映射</div>
-      <div class="modal-body">
-        <div class="form-group">
-          <div class="form-label">组织名称</div>
-          <div class="form-content"><input class="form-input" id="mapping-org-name" disabled style="background:var(--bg-page); color:var(--text-primary); font-weight:500;"></div>
-        </div>
-        <div class="form-group">
-          <div class="form-label">源组织机构</div>
-          <div class="form-content">
-            <div style="position:relative;">
-              <div class="mapping-select-trigger" id="mapping-select-trigger" onclick="toggleMappingDropdown()">
-                <div class="mapping-trigger-tags" id="mapping-trigger-tags"><span class="mapping-placeholder" id="mapping-placeholder">请选择源组织机构</span></div>
-                <svg width="12" height="12" viewBox="0 0 12 12" style="flex-shrink:0; color:var(--text-tertiary); margin-top:2px;"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-              </div>
-              <div class="mapping-dropdown" id="mapping-dropdown">
-                <div class="mapping-dropdown-search">
-                  <input class="form-input" id="mapping-search-input" placeholder="搜索源组织..." style="height:28px; font-size:12px;" oninput="filterMappingOptions(this.value)">
-                </div>
-                <div class="mapping-dropdown-list" id="mapping-dropdown-list"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-mapping')">取消</button>
-        <button class="btn btn-primary" onclick="saveMapping()">保存</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 地图选点弹窗 -->
-  <div class="modal-overlay" id="modal-map" style="z-index:1001;">
-    <div class="modal" style="width:720px;">
-      <div class="modal-header">地图选点</div>
-      <div class="modal-body">
-        <div style="display:flex; gap:12px; margin-bottom:12px;">
-          <input class="form-input" id="map-search" placeholder="搜索地址..." style="flex:1; height:32px;">
-          <button class="btn btn-primary btn-sm" onclick="searchMapAddress()">搜索</button>
-        </div>
-        <div class="map-container" id="map-container">
-          <div class="map-placeholder">
-            <div class="map-grid-lines"></div>
-            <div class="map-center-pin" id="map-center-pin">
-              <svg width="28" height="36" viewBox="0 0 28 36"><path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.27 21.73 0 14 0z" fill="var(--error)"/><circle cx="14" cy="13" r="5" fill="white"/></svg>
-            </div>
-            <div class="map-watermark">深圳港区域</div>
-          </div>
-        </div>
-        <div class="map-search-results" id="map-search-results"></div>
-        <div class="map-selected-info" id="map-selected-info" style="display:none;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span id="map-selected-text"></span>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-map')">取消</button>
-        <button class="btn btn-primary" onclick="confirmMapAddress()">确认选点</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 删除确认弹窗 -->
-  <div class="modal-overlay" id="modal-delete">
-    <div class="modal" style="width:480px;">
-      <div class="modal-header" id="delete-title">确认删除</div>
-      <div class="modal-body" id="delete-content"></div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('modal-delete')">取消</button>
-        <button class="btn btn-primary" style="background:var(--error); border-color:var(--error);" id="delete-confirm-btn">确认删除</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 上级组织树形选择下拉 -->
-  <div class="tree-select-dropdown" id="tree-select-dropdown">
-    <div class="tree-select-search">
-      <input class="form-input" id="tree-select-search-input" placeholder="搜索组织..." style="height:28px; font-size:12px;" oninput="filterTreeSelect(this.value)">
-    </div>
-    <div class="tree-select-list" id="tree-select-list"></div>
-  </div>
-
-  <script>
-    // ===== 数据 =====
-    var orgList = [
-      { id:'group', name:'深圳港集团', code:'ORG', type:'单位', parent:'—（根节点）', level:'A级管控', levelClass:'tag tag-error', sort:0, sync:'正常', syncClass:'tag-success', mapping:['深圳港集团'], region:'广东省 / 深圳市 / 南山区', addr:'深圳市南山区妈湾港大道1号', dirty:{name:false,level:false,sort:false,region:false,addr:false}, children:[
-        { id:'d01', name:'安全管理与环保部', code:'ORG-D01', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理与环保部（一类考核部室）'], dirty:{name:false} },
-        { id:'d02', name:'办公室', code:'ORG-D02', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:2, sync:'正常', syncClass:'tag-success', mapping:['办公室'], dirty:{} },
-        { id:'d03', name:'党群工作部', code:'ORG-D03', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:3, sync:'正常', syncClass:'tag-success', mapping:['党群工作部（企业文化部）'], dirty:{name:true} },
-        { id:'d04', name:'纪检监察室', code:'ORG-D04', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:4, sync:'正常', syncClass:'tag-success', mapping:['纪检监察室'], dirty:{} },
-        { id:'d05', name:'人力资源部', code:'ORG-D05', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:5, sync:'正常', syncClass:'tag-success', mapping:['人力资源部'], dirty:{} },
-        { id:'d06', name:'财务管理部', code:'ORG-D06', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:6, sync:'正常', syncClass:'tag-success', mapping:['财务管理部'], dirty:{} },
-        { id:'d07', name:'审计部', code:'ORG-D07', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:7, sync:'正常', syncClass:'tag-success', mapping:['审计部'], dirty:{} },
-        { id:'d08', name:'战略发展部', code:'ORG-D08', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:8, sync:'正常', syncClass:'tag-success', mapping:['战略发展部'], dirty:{} },
-        { id:'d09', name:'投资与资本运营部', code:'ORG-D09', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:9, sync:'正常', syncClass:'tag-success', mapping:['投资与资本运营部'], dirty:{} },
-        { id:'d10', name:'企业管理部', code:'ORG-D10', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:10, sync:'正常', syncClass:'tag-success', mapping:['企业管理部'], dirty:{} },
-        { id:'d11', name:'合规部', code:'ORG-D11', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:11, sync:'正常', syncClass:'tag-success', mapping:['合规部（董事会秘书处）'], dirty:{} },
-        { id:'d12', name:'建设管理部', code:'ORG-D12', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:12, sync:'正常', syncClass:'tag-success', mapping:['建设管理部'], dirty:{} },
-        { id:'d13', name:'数字化创新中心', code:'ORG-D13', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:13, sync:'正常', syncClass:'tag-success', mapping:['数字化创新中心'], dirty:{} },
-        { id:'d14', name:'港航事业部', code:'ORG-D14', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:14, sync:'正常', syncClass:'tag-success', mapping:['港航事业部'], dirty:{} },
-        { id:'d15', name:'海洋产业事业部', code:'ORG-D15', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:15, sync:'正常', syncClass:'tag-success', mapping:['海洋产业事业部'], dirty:{} },
-        { id:'d16', name:'盐田港建设指挥部办公室', code:'ORG-D16', type:'部门', parent:'深圳港集团', level:'—', levelClass:'', sort:16, sync:'正常', syncClass:'tag-success', mapping:['盐田港建设指挥部办公室'], dirty:{} },
-        { id:'u01', name:'深圳市盐田港股份有限公司', code:'ORG-U01', type:'单位', parent:'深圳港集团', level:'A级管控', levelClass:'tag tag-error', sort:1, sync:'正常', syncClass:'tag-success', mapping:['深圳市盐田港股份有限公司'], region:'广东省 / 深圳市 / 盐田区', addr:'深圳市盐田区深盐路', dirty:{region:true}, children:[
-          { id:'u01-d01', name:'安全管理与环保部', code:'ORG-U01-D01', type:'部门', parent:'深圳市盐田港股份有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部','运营管理部'], dirty:{} }
-        ]},
-        { id:'u02', name:'深圳市深圳港海洋发展有限公司', code:'ORG-U02', type:'单位', parent:'深圳港集团', level:'A级管控', levelClass:'tag tag-error', sort:2, sync:'正常', syncClass:'tag-success', mapping:['深圳市深圳港海洋发展有限公司'], region:'广东省 / 深圳市 / 宝安区', addr:'深圳市宝安区大铲湾蓝色未来科技园', dirty:{}, children:[
-          { id:'u02-d01', name:'安全管理与环保部', code:'ORG-U02-D01', type:'部门', parent:'深圳市深圳港海洋发展有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u03', name:'深圳市深圳港物流集团有限公司', code:'ORG-U03', type:'单位', parent:'深圳港集团', level:'B级管控', levelClass:'tag tag-warning', sort:3, sync:'正常', syncClass:'tag-success', mapping:['深圳市深圳港物流集团有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u03-d01', name:'安全管理与环保部', code:'ORG-U03-D01', type:'部门', parent:'深圳市深圳港物流集团有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u04', name:'深圳市华舟海洋发展股份有限公司', code:'ORG-U04', type:'单位', parent:'深圳港集团', level:'B级管控', levelClass:'tag tag-warning', sort:4, sync:'正常', syncClass:'tag-success', mapping:['深圳市华舟海洋发展股份有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u04-d01', name:'安全管理与环保部', code:'ORG-U04-D01', type:'部门', parent:'深圳市华舟海洋发展股份有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u05', name:'深圳市深圳港能源发展有限公司', code:'ORG-U05', type:'单位', parent:'深圳港集团', level:'B级管控', levelClass:'tag tag-warning', sort:5, sync:'正常', syncClass:'tag-success', mapping:['深圳市深圳港能源发展有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u05-d01', name:'安全管理与环保部', code:'ORG-U05-D01', type:'部门', parent:'深圳市深圳港能源发展有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u06', name:'深圳市深圳港资本有限公司', code:'ORG-U06', type:'单位', parent:'深圳港集团', level:'C级管控', levelClass:'tag tag-info', sort:6, sync:'正常', syncClass:'tag-success', mapping:['深圳市深圳港资本有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u06-d01', name:'安全管理与环保部', code:'ORG-U06-D01', type:'部门', parent:'深圳市深圳港资本有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u07', name:'深圳市深圳港港口服务集团有限公司', code:'ORG-U07', type:'单位', parent:'深圳港集团', level:'B级管控', levelClass:'tag tag-warning', sort:7, sync:'正常', syncClass:'tag-success', mapping:['深圳市深圳港港口服务集团有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u07-d01', name:'安全管理与环保部', code:'ORG-U07-D01', type:'部门', parent:'深圳市深圳港港口服务集团有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u08', name:'盐田港国际资讯有限公司', code:'ORG-U08', type:'单位', parent:'深圳港集团', level:'C级管控', levelClass:'tag tag-info', sort:8, sync:'正常', syncClass:'tag-success', mapping:['盐田港国际资讯有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u08-d01', name:'安全管理与环保部', code:'ORG-U08-D01', type:'部门', parent:'盐田港国际资讯有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u09', name:'深圳市深圳港港口联运有限公司', code:'ORG-U09', type:'单位', parent:'深圳港集团', level:'C级管控', levelClass:'tag tag-info', sort:9, sync:'正常', syncClass:'tag-success', mapping:['深圳市深圳港港口联运有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u09-d01', name:'安全管理与环保部', code:'ORG-U09-D01', type:'部门', parent:'深圳市深圳港港口联运有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u10', name:'深圳市平盐疏港铁路有限公司', code:'ORG-U10', type:'单位', parent:'深圳港集团', level:'C级管控', levelClass:'tag tag-info', sort:10, sync:'正常', syncClass:'tag-success', mapping:['深圳市平盐疏港铁路有限公司'], region:'广东省 / 深圳市', dirty:{}, children:[
-          { id:'u10-d01', name:'安全管理与环保部', code:'ORG-U10-D01', type:'部门', parent:'深圳市平盐疏港铁路有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u11', name:'深圳市深汕海洋发展有限公司', code:'ORG-U11', type:'单位', parent:'深圳港集团', level:'C级管控', levelClass:'tag tag-info', sort:11, sync:'正常', syncClass:'tag-success', mapping:['深圳市深汕海洋发展有限公司'], region:'广东省 / 汕尾市 / 深汕特别合作区', dirty:{}, children:[
-          { id:'u11-d01', name:'安全管理与环保部', code:'ORG-U11-D01', type:'部门', parent:'深圳市深汕海洋发展有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u12', name:'深圳市盐田港保税产业发展有限公司', code:'ORG-U12', type:'单位', parent:'深圳港集团', level:'B级管控', levelClass:'tag tag-warning', sort:12, sync:'正常', syncClass:'tag-success', mapping:['深圳市盐田港保税产业发展有限公司'], region:'广东省 / 深圳市 / 盐田区', addr:'深圳市盐田港保税区', dirty:{}, children:[
-          { id:'u12-d01', name:'安全管理与环保部', code:'ORG-U12-D01', type:'部门', parent:'深圳市盐田港保税产业发展有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u13', name:'深圳市盐田东港区码头有限公司', code:'ORG-U13', type:'单位', parent:'深圳港集团', level:'B级管控', levelClass:'tag tag-warning', sort:13, sync:'异常', syncClass:'tag-error', mapping:['深圳市盐田东港区码头有限公司'], dirty:{}, children:[
-          { id:'u13-d01', name:'安全管理与环保部', code:'ORG-U13-D01', type:'部门', parent:'深圳市盐田东港区码头有限公司', level:'—', levelClass:'', sort:1, sync:'异常', syncClass:'tag-error', mapping:['安全管理部'], dirty:{} }
-        ]},
-        { id:'u14', name:'江西省深赣港产城发展有限公司', code:'ORG-U14', type:'单位', parent:'深圳港集团', level:'C级管控', levelClass:'tag tag-info', sort:14, sync:'正常', syncClass:'tag-success', mapping:['江西省深赣港产城发展有限公司'], region:'江西省 / 赣州市', dirty:{}, children:[
-          { id:'u14-d01', name:'安全管理与环保部', code:'ORG-U14-D01', type:'部门', parent:'江西省深赣港产城发展有限公司', level:'—', levelClass:'', sort:1, sync:'正常', syncClass:'tag-success', mapping:['安全管理部'], dirty:{} }
-        ]}
-      ]}
-    ];
-
-    var srcOrgData = [
-      { id:'src-group', name:'深圳港集团', type:'单位', children:[
-        { id:'src-d01', name:'安全管理与环保部', type:'部门' },
-        { id:'src-d02', name:'办公室', type:'部门' },
-        { id:'src-d03', name:'党群工作部', type:'部门' },
-        { id:'src-d04', name:'纪检监察室', type:'部门' },
-        { id:'src-d05', name:'人力资源部', type:'部门' },
-        { id:'src-d06', name:'财务管理部', type:'部门' },
-        { id:'src-d07', name:'审计部', type:'部门' },
-        { id:'src-d08', name:'战略发展部', type:'部门' },
-        { id:'src-d09', name:'投资与资本运营部', type:'部门' },
-        { id:'src-d10', name:'企业管理部', type:'部门' },
-        { id:'src-d11', name:'合规部', type:'部门' },
-        { id:'src-d12', name:'建设管理部', type:'部门' },
-        { id:'src-d13', name:'数字化创新中心', type:'部门' },
-        { id:'src-d14', name:'港航事业部', type:'部门' },
-        { id:'src-d15', name:'海洋产业事业部', type:'部门' },
-        { id:'src-d16', name:'盐田港建设指挥部办公室', type:'部门' },
-        { id:'src-d17', name:'法律事务部', type:'部门', unmapped:true },
-        { id:'src-u01', name:'深圳市盐田港股份有限公司', type:'单位', children:[
-          { id:'src-u01-d01', name:'安全管理部', type:'部门' },
-          { id:'src-u01-d02', name:'运营管理部', type:'部门' },
-          { id:'src-u01-d03', name:'行政综合部', type:'部门', unmapped:true }
-        ]},
-        { id:'src-u02', name:'深圳市深圳港海洋发展有限公司', type:'单位', children:[{id:'src-u02-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u03', name:'深圳市深圳港物流集团有限公司', type:'单位', children:[{id:'src-u03-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u04', name:'深圳市华舟海洋发展股份有限公司', type:'单位', children:[{id:'src-u04-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u05', name:'深圳市深圳港能源发展有限公司', type:'单位', children:[{id:'src-u05-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u06', name:'深圳市深圳港资本有限公司', type:'单位', children:[{id:'src-u06-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u07', name:'深圳市深圳港港口服务集团有限公司', type:'单位', children:[{id:'src-u07-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u08', name:'盐田港国际资讯有限公司', type:'单位', children:[{id:'src-u08-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u09', name:'深圳市深圳港港口联运有限公司', type:'单位', children:[{id:'src-u09-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u10', name:'深圳市平盐疏港铁路有限公司', type:'单位', children:[{id:'src-u10-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u11', name:'深圳市深汕海洋发展有限公司', type:'单位', children:[{id:'src-u11-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u12', name:'深圳市盐田港保税产业发展有限公司', type:'单位', children:[{id:'src-u12-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u13', name:'深圳市盐田东港区码头有限公司', type:'单位', children:[{id:'src-u13-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u14', name:'江西省深赣港产城发展有限公司', type:'单位', children:[{id:'src-u14-d01',name:'安全管理部',type:'部门'}] },
-        { id:'src-u15', name:'物业管理公司', type:'单位', unmapped:true, children:[{id:'src-u15-d01',name:'安全管理部',type:'部门',unmapped:true}] }
-      ]}
-    ];
-
-    // ===== 渲染组织列表 =====
-    var expandedSet = new Set(['group']);
-
-    // #10 fix: 全局筛选状态
-    var filterState = { keyword:'', level:'', type:'', sync:'' };
-
-    function flattenOrg(nodes, depth, result) {
-      result = result || [];
-      nodes.forEach(function(node) {
-        result.push({ data:node, depth:depth, hasChildren: !!(node.children && node.children.length) });
-        if (node.children && expandedSet.has(node.id)) flattenOrg(node.children, depth + 1, result);
-      });
-      return result;
-    }
-
-    function renderTable() {
-      var rows = flattenOrg(orgList, 0);
-      var html = '';
-      rows.forEach(function(row) {
-        var d = row.data;
-        var isAbnormal = d.sync === '异常';
-        var isDeleted = d.sync === '已删除';
-        var rowClass = isAbnormal ? 'row-abnormal' : (isDeleted ? 'row-deleted' : '');
-        var indent = '';
-        for (var i = 0; i < row.depth; i++) indent += '<span class="indent"></span>';
-        var toggleClass = row.hasChildren ? (expandedSet.has(d.id) ? 'open' : '') : 'empty';
-        var iconClass = d.type === '单位' ? 'unit' : 'dept';
-        var icon = d.type === '单位' ? '单' : '部';
-        var statusDotClass = isAbnormal ? 'abnormal' : (isDeleted ? 'deleted' : 'normal');
-        var statusBar = '<span class="status-bar ' + statusDotClass + '"></span>';
-        // #4 fix: 管控级别标签用独立 class，不再加 tag 基类
-        var levelHtml = d.levelClass ? '<span class="' + d.levelClass + '">' + d.level + '</span>' : '—';
-        var syncHtml = '<span class="tag ' + d.syncClass + '" style="font-size:11px;">' + d.sync + '</span>';
-        var mapCount = d.mapping ? d.mapping.length : 0;
-        var mapHtml = mapCount > 0 ? '<span class="mapping-count" title="' + d.mapping.join('、') + '">' + mapCount + ' 个映射</span>' : '<span style="color:var(--text-description); font-size:12px;">无</span>';
-
-        html += '<tr class="' + rowClass + '" data-id="' + d.id + '" data-name="' + d.name + '" data-type="' + d.type + '" data-level="' + (d.level === '—' ? '' : d.level.charAt(0)) + '" data-sync="' + d.sync + '">';
-        html += '<td><div class="name-cell">' + indent;
-        html += '<span class="toggle-btn ' + toggleClass + '" onclick="toggleRow(\'' + d.id + '\')">&#9654;</span>';
-        html += '<span class="node-icon ' + iconClass + '">' + icon + '</span>';
-        html += statusBar + '<span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + d.name + '</span></div></td>';
-        html += '<td style="color:var(--text-secondary); font-size:12px; font-family:monospace;">' + d.code + '</td>';
-        html += '<td><span class="tag ' + (d.type === '单位' ? 'tag-info' : 'tag-warning') + '" style="font-size:11px;">' + d.type + '</span></td>';
-        html += '<td>' + levelHtml + '</td>';
-        html += '<td>' + syncHtml + '</td>';
-        html += '<td>' + mapHtml + '</td>';
-        html += '<td><div class="action-btns">';
-        if (isDeleted) {
-          html += '<button class="btn btn-text btn-sm" style="color:var(--success);" onclick="openRestore(\'' + d.id + '\')">恢复</button>';
-          html += '<button class="btn btn-text btn-sm" style="color:var(--error);" onclick="openDelete(\'' + d.id + '\')">永久删除</button>';
-        } else if (isAbnormal) {
-          html += '<button class="btn btn-text btn-sm" disabled>编辑</button>';
-          html += '<button class="btn btn-text btn-sm" disabled>映射</button>';
-          html += '<button class="btn btn-text btn-sm" style="color:var(--error);" onclick="openDelete(\'' + d.id + '\')">删除</button>';
-        } else {
-          html += '<button class="btn btn-text btn-sm" onclick="openEdit(\'' + d.id + '\')">编辑</button>';
-          html += '<button class="btn btn-text btn-sm" style="color:var(--brand);" onclick="openMapping(\'' + d.id + '\')">映射</button>';
-          html += '<button class="btn btn-text btn-sm" style="color:var(--error);" onclick="openDelete(\'' + d.id + '\')">删除</button>';
-        }
-        html += '</div></td></tr>';
-      });
-      document.getElementById('org-tbody').innerHTML = html;
-      // #10 fix: 渲染后重新应用筛选
-      applyFilters();
-    }
-
-    function toggleRow(id) {
-      if (expandedSet.has(id)) expandedSet.delete(id); else expandedSet.add(id);
-      renderTable();
-    }
-    function expandAll() {
-      (function walk(nodes) { nodes.forEach(function(n) { if (n.children && n.children.length) { expandedSet.add(n.id); walk(n.children); } }); })(orgList);
-      renderTable();
-    }
-    function collapseAll() { expandedSet.clear(); expandedSet.add('group'); renderTable(); }
-
-    // #10 fix: 统一筛选入口，状态持久化
-    function applyFilters() {
-      var keyword = document.getElementById('filter-keyword').value.toLowerCase();
-      var selects = document.querySelectorAll('.filter-select');
-      var level = selects[0].value, type = selects[1].value, sync = selects[2].value;
-      filterState = { keyword:keyword, level:level, type:type, sync:sync };
-
-      var visibleCount = 0;
-      document.querySelectorAll('#org-tbody tr').forEach(function(tr) {
-        var name = (tr.getAttribute('data-name') || '').toLowerCase();
-        var show = true;
-        if (keyword && name.indexOf(keyword) === -1) show = false;
-        if (level && tr.getAttribute('data-level') !== level) show = false;
-        if (type && tr.getAttribute('data-type') !== type) show = false;
-        if (sync && tr.getAttribute('data-sync') !== sync) show = false;
-        tr.style.display = show ? '' : 'none';
-        if (show) visibleCount++;
-      });
-      // #14 fix: 空状态
-      var emptyEl = document.getElementById('empty-state');
-      if (visibleCount === 0) { emptyEl.classList.add('show'); } else { emptyEl.classList.remove('show'); }
-    }
-
-    function resetFilters() {
-      document.getElementById('filter-keyword').value = '';
-      document.querySelectorAll('.filter-select').forEach(function(s) { s.selectedIndex = 0; });
-      applyFilters();
-    }
-
-    // ===== 源组织树 =====
-    var srcExpanded = new Set(['src-group']);
-
-    function renderSourceTree(filter) {
-      var html = '';
-      (function walk(nodes, depth) {
-        nodes.forEach(function(n) {
-          var nameMatch = !filter || n.name.toLowerCase().indexOf(filter.toLowerCase()) > -1;
-          var hasCh = n.children && n.children.length;
-          var childHasMatch = false;
-          if (filter && hasCh) {
-            (function check(arr) { arr.forEach(function(c) { if (c.name.toLowerCase().indexOf(filter.toLowerCase()) > -1) childHasMatch = true; if (c.children) check(c.children); }); })(n.children);
-          }
-          var visible = !filter || nameMatch || childHasMatch;
-          if (!visible) return;
-          var arrowClass = hasCh ? (srcExpanded.has(n.id) ? 'open' : '') : 'empty';
-          var icon = n.type === '单位' ? '单' : '部';
-          var iconClass = n.type === '单位' ? 'unit' : 'dept';
-          // #15 fix: 红色感叹号加 title
-          var unmapped = n.unmapped ? '<span class="unmapped-mark" title="该源组织未被本系统映射">!</span>' : '';
-          var hlName = filter && nameMatch ? n.name.replace(new RegExp('(' + filter.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','gi'), '<mark>$1</mark>') : n.name;
-          html += '<div class="src-node" style="padding-left:' + (6 + depth * 14) + 'px;">';
-          html += '<span class="arrow ' + arrowClass + '" onclick="toggleSrcNode(\'' + n.id + '\',event)">&#9654;</span>';
-          html += unmapped + '<span class="node-icon ' + iconClass + '">' + icon + '</span> ' + hlName;
-          html += '</div>';
-          if (hasCh) {
-            html += '<div class="src-children' + (srcExpanded.has(n.id) ? '' : ' collapsed') + '">';
-            walk(n.children, depth + 1);
-            html += '</div>';
-          }
-        });
-      })(srcOrgData, 0);
-      document.getElementById('source-tree').innerHTML = html;
-    }
-
-    function toggleSrcNode(id, e) {
-      e && e.stopPropagation();
-      if (srcExpanded.has(id)) srcExpanded.delete(id); else srcExpanded.add(id);
-      var filter = document.querySelector('.src-search').value;
-      renderSourceTree(filter || '');
-    }
-
-    function filterSrcTree(val) { renderSourceTree(val); }
-
-    // ===== 查找 =====
-    function findOrg(nodes, id) {
-      for (var i = 0; i < nodes.length; i++) {
-        if (nodes[i].id === id) return nodes[i];
-        if (nodes[i].children) { var f = findOrg(nodes[i].children, id); if (f) return f; }
-      }
-      return null;
-    }
-
-    // ===== 编辑弹窗（含映射+脏标记） =====
-    var currentEditId = null;
-
-    function openEdit(id) {
-      var d = findOrg(orgList, id);
-      if (!d) return;
-      currentEditId = id;
-      document.getElementById('edit-name').value = d.name;
-      document.getElementById('edit-code').value = d.code;
-      document.querySelectorAll('input[name="edit-type"]').forEach(function(r) { r.checked = (r.value === d.type); });
-      document.getElementById('edit-parent').value = d.parent;
-      document.getElementById('edit-level').value = d.level === '—' ? '' : d.level;
-      document.getElementById('edit-sort').value = d.sort;
-      document.getElementById('edit-addr').value = d.addr || '';
-      var dirty = d.dirty || {};
-      toggleDirty('dirty-name', dirty.name);
-      toggleDirty('dirty-level', dirty.level);
-      toggleDirty('dirty-sort', dirty.sort);
-      toggleDirty('dirty-region', dirty.region);
-      toggleDirty('dirty-addr', dirty.addr);
-      openModal('modal-edit');
-    }
-
-    function toggleDirty(elId, isDirty) {
-      var el = document.getElementById(elId);
-      if (el) { if (isDirty) el.classList.add('show'); else el.classList.remove('show'); }
-    }
-
-    // ===== 映射配置弹窗 =====
-    var mappingOrgId = null;
-    var mappingSelected = []; // 当前已选中的源组织名称列表
-
-    // 扁平化源组织数据，用于下拉列表
-    function flattenSrcOrg(nodes, parentPath) {
-      var result = [];
-      nodes.forEach(function(n) {
-        var path = parentPath ? (parentPath + ' / ' + n.name) : n.name;
-        result.push({ id: n.id, name: n.name, type: n.type, path: path, parentPath: parentPath || '' });
-        if (n.children) result = result.concat(flattenSrcOrg(n.children, n.name));
-      });
-      return result;
-    }
-
-    // 获取所有已被其他组织映射的源组织名称
-    function getLinkedSrcNames(excludeId) {
-      var linked = new Set();
-      (function walk(list) {
-        list.forEach(function(d) {
-          if (d.id !== excludeId && d.mapping) {
-            d.mapping.forEach(function(m) { linked.add(m); });
-          }
-          if (d.children) walk(d.children);
-        });
-      })(orgList);
-      return linked;
-    }
-
-    function openMapping(id) {
-      var d = findOrg(orgList, id);
-      if (!d) return;
-      mappingOrgId = id;
-      mappingSelected = (d.mapping || []).slice();
-      document.getElementById('mapping-org-name').value = d.name;
-      renderMappingDropdown();
-      renderMappingTags();
-      openModal('modal-mapping');
-    }
-
-    function toggleMappingDropdown() {
-      var dd = document.getElementById('mapping-dropdown');
-      var trigger = document.getElementById('mapping-select-trigger');
-      if (dd.classList.contains('show')) {
-        dd.classList.remove('show');
-        trigger.classList.remove('open');
-      } else {
-        var rect = trigger.getBoundingClientRect();
-        var ddWidth = rect.width;
-        var spaceBelow = window.innerHeight - rect.bottom;
-        var listHeight = 300;
-        var ddHeight = listHeight + 48; // search + list
-        var top = rect.bottom + 4;
-        if (spaceBelow < ddHeight && rect.top > ddHeight) {
-          top = rect.top - ddHeight - 4;
-        }
-        dd.style.top = top + 'px';
-        dd.style.left = rect.left + 'px';
-        dd.style.width = ddWidth + 'px';
-        dd.classList.add('show');
-        trigger.classList.add('open');
-        document.getElementById('mapping-search-input').value = '';
-        renderMappingDropdown();
-        document.getElementById('mapping-search-input').focus();
-      }
-    }
-
-    function renderMappingDropdown(filter) {
-      var allItems = flattenSrcOrg(srcOrgData, '');
-      var linkedNames = getLinkedSrcNames(mappingOrgId);
-      var html = '';
-      allItems.forEach(function(item) {
-        if (filter && item.name.indexOf(filter) === -1 && item.path.indexOf(filter) === -1) return;
-        var isSelected = mappingSelected.indexOf(item.name) > -1;
-        var isLinkedByOther = linkedNames.has(item.name);
-        var cls = 'mapping-option';
-        if (isSelected) cls += ' selected';
-        if (isLinkedByOther && !isSelected) cls += ' disabled';
-        var iconText = item.type === '单位' ? '单' : '部';
-        var iconCls = item.type === '单位' ? 'unit' : 'dept';
-        html += '<div class="' + cls + '" data-name="' + item.name + '"';
-        if (!isLinkedByOther || isSelected) html += ' onclick="toggleMappingOption(this, \'' + item.name.replace(/'/g, "\\'") + '\')"';
-        html += '>';
-        html += '<span class="opt-check"></span>';
-        html += '<span class="opt-icon ' + iconCls + '">' + iconText + '</span>';
-        html += '<span class="opt-label"><span class="opt-name">' + item.name + '</span>';
-        if (item.parentPath) html += '<span class="opt-path"> — ' + item.parentPath + '</span>';
-        html += '</span>';
-        if (isLinkedByOther && !isSelected) html += '<span class="opt-linked">已关联</span>';
-        html += '</div>';
-      });
-      if (!html) html = '<div style="padding:20px; text-align:center; color:var(--text-description); font-size:13px;">无匹配结果</div>';
-      document.getElementById('mapping-dropdown-list').innerHTML = html;
-    }
-
-    function filterMappingOptions(kw) {
-      renderMappingDropdown(kw.trim());
-    }
-
-    function toggleMappingOption(el, name) {
-      var idx = mappingSelected.indexOf(name);
-      if (idx > -1) {
-        mappingSelected.splice(idx, 1);
-      } else {
-        mappingSelected.push(name);
-      }
-      renderMappingDropdown(document.getElementById('mapping-search-input').value.trim());
-      renderMappingTags();
-    }
-
-    function removeMappingTag(name) {
-      var idx = mappingSelected.indexOf(name);
-      if (idx > -1) mappingSelected.splice(idx, 1);
-      renderMappingTags();
-      renderMappingDropdown(document.getElementById('mapping-search-input').value.trim());
-    }
-
-    function renderMappingTags() {
-      var container = document.getElementById('mapping-trigger-tags');
-      if (mappingSelected.length === 0) {
-        container.innerHTML = '<span class="mapping-placeholder" id="mapping-placeholder">请选择源组织机构</span>';
-      } else {
-        container.innerHTML = mappingSelected.map(function(name) {
-          return '<span class="mapping-trigger-tag">' + name + '<span class="tag-remove" onclick="event.stopPropagation(); removeMappingTag(\'' + name.replace(/'/g, "\\'") + '\')">&times;</span></span>';
-        }).join('');
-      }
-    }
-
-    function saveMapping() {
-      var d = findOrg(orgList, mappingOrgId);
-      if (!d) return;
-      d.mapping = mappingSelected.slice();
-      renderTable();
-      closeModal('modal-mapping');
-    }
-
-    // 点击外部关闭下拉
-    document.addEventListener('click', function(e) {
-      var dd = document.getElementById('mapping-dropdown');
-      var trigger = document.getElementById('mapping-select-trigger');
-      if (dd && dd.classList.contains('show') && !trigger.contains(e.target) && !dd.contains(e.target)) {
-        dd.classList.remove('show');
-        trigger.classList.remove('open');
-      }
-    });
-    // 映射弹窗内点击空白也关闭下拉
-    document.getElementById('modal-mapping').addEventListener('click', function(e) {
-      var dd = document.getElementById('mapping-dropdown');
-      var trigger = document.getElementById('mapping-select-trigger');
-      if (dd && dd.classList.contains('show') && !trigger.contains(e.target) && !dd.contains(e.target)) {
-        dd.classList.remove('show');
-        trigger.classList.remove('open');
-      }
-    });
-
-    // ===== 删除 =====
-    function openDelete(id) {
-      var d = findOrg(orgList, id);
-      if (!d) return;
-      var childCount = countDesc(d);
-      var isPerm = d.sync === '已删除';
-      document.getElementById('delete-title').textContent = isPerm ? '永久删除' : '确认删除';
-      var html = '<p>确定要' + (isPerm ? '永久删除' : '删除') + ' <strong>' + d.name + '</strong> 吗？</p>';
-      if (isPerm) {
-        html += '<div class="alert alert-error">永久删除不可恢复，所有关联数据将被清除</div>';
-      } else {
-        html += '<div class="alert alert-error">此操作为逻辑删除，删除后可在列表中筛选"已删除"状态恢复</div>';
-      }
-      if (childCount > 0) {
-        html += '<div class="delete-scope"><strong>影响范围：</strong><ul><li>将级联删除下属 ' + childCount + ' 个子组织</li>';
-        if (d.type === '单位') html += '<li>该单位下所有业务数据将标记为"已删除组织"关联</li>';
-        html += '</ul></div>';
-      }
-      if (d.type === '单位' && d.sync !== '已删除') {
-        var refHtml = getRefSummary(d);
-        if (refHtml) html += '<div class="delete-scope" style="margin-top:4px;"><strong>业务引用：</strong><ul>' + refHtml + '</ul></div>';
-      }
-      document.getElementById('delete-content').innerHTML = html;
-      document.getElementById('delete-confirm-btn').textContent = isPerm ? '永久删除' : '确认删除';
-      openModal('modal-delete');
-    }
-
-    function countDesc(node) {
-      if (!node.children) return 0;
-      var c = node.children.length;
-      node.children.forEach(function(ch) { c += countDesc(ch); });
-      return c;
-    }
-
-    // #11 fix: 恢复已删除需确认弹窗
-    function openRestore(id) {
-      var d = findOrg(orgList, id);
-      if (!d) return;
-      document.getElementById('delete-title').textContent = '确认恢复';
-      var html = '<p>确定要恢复 <strong>' + d.name + '</strong> 吗？</p>';
-      html += '<div style="padding:12px 16px; border-radius:var(--radius-sm); background:var(--success-light); border:1px solid var(--success); margin:12px 0; font-size:13px; color:var(--success);">恢复后该组织将重新参与业务操作和数据同步</div>';
-      var childCount = countDesc(d);
-      if (childCount > 0) {
-        html += '<div class="delete-scope"><strong>影响范围：</strong><ul><li>将同时恢复下属 ' + childCount + ' 个子组织</li></ul></div>';
-      }
-      document.getElementById('delete-content').innerHTML = html;
-      var btn = document.getElementById('delete-confirm-btn');
-      btn.textContent = '确认恢复';
-      btn.style.background = 'var(--success)';
-      btn.style.borderColor = 'var(--success)';
-      btn.onclick = function() { restoreOrg(id); closeModal('modal-delete'); btn.style.background = ''; btn.style.borderColor = ''; btn.onclick = null; };
-      openModal('modal-delete');
-    }
-
-    function restoreOrg(id) {
-      var d = findOrg(orgList, id);
-      if (!d) return;
-      d.sync = '正常';
-      d.syncClass = 'tag-success';
-      if (d.children) d.children.forEach(function(ch) { ch.sync = '正常'; ch.syncClass = 'tag-success'; });
-      renderTable();
-    }
-
-    // ===== 纳入组织弹窗 - 源组织树 =====
-
-    // #13 fix: 框架图动态渲染 + 二级展开/折叠
-    var chartExpanded = new Set();
-
-    function renderChart() {
-      var root = orgList[0];
-      if (!root) return;
-      var html = '';
-      // 根节点
-      html += '<div class="chart-row"><div class="chart-node"><div class="node-name">' + root.name + '</div><div class="node-info">' + root.code + '</div></div></div>';
-      html += '<div class="chart-connector-v"></div>';
-      // 一级分支
-      html += '<div class="chart-branch">';
-      root.children.forEach(function(child) {
-        // 异常/已删除节点隐藏
-        if (child.sync === '异常' || child.sync === '已删除') return;
-        if (child.type === '部门') {
-          html += '<div class="chart-row"><div class="chart-node dept-node"><div class="node-name" style="font-size:12px;">' + child.name + '</div><div class="node-info">' + child.code + '</div></div></div>';
-        } else {
-          var isExpanded = chartExpanded.has(child.id);
-          html += '<div class="chart-row">';
-          html += '<div class="chart-node" onclick="toggleChartNode(\'' + child.id + '\')">';
-          html += '<div class="node-name" style="font-size:12px;">' + child.name + '</div>';
-          html += '<div class="node-info">' + child.code + '</div>';
-          if (child.children && child.children.length) {
-            html += '<div class="chart-expand-hint">' + (isExpanded ? '点击收起' : '点击展开下属部门') + '</div>';
-          }
-          html += '</div>';
-          // 二级部门
-          if (child.children && child.children.length && isExpanded) {
-            html += '<div class="chart-connector-v"></div>';
-            html += '<div class="chart-sub">';
-            child.children.forEach(function(sub) {
-              if (sub.sync === '异常' || sub.sync === '已删除') return;
-              html += '<div class="chart-node dept-node" style="min-width:100px;"><div class="node-name" style="font-size:11px;">' + sub.name + '</div></div>';
-            });
-            html += '</div>';
-          }
-          html += '</div>';
-        }
-      });
-      html += '</div>';
-      document.getElementById('chart-container').innerHTML = html;
-    }
-
-    function toggleChartNode(id) {
-      if (chartExpanded.has(id)) chartExpanded.delete(id); else chartExpanded.add(id);
-      renderChart();
-    }
-
-    // ===== 通用 =====
-    function switchTab(name, evt) {
-      document.querySelectorAll('.tab-item').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-      evt.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
-      if (name === 'chart') renderChart();
-    }
-
-    function openModal(id) { document.getElementById(id).classList.add('show'); }
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('show');
-      // 恢复删除确认按钮样式
-      if (id === 'modal-delete') {
-        var btn = document.getElementById('delete-confirm-btn');
-        btn.style.background = '';
-        btn.style.borderColor = '';
-        btn.onclick = null;
-      }
-    }
-    document.querySelectorAll('.modal-overlay').forEach(function(ov) {
-      ov.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
-    });
-
-    // ===== 上级组织树形选择器 =====
-    var treeSelectExpanded = new Set(['group']);
-    var treeSelectValue = '';
-
-    function toggleTreeSelect(target) {
-      var dd = document.getElementById('tree-select-dropdown');
-      var trigger = document.getElementById('add-parent-trigger');
-      if (dd.classList.contains('show')) {
-        dd.classList.remove('show');
-        trigger.classList.remove('open');
-      } else {
-        var rect = trigger.getBoundingClientRect();
-        var ddHeight = 340;
-        var top = rect.bottom + 4;
-        if (window.innerHeight - rect.bottom < ddHeight && rect.top > ddHeight) {
-          top = rect.top - ddHeight - 4;
-        }
-        dd.style.top = top + 'px';
-        dd.style.left = rect.left + 'px';
-        dd.style.width = Math.max(rect.width, 280) + 'px';
-        dd.classList.add('show');
-        trigger.classList.add('open');
-        document.getElementById('tree-select-search-input').value = '';
-        renderTreeSelect();
-        document.getElementById('tree-select-search-input').focus();
-      }
-    }
-
-    function renderTreeSelect(filter) {
-      var html = '';
-      (function walk(nodes, depth) {
-        nodes.forEach(function(n) {
-          var nameMatch = !filter || n.name.toLowerCase().indexOf(filter.toLowerCase()) > -1;
-          var hasCh = n.children && n.children.length;
-          var childHasMatch = false;
-          if (filter && hasCh) {
-            (function check(arr) { arr.forEach(function(c) { if (c.name.toLowerCase().indexOf(filter.toLowerCase()) > -1) childHasMatch = true; if (c.children) check(c.children); }); })(n.children);
-          }
-          if (filter && !nameMatch && !childHasMatch) return;
-          var arrowClass = hasCh ? (treeSelectExpanded.has(n.id) ? 'open' : '') : 'empty';
-          var icon = n.type === '单位' ? '单' : '部';
-          var iconClass = n.type === '单位' ? 'unit' : 'dept';
-          var isSelected = treeSelectValue === n.name;
-          var hlName = filter && nameMatch ? n.name.replace(new RegExp('(' + filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>') : n.name;
-          html += '<div class="tree-select-node' + (isSelected ? ' selected' : '') + '" style="padding-left:' + (12 + depth * 16) + 'px;" onclick="selectTreeParent(\'' + n.name.replace(/'/g, "\\'") + '\')">';
-          html += '<span class="ts-arrow ' + arrowClass + '" onclick="event.stopPropagation(); toggleTreeSelectNode(\'' + n.id + '\')">&#9654;</span>';
-          html += '<span class="node-icon ' + iconClass + '">' + icon + '</span> ' + hlName;
-          html += '</div>';
-          if (hasCh) {
-            html += '<div class="tree-select-children' + (treeSelectExpanded.has(n.id) ? '' : ' collapsed') + '">';
-            walk(n.children, depth + 1);
-            html += '</div>';
-          }
-        });
-      })(orgList, 0);
-      if (!html) html = '<div style="padding:20px; text-align:center; color:var(--text-description); font-size:13px;">无匹配结果</div>';
-      document.getElementById('tree-select-list').innerHTML = html;
-    }
-
-    function toggleTreeSelectNode(id) {
-      if (treeSelectExpanded.has(id)) treeSelectExpanded.delete(id); else treeSelectExpanded.add(id);
-      var filter = document.getElementById('tree-select-search-input').value;
-      renderTreeSelect(filter || undefined);
-    }
-
-    function selectTreeParent(name) {
-      treeSelectValue = name;
-      var textEl = document.getElementById('add-parent-text');
-      textEl.textContent = name;
-      textEl.classList.remove('placeholder');
-      // close dropdown
-      document.getElementById('tree-select-dropdown').classList.remove('show');
-      document.getElementById('add-parent-trigger').classList.remove('open');
-      renderTreeSelect();
-    }
-
-    function filterTreeSelect(kw) {
-      renderTreeSelect(kw.trim() || undefined);
-    }
-
-    // close tree select on outside click
-    document.addEventListener('click', function(e) {
-      var dd = document.getElementById('tree-select-dropdown');
-      var trigger = document.getElementById('add-parent-trigger');
-      if (dd && dd.classList.contains('show') && !trigger.contains(e.target) && !dd.contains(e.target)) {
-        dd.classList.remove('show');
-        trigger.classList.remove('open');
-      }
-    });
-
-    // ===== 地图选点 =====
-    var mapPickerTarget = 'add'; // 'add' or 'edit'
-    var mapSelectedAddr = '';
-
-    var mapAddrData = [
-      { name:'妈湾港大厦', addr:'深圳市南山区妈湾港大道1号妈湾港大厦' },
-      { name:'深圳港集团总部', addr:'深圳市南山区妈湾港大道1号深圳港集团总部大楼' },
-      { name:'蛇口码头', addr:'深圳市南山区蛇口港湾大道蛇口码头' },
-      { name:'赤湾港务', addr:'深圳市南山区赤湾二路赤湾港务大厦' },
-      { name:'盐田国际集装箱码头', addr:'深圳市盐田区盐田港国际集装箱码头' },
-      { name:'大铲湾码头', addr:'深圳市宝安区大铲湾港区大铲湾码头' },
-      { name:'前海湾保税港区', addr:'深圳市南山区前海湾保税港区管理大厦' },
-      { name:'深圳港物流中心', addr:'深圳市南山区兴海大道深圳港物流中心' },
-      { name:'东角头港务', addr:'深圳市南山区望海路东角头港务大楼' },
-      { name:'太子湾邮轮母港', addr:'深圳市南山区太子湾邮轮母港' },
-      { name:'南山港务大厦', addr:'深圳市南山区工业八路南山港务大厦' },
-      { name:'深圳港油品码头', addr:'深圳市南山区赤湾一路深圳港油品码头' },
-    ];
-
-    function openMapPicker(target) {
-      mapPickerTarget = target;
-      mapSelectedAddr = '';
-      document.getElementById('map-search').value = '';
-      document.getElementById('map-search-results').innerHTML = '';
-      document.getElementById('map-selected-info').style.display = 'none';
-      var pin = document.getElementById('map-center-pin');
-      pin.className = 'map-center-pin';
-      openModal('modal-map');
-    }
-
-    function searchMapAddress() {
-      var kw = document.getElementById('map-search').value.trim();
-      var results = kw ? mapAddrData.filter(function(d) {
-        return d.name.indexOf(kw) > -1 || d.addr.indexOf(kw) > -1;
-      }) : mapAddrData;
-      var html = '';
-      results.forEach(function(d, i) {
-        html += '<div class="map-result-item" data-idx="' + i + '" onclick="selectMapResult(this, ' + i + ')">' +
-          '<div class="result-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>' +
-          '<div class="result-info"><div class="result-name">' + d.name + '</div><div class="result-addr">' + d.addr + '</div></div></div>';
-      });
-      if (!results.length) {
-        html = '<div style="text-align:center; padding:24px 0; color:var(--text-description); font-size:13px;">未找到匹配地址</div>';
-      }
-      document.getElementById('map-search-results').innerHTML = html;
-      // 临时存储搜索结果供选择用
-      window._mapSearchResults = results;
-    }
-
-    function selectMapResult(el, idx) {
-      document.querySelectorAll('.map-result-item').forEach(function(item) { item.classList.remove('selected'); });
-      el.classList.add('selected');
-      var d = window._mapSearchResults[idx];
-      mapSelectedAddr = d.addr;
-      // 更新底部已选信息
-      document.getElementById('map-selected-text').textContent = d.addr;
-      document.getElementById('map-selected-info').style.display = 'flex';
-      // 地图标记弹跳动画
-      var pin = document.getElementById('map-center-pin');
-      pin.className = 'map-center-pin bounce';
-      setTimeout(function() { pin.className = 'map-center-pin'; }, 500);
-    }
-
-    function confirmMapAddress() {
-      if (!mapSelectedAddr) return;
-      var inputId = mapPickerTarget === 'add' ? 'add-addr' : 'edit-addr';
-      document.getElementById(inputId).value = mapSelectedAddr;
-      closeModal('modal-map');
-    }
-
-    // 回车搜索
-    document.getElementById('map-search').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') searchMapAddress();
-    });
-
-    // ===== 同步弹窗 =====
-    function syncOrg() {
-      showConfirm('同步组织数据', '将从统一身份认证平台拉取最新组织架构数据，是否继续？', function() {
-        showToast('组织数据同步成功');
-      }, '<div style="margin-top:8px; font-size:12px; color:var(--text-secondary); line-height:1.8;">同步规则说明：<br>• 已本地修改的字段同步时将保留本地值（跳过）<br>• 源端新增的二级企业将自动纳入本系统<br>• 三级及以下企业仍需手动新增后映射<br>• 源端已删除/停用的组织将标记为异常</div>');
-    }
-
-    // ===== 通用确认弹窗 =====
-    function showConfirm(title, message, onOk, extraHtml) {
-      document.getElementById('delete-title').textContent = title;
-      var html = '<p>' + message + '</p>';
-      if (extraHtml) html += extraHtml;
-      document.getElementById('delete-content').innerHTML = html;
-      var btn = document.getElementById('delete-confirm-btn');
-      btn.textContent = '确定';
-      btn.style.background = '';
-      btn.style.borderColor = '';
-      btn.onclick = function() { closeModal('modal-delete'); btn.onclick = null; if (onOk) onOk(); };
-      openModal('modal-delete');
-    }
-
-    // ===== Toast 提示 =====
-    function showToast(msg) {
-      var el = document.createElement('div');
-      el.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:10px 24px;background:var(--success);color:#fff;border-radius:var(--radius-md);font-size:14px;z-index:9999;box-shadow:var(--shadow-card);';
-      el.textContent = msg;
-      document.body.appendChild(el);
-      setTimeout(function() { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(function() { el.remove(); }, 300); }, 2000);
-    }
-
-    // ===== 删除引用检查 =====
-    function getRefSummary(d) {
-      var refs = [];
-      if (d.id === 'u01') { refs.push('<li>关联 3 条隐患记录</li><li>关联 2 个危险源</li><li>关联 1 个培训任务</li>'); }
-      else if (d.id === 'u02') { refs.push('<li>关联 1 条隐患记录</li>'); }
-      else if (d.id === 'group') { refs.push('<li>关联 12 条隐患记录</li><li>关联 8 个危险源</li><li>关联 5 个培训任务</li><li>关联 2 份安全生产责任书</li>'); }
-      return refs.join('');
-    }
-
-    // ===== 组织类型切换→管控级别动态必填 =====
-    document.querySelectorAll('input[name="add-type"]').forEach(function(radio) {
-      radio.addEventListener('change', function() {
-        var req = document.getElementById('add-level-required');
-        if (req) req.style.display = this.value === '单位' ? 'inline' : 'none';
-        var levelSelect = document.getElementById('add-level');
-        if (this.value === '部门' && levelSelect) levelSelect.value = '';
-      });
-    });
-
-    // 初始化
-    renderTable();
-    renderSourceTree('');
-  </script>
+  <script src="org-data.js"></script>
+  <script src="org-modals.js"></script>
+  <script src="org-logic.js"></script>
 </body>
 </html>

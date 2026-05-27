@@ -4,68 +4,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安全报表 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-unfilled { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-draft { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-submitted { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-confirmed { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-rejected { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .tag-enabled { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-disabled { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-unfilled { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .tag-draft { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-confirmed { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-rejected { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
     .data-table tfoot td { background:var(--bg-table-header); font-weight:600; border-top:2px solid var(--border); }
     .form-section { padding:12px; background:var(--bg-page); border-radius:var(--radius-sm); border:1px solid var(--border-light); margin-bottom:14px; }
-    .form-section-title { font-size:13px; font-weight:500; margin-bottom:8px; color:var(--primary); }
+    .form-section-title { font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; color:var(--primary); }
     .auto-field { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
-    .auto-field label { width:120px; font-size:12px; color:var(--text-secondary); flex-shrink:0; }
+    .auto-field label { width:120px; font-size:var(--font-size-12); color:var(--text-secondary); flex-shrink:0; }
     .auto-field input { flex:1; }
-    .auto-badge { display:inline-block; padding:1px 6px; border-radius:2px; font-size:10px; background:#E6F7FF; color:#0958D9; }
+    .auto-badge { display:inline-block; padding:1px 6px; border-radius:2px; font-size:var(--font-size-10); background:var(--tag-info-bg); color:var(--tag-info-color); }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">报表模板</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--error)">4</div><div class="stat-label">待填报</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">12</div><div class="stat-label">已提交</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--error)">2</div><div class="stat-label">逾期未填</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">4</div><div class="stat-label">待填报</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">12</div><div class="stat-label">已提交</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">逾期未填</div></div>
   </div>
 
   <!-- 蓝色预警框 -->
   <div class="alert alert-info" style="margin-bottom:12px">&#9888; 填报截止前3天自动提醒填报人；逾期未填报标红通知</div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('template')">报表模板</div>
-    <div class="tab-item" onclick="switchTab('fill')">填报管理</div>
-    <div class="tab-item" onclick="switchTab('stats')">填报统计</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="template">报表模板</div>
+      <div class="tab-item" data-action="switchTab" data-param="fill">填报管理</div>
+      <div class="tab-item" data-action="switchTab" data-param="stats">填报统计</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab1 报表模板 -->
   <div id="tab-template" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索模板名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部报表类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">模板名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">报表类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>周报</option>
           <option>月报</option>
           <option>季报</option>
           <option>年报</option>
           <option>专项</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showModal('addTemplate')">+ 新增模板</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showModal" data-param="addTemplate">+ 新增模板</button>
         <button class="btn btn-default">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -86,7 +88,7 @@
             <td>每周</td>
             <td>每周五 17:00</td>
             <td><span class="tag tag-enabled">已启用</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openMgmtReportDetail" data-param="'mrpt-1'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -95,7 +97,7 @@
             <td>每月</td>
             <td>每月5日</td>
             <td><span class="tag tag-enabled">已启用</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openMgmtReportDetail" data-param="'mrpt-2'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -104,35 +106,39 @@
             <td>每季度</td>
             <td>季后10日</td>
             <td><span class="tag tag-enabled">已启用</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openMgmtReportDetail" data-param="'mrpt-3'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 3 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 3 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- Tab2 填报管理 -->
   <div id="tab-fill" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索报表名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">报表名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>未填写</option>
           <option>暂存</option>
           <option>已提交</option>
           <option>已确认</option>
           <option>已驳回</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -153,7 +159,7 @@
             <td>2026-W20</td>
             <td><span class="tag tag-unfilled">未填写</span></td>
             <td>-</td>
-            <td><button class="btn btn-text btn-sm" style="color:var(--primary)" onclick="showModal('fillReport')">填写</button></td>
+            <td><button class="btn btn-text btn-sm u-text-primary" data-action="showView" data-param="fill">填写</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -162,7 +168,7 @@
             <td>2026年5月</td>
             <td><span class="tag tag-draft">暂存</span></td>
             <td>-</td>
-            <td><button class="btn btn-text btn-sm" style="color:var(--primary)" onclick="showModal('fillReport')">继续填写</button></td>
+            <td><button class="btn btn-text btn-sm u-text-primary" data-action="showView" data-param="fill">继续填写</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -171,7 +177,7 @@
             <td>2026-W19</td>
             <td><span class="tag tag-submitted">已提交</span></td>
             <td>2026-05-14</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--success)">确认</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openMgmtReportDetail" data-param="'mrpt-4'">查看</button><button class="btn btn-text btn-sm u-text-success">确认</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -180,7 +186,7 @@
             <td>2026年Q1</td>
             <td><span class="tag tag-confirmed">已确认</span></td>
             <td>2026-04-12</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openMgmtReportDetail" data-param="'mrpt-5'">查看</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -189,21 +195,25 @@
             <td>2026年4月</td>
             <td><span class="tag tag-rejected">已驳回</span></td>
             <td>2026-05-06</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm" style="color:var(--primary)">重新填写</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openMgmtReportDetail" data-param="'mrpt-6'">查看</button><button class="btn btn-text btn-sm u-text-primary">重新填写</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 5 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- Tab3 填报统计 -->
   <div id="tab-stats" class="tab-content">
     <div class="card">
-      <div style="margin-bottom:12px; font-size:14px; font-weight:500;">按单位统计填报情况</div>
+      <div style="margin-bottom:12px; font-size:var(--font-size-14); font-weight:500;">按单位统计填报情况</div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -220,28 +230,28 @@
             <td>8</td>
             <td>7</td>
             <td>1</td>
-            <td><span style="color:var(--warning)">87.5%</span></td>
+            <td><span class="u-text-warning">87.5%</span></td>
           </tr>
           <tr>
             <td>危化品储运公司</td>
             <td>8</td>
             <td>6</td>
             <td>1</td>
-            <td><span style="color:var(--warning)">75.0%</span></td>
+            <td><span class="u-text-warning">75.0%</span></td>
           </tr>
           <tr>
             <td>物流运输公司</td>
             <td>8</td>
             <td>8</td>
             <td>0</td>
-            <td><span style="color:var(--success)">100%</span></td>
+            <td><span class="u-text-success">100%</span></td>
           </tr>
           <tr>
             <td>物业管理公司</td>
             <td>8</td>
             <td>5</td>
             <td>2</td>
-            <td><span style="color:var(--error)">62.5%</span></td>
+            <td><span class="u-text-error">62.5%</span></td>
           </tr>
         </tbody>
         <tfoot>
@@ -250,29 +260,145 @@
             <td>32</td>
             <td>26</td>
             <td>4</td>
-            <td><span style="color:var(--warning)">81.3%</span></td>
+            <td><span class="u-text-warning">81.3%</span></td>
           </tr>
         </tfoot>
       </table>
+      </div>
     </div>
   </div>
+
+    </div>
+  </div>
+
+  
+  </div><!-- /view-list -->
+
+  <div id="view-fill" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;">在线填报</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showView" data-param="list">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <!-- 报表基本信息 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">报表信息</div>
+              <div class="u-flex u-gap-12 u-mb-14">
+                <div class="u-flex-1">
+                  <label class="u-label-sm">报表名称</label>
+                  <input class="form-input u-w-full" value="安全检查周报（5月第3周）" readonly style="background:var(--bg-disabled);">
+                </div>
+                <div class="u-flex-1">
+                  <label class="u-label-sm">填报单位</label>
+                  <input class="form-input u-w-full" value="集装箱码头公司" readonly style="background:var(--bg-disabled);">
+                </div>
+                <div class="u-flex-1">
+                  <label class="u-label-sm">填报期间</label>
+                  <input class="form-input u-w-full" value="2026-W20" readonly style="background:var(--bg-disabled);">
+                </div>
+              </div>
+            </div></div>
+
+            <!-- 自动带出数据区 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">&#128279; 系统自动带出数据</div>
+              <div style="background:var(--bg-page); border-radius:var(--radius-sm); padding:14px; border:1px solid var(--border-light);">
+                <div class="u-flex u-gap-12" style="flex-wrap:wrap;">
+                  <div style="flex:1; min-width:140px;">
+                    <div style="font-size:var(--font-size-12); color:var(--text-secondary); margin-bottom:4px;">事故数</div>
+                    <div style="font-size:var(--font-size-20); font-weight:600; color:var(--error);">0</div>
+                    <span class="auto-badge">自动</span>
+                  </div>
+                  <div style="flex:1; min-width:140px;">
+                    <div style="font-size:var(--font-size-12); color:var(--text-secondary); margin-bottom:4px;">隐患数</div>
+                    <div style="font-size:var(--font-size-20); font-weight:600; color:var(--warning);">5</div>
+                    <span class="auto-badge">自动</span>
+                  </div>
+                  <div style="flex:1; min-width:140px;">
+                    <div style="font-size:var(--font-size-12); color:var(--text-secondary); margin-bottom:4px;">培训人次</div>
+                    <div style="font-size:var(--font-size-20); font-weight:600; color:var(--primary);">48</div>
+                    <span class="auto-badge">自动</span>
+                  </div>
+                </div>
+                <div style="font-size:var(--font-size-11); color:var(--text-description); margin-top:10px;">&#128279; 数据来源：隐患排查治理、安全检查、培训管理等模块自动汇总</div>
+              </div>
+            </div></div>
+
+            <!-- 手动填写区 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">&#9998; 手动填写内容</div>
+              <div class="u-mb-14">
+                <label class="u-label-sm">安全工作总结 <span class="u-text-error-tag">*</span></label>
+                <textarea class="form-input" style="width:100%; height:120px; resize:vertical;" placeholder="请输入本期安全工作总结..."></textarea>
+              </div>
+              <div class="u-mb-14">
+                <label class="u-label-sm">存在问题描述 <span class="u-text-error-tag">*</span></label>
+                <textarea class="form-input" style="width:100%; height:100px; resize:vertical;" placeholder="请描述当前存在的安全问题..."></textarea>
+              </div>
+              <div class="u-mb-14">
+                <label class="u-label-sm">改进措施</label>
+                <textarea class="form-input" style="width:100%; height:100px; resize:vertical;" placeholder="请输入改进措施和建议..."></textarea>
+              </div>
+            </div></div>
+          </div>
+          <div class="detail-panel">
+            <!-- 填报说明 -->
+            <div class="card"><div class="detail-section"><div class="detail-section-title">填报说明</div>
+              <div style="font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.8;">
+                <div>1. 带"自动"标签的数据由系统自动汇总，不可手动修改</div>
+                <div>2. 周报数据自动归集至月报</div>
+                <div>3. 填报截止日：每周五 17:00</div>
+              </div>
+            </div></div>
+            <!-- 操作按钮 -->
+            <div class="card" style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn btn-default u-w-full">暂存草稿</button>
+              <button class="btn btn-primary u-w-full">提交审核</button>
+              <button class="btn btn-text u-w-full" data-action="showView" data-param="list">取消</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="mrpt-detail-title" style="font-size:var(--font-size-16);font-weight:600;">安全报表详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showMgmtReportList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="mrpt-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="mrpt-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="mrpt-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- 新增模板弹窗 -->
   <div id="addTemplateModal" class="modal-overlay">
     <div class="modal" style="width:640px;">
       <div class="modal-header">
         <h3>新增报表模板</h3>
-        <button class="btn btn-text btn-sm" onclick="closeModal('addTemplate')" style="font-size:18px; color:var(--text-description);">&times;</button>
+        <button class="btn btn-text btn-sm" data-action="hideModal" data-param="addTemplate" class="u-fs18-desc">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">模板名称 <span style="color:#CF1322;">*</span></label>
-          <input class="form-input" style="width:100%;" placeholder="请输入模板名称">
+        <div class="u-mb-14">
+          <label class="u-label-sm">模板名称 <span class="u-text-error-tag">*</span></label>
+          <input class="form-input u-w-full" placeholder="请输入模板名称">
         </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">报表类型 <span style="color:#CF1322;">*</span></label>
-            <select class="form-input form-select" style="width:100%;">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">报表类型 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full">
               <option value="">请选择</option>
               <option>周报</option>
               <option>月报</option>
@@ -281,9 +407,9 @@
               <option>专项</option>
             </select>
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报周期 <span style="color:#CF1322;">*</span></label>
-            <select class="form-input form-select" style="width:100%;">
+          <div class="u-flex-1">
+            <label class="u-label-sm">填报周期 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full">
               <option value="">请选择</option>
               <option>每周</option>
               <option>每月</option>
@@ -292,18 +418,18 @@
             </select>
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报截止日 <span style="color:#CF1322;">*</span></label>
-          <input class="form-input" style="width:100%;" placeholder="如：每周五17:00 / 每月5日">
+        <div class="u-mb-14">
+          <label class="u-label-sm">填报截止日 <span class="u-text-error-tag">*</span></label>
+          <input class="form-input u-w-full" placeholder="如：每周五17:00 / 每月5日">
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报说明</label>
+        <div class="u-mb-14">
+          <label class="u-label-sm">填报说明</label>
           <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入填报说明..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addTemplate')">取消</button>
-        <button class="btn btn-primary" onclick="closeModal('addTemplate')">确认新增</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addTemplate">取消</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="addTemplate">确认新增</button>
       </div>
     </div>
   </div>
@@ -313,21 +439,21 @@
     <div class="modal" style="width:800px;">
       <div class="modal-header">
         <h3>在线填报</h3>
-        <button class="btn btn-text btn-sm" onclick="closeModal('fillReport')" style="font-size:18px; color:var(--text-description);">&times;</button>
+        <button class="btn btn-text btn-sm" data-action="hideModal" data-param="fillReport" class="u-fs18-desc">&times;</button>
       </div>
       <div class="modal-body">
         <div style="display:flex; gap:12px; margin-bottom:16px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">报表模板</label>
-            <select class="form-input form-select" style="width:100%;">
+          <div class="u-flex-1">
+            <label class="u-label-sm">报表模板</label>
+            <select class="form-input form-select u-w-full">
               <option>安全检查周报模板</option>
               <option>隐患排查月报模板</option>
               <option>绩效考核季报模板</option>
             </select>
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">填报周期</label>
-            <input class="form-input" value="2026-W20" style="width:100%;">
+          <div class="u-flex-1">
+            <label class="u-label-sm">填报周期</label>
+            <input class="form-input" value="2026-W20" class="u-w-full">
           </div>
         </div>
 
@@ -360,15 +486,15 @@
         <div class="form-section">
           <div class="form-section-title">&#9998; 手动填写内容</div>
           <div style="margin-bottom:12px;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">本周安全工作总结 <span style="color:#CF1322;">*</span></label>
+            <label class="u-label-sm">本周安全工作总结 <span class="u-text-error-tag">*</span></label>
             <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入本周安全工作总结..."></textarea>
           </div>
           <div style="margin-bottom:12px;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">下周安全工作计划 <span style="color:#CF1322;">*</span></label>
+            <label class="u-label-sm">下周安全工作计划 <span class="u-text-error-tag">*</span></label>
             <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入下周安全工作计划..."></textarea>
           </div>
           <div>
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">存在问题及建议</label>
+            <label class="u-label-sm">存在问题及建议</label>
             <textarea class="form-input" style="width:100%; height:60px; resize:vertical;" placeholder="请输入存在问题及建议..."></textarea>
           </div>
         </div>
@@ -379,9 +505,9 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('fillReport')">取消</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="fillReport">取消</button>
         <button class="btn btn-default">暂存</button>
-        <button class="btn btn-primary" onclick="closeModal('fillReport')">提交</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="fillReport">提交</button>
       </div>
     </div>
   </div>
@@ -393,14 +519,41 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showModal(id) {
-      document.getElementById(id + 'Modal').classList.add('show');
-    }
-    function closeModal(id) {
-      document.getElementById(id + 'Modal').classList.remove('show');
-    }
     document.getElementById('addTemplateModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addTemplate'); });
     document.getElementById('fillReportModal').addEventListener('click', function(e) { if (e.target === this) closeModal('fillReport'); });
+    function showView(name) {
+      document.querySelectorAll('.page-view').forEach(function(v) { v.classList.remove('active'); });
+      var target = document.getElementById('view-' + name);
+      if (target) target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    window.showView = showView;
+    var mgmtReportDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var mgmtReportDetailData = {
+      'mrpt-1': {title:"安全检查周报模板",basic:[["类型","周报"],["状态","已启用"]],desc:"每周五 17:00 截止填报。",timeline:[{status:"done",time:"2026-01-01",event:"模板启用"}]},
+      'mrpt-4': {title:"安全检查周报（5月第2周）",basic:[["填报单位","物流运输公司"],["状态","已提交"]],desc:"已提交待确认。",timeline:[{status:"done",time:"2026-05-14",event:"提交"},{status:"active",time:"待确认",event:"上级确认"}]},
+      'mrpt-6': {title:"隐患排查月报（4月）",basic:[["状态","已驳回"]],desc:"需按驳回意见重新填写后提交。",timeline:[{status:"done",time:"2026-05-06",event:"提交"},{status:"active",time:"已驳回",event:"重新填写"}]}
+    };
+    function fillMgmtReportDetail(d) {
+      document.getElementById('mrpt-detail-title').textContent = d.title;
+      document.getElementById('mrpt-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('mrpt-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('mrpt-detail-timeline', d.timeline);
+    }
+    function openMgmtReportDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = mgmtReportDetailData[key] || mgmtReportDetailDataFallback;
+      fillMgmtReportDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openMgmtReportDetail = openMgmtReportDetail;
+    function showMgmtReportList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showMgmtReportList = showMgmtReportList;
+
   </script>
 </body>
 </html>

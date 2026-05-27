@@ -4,272 +4,546 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安全会议 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
-    .tab-content { display:none; }
-    .tab-content.active { display:block; }
-    .tag-planned { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-held { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-archived { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .page-view { display:none; flex:1; min-height:0; flex-direction:column; }
+    .page-view.active { display:flex; }
+    body { padding:20px 20px 0; background:var(--bg-page); height:100vh; display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box; }
+    .page-card { flex:1; min-height:0; display:flex; flex-direction:column; padding:0; overflow:hidden; }
+    .page-card .split-layout { flex:1; min-height:0; margin-top:0; }
+    .st-tree-panel { width:300px; min-width:300px; display:flex; flex-direction:column; padding:16px; border-right:1px solid var(--border-divider); min-height:0; }
+    .st-tree-title { font-size:var(--font-size-14); font-weight:600; margin-bottom:10px; }
+    .st-tree-search { margin-bottom:8px; }
+    .st-tree-body { flex:1; min-height:0; overflow-y:auto; }
+    .st-main { flex:1; min-width:0; display:flex; flex-direction:column; padding:16px 20px 20px; overflow:hidden; overflow-y:auto; }
+    .st-main-head { flex-shrink:0; margin-bottom:12px; font-size:var(--font-size-16); font-weight:600; }
+    .st-main-head span { font-size:var(--font-size-13); font-weight:400; color:var(--text-secondary); margin-left:8px; }
+    .tag-planned { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-held { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-archived { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
     .detail-section { margin-bottom:20px; }
-    .detail-section-title { font-size:14px; font-weight:500; color:var(--text-primary); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border-light); }
-    .detail-row { display:flex; margin-bottom:8px; font-size:13px; }
-    .detail-label { width:80px; color:var(--text-secondary); flex-shrink:0; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:12px; padding-left:10px; border-left:3px solid var(--primary); }
+    .detail-row { display:flex; margin-bottom:8px; font-size:var(--font-size-13); }
+    .detail-label { width:88px; color:var(--text-secondary); flex-shrink:0; }
     .detail-value { color:var(--text-primary); flex:1; }
     .attachment-list { display:flex; flex-direction:column; gap:8px; }
-    .attachment-item { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:13px; }
+    .attachment-item { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:var(--font-size-13); }
     .attachment-icon { color:var(--primary); }
     .photo-grid { display:flex; gap:12px; flex-wrap:wrap; }
-    .photo-placeholder { width:120px; height:90px; border-radius:var(--radius-sm); background:var(--bg-table-header); border:1px dashed var(--border-dark); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:12px; }
+    .photo-placeholder { width:120px; height:90px; border-radius:var(--radius-sm); background:var(--bg-table-header); border:1px dashed var(--border-dark); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:var(--font-size-12); }
     .modal { width: var(--modal-lg); }
-</style>
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <!-- 统计概览 -->
-  <div class="stat-bar">
-    <div class="stat-item"><div class="stat-num">16</div><div class="stat-label">本年会议数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">12</div><div class="stat-label">已召开</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">待召开</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">1</div><div class="stat-label">已归档</div></div>
-  </div>
+<body>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('ledger')">会议台账</div>
-    <div class="tab-item" onclick="switchTab('detail')">会议详情</div>
-  </div>
-
-  <!-- Tab1 会议台账 -->
-  <div id="tab-ledger" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索会议名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
-          <option>安委会</option>
-          <option>安全例会</option>
-          <option>专题会</option>
-          <option>培训会</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
-          <option>计划中</option>
-          <option>已召开</option>
-          <option>已归档</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-      </div>
+  <div id="view-list" class="page-view active">
+  <div class="card page-card">
+    <div class="split-layout">
+      <aside class="split-left st-tree-panel">
+        <div class="st-tree-title">单位组织树</div>
+        <input type="text" class="form-input st-tree-search" placeholder="搜索单位" id="treeSearch">
+        <div class="st-tree-body" id="unitTree"></div>
+      </aside>
+      <div class="split-right st-main">
+        <div class="st-main-head">安全会议<span id="currentUnitLabel">（深圳港集团）</span></div>
+    <div class="stat-bar">
+      <div class="stat-item"><div class="stat-num">16</div><div class="stat-label">本年会议数</div></div>
+      <div class="stat-item"><div class="stat-num u-text-success">12</div><div class="stat-label">已召开</div></div>
+      <div class="stat-item"><div class="stat-num u-text-primary">3</div><div class="stat-label">待召开</div></div>
+      <div class="stat-item"><div class="stat-num u-text-description">1</div><div class="stat-label">已归档</div></div>
     </div>
-    <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="openModal()">+ 新增会议</button>
-        <button class="btn btn-default">导出</button>
-      </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>会议名称</th>
-            <th>会议类型</th>
-            <th>组织部门</th>
-            <th>会议时间</th>
-            <th>参会人数</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>集团安委会季度会议</td>
-            <td><span class="tag tag-info">安委会</span></td>
-            <td>安全管理部</td>
-            <td>2026-04-10</td>
-            <td>28</td>
-            <td><span class="tag tag-held">已召开</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="viewDetail(1)">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>5月安全例会</td>
-            <td><span class="tag tag-info">安全例会</span></td>
-            <td>安全管理部</td>
-            <td>2026-05-08</td>
-            <td>15</td>
-            <td><span class="tag tag-held">已召开</span></td>
-            <td><button class="btn btn-text btn-sm" onclick="viewDetail(2)">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>危化品安全管理专题会</td>
-            <td><span class="tag tag-warning">专题会</span></td>
-            <td>危化品仓储公司</td>
-            <td>2026-05-22</td>
-            <td>—</td>
-            <td><span class="tag tag-planned">计划中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>新员工安全培训会</td>
-            <td><span class="tag tag-success">培训会</span></td>
-            <td>人力资源部</td>
-            <td>2026-05-25</td>
-            <td>—</td>
-            <td><span class="tag tag-planned">计划中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="pagination">
-        <span>共 4 条</span>
-        <div class="pagination-page active">1</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Tab2 会议详情 -->
-  <div id="tab-detail" class="tab-content">
-    <div class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-        <div style="font-size:15px; font-weight:500; color:var(--text-primary);">集团安委会季度会议</div>
-        <button class="btn btn-default btn-sm" onclick="switchTab('ledger')">返回台账</button>
-      </div>
-
-      <!-- 基本信息 -->
-      <div class="detail-section">
-        <div class="detail-section-title">基本信息</div>
-        <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">集团安委会季度会议</div></div>
-        <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">安委会</div></div>
-        <div class="detail-row"><div class="detail-label">会议时间</div><div class="detail-value">2026-04-10 14:00-16:30</div></div>
-        <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集团总部3楼会议室A</div></div>
-        <div class="detail-row"><div class="detail-label">主持人</div><div class="detail-value">刘副总经理</div></div>
-        <div class="detail-row"><div class="detail-label">参会人员</div><div class="detail-value">安全管理部全体、各二级企业安全负责人、集团分管领导等共28人</div></div>
-      </div>
-
-      <!-- 会议纪要 -->
-      <div class="detail-section">
-        <div class="detail-section-title">会议纪要</div>
-        <div style="padding:12px 16px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:13px; line-height:1.8; color:var(--text-primary);">
-          <p><strong>一、Q1安全工作总结</strong></p>
-          <p>1. 一季度集团未发生重大安全事故，一般事故2起，同比下降33%。</p>
-          <p>2. 隐患排查整改率95%，仍有3项重大隐患整改中。</p>
-          <p><strong>二、Q2安全工作部署</strong></p>
-          <p>1. 各单位6月前完成危化品专项检查。</p>
-          <p>2. 推进安全标准化建设，目标年底达标率100%。</p>
-          <p><strong>三、决议事项</strong></p>
-          <p>1. 集团增配应急物资储备，预算20万元。</p>
-          <p>2. 各二级企业5月底前提交安全履职自查报告。</p>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">会议名称</span><input class="form-input" placeholder="请输入"></div>
+        <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select">
+          <option>全部</option><option>安委会</option><option>安全例会</option><option>专题会</option><option>培训会</option><option>分析会</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select">
+          <option>全部</option><option>计划中</option><option>已召开</option><option>已归档</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">年度</span><select class="form-input form-select">
+          <option>全部</option><option>2026</option><option>2025</option>
+        </select></div>
+        <div class="filter-bar-actions">
+          <button class="btn btn-primary btn-sm" data-action="filterMeeting">查询</button>
+          <button class="btn btn-default btn-sm" data-action="resetMeetingFilter">重置</button>
         </div>
       </div>
+    </div>
 
-      <!-- 过程资料 -->
-      <div class="detail-section">
-        <div class="detail-section-title">过程资料</div>
-        <div style="margin-bottom:12px;">
-          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">附件</div>
-          <div class="attachment-list">
-            <div class="attachment-item">
-              <span class="attachment-icon">PDF</span>
-              <span>集团安委会Q2会议纪要.pdf</span>
-              <span style="color:var(--text-description); margin-left:auto; font-size:12px;">2.3MB</span>
+    <div class="card">
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showAddMeetingModal">+ 新增会议</button>
+        <button class="btn btn-default" data-action="exportData">导出</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>名称</th><th>时间</th><th>地点</th><th>组织单位</th>
+              <th>状态</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>集团安委会季度会议</td><td>2026-04-10</td><td>集团总部3楼会议室A</td>
+              <td>安全管理部</td>
+              <td><span class="tag tag-held">已召开</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-1'">查看详情</button>
+                <button class="btn btn-text btn-sm" data-action="archiveMeeting">归档</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>5月安全例会</td><td>2026-05-08</td><td>集团总部2楼会议室B</td>
+              <td>安全管理部</td>
+              <td><span class="tag tag-held">已召开</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-2'">查看详情</button>
+                <button class="btn btn-text btn-sm" data-action="archiveMeeting">归档</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>危化品安全管理专题会</td><td>2026-05-22</td><td>危化品仓储公司会议室</td>
+              <td>危化品仓储公司</td>
+              <td><span class="tag tag-planned">计划中</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-3'">查看详情</button>
+                <button class="btn btn-text btn-sm">编辑</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>新员工安全培训会</td><td>2026-05-25</td><td>集团培训中心</td>
+              <td>人力资源部</td>
+              <td><span class="tag tag-planned">计划中</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-4'">查看详情</button>
+                <button class="btn btn-text btn-sm">编辑</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>安全标准化建设推进会</td><td>2026-03-15</td><td>集团总部3楼会议室A</td>
+              <td>安全管理部</td>
+              <td><span class="tag tag-held">已召开</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-5'">查看详情</button>
+                <button class="btn btn-text btn-sm" data-action="archiveMeeting">归档</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>消防应急演练总结会</td><td>2026-03-28</td><td>集装箱码头办公楼2楼会议室</td>
+              <td>集装箱码头公司</td>
+              <td><span class="tag tag-archived">已归档</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-6'">查看详情</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>6月安全例会</td><td>2026-06-10</td><td>集团总部2楼会议室B</td>
+              <td>安全管理部</td>
+              <td><span class="tag tag-planned">计划中</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-7'">查看详情</button>
+                <button class="btn btn-text btn-sm">编辑</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+            <tr>
+              <td>港口作业安全培训会</td><td>2026-06-15</td><td>港口物流公司培训室</td>
+              <td>港口物流公司</td>
+              <td><span class="tag tag-planned">计划中</span></td>
+              <td>
+                <button class="btn btn-text btn-sm" data-action="openMeetingDetail" data-param="'meeting-8'">查看详情</button>
+                <button class="btn btn-text btn-sm">编辑</button>
+                <button class="btn btn-text btn-sm" data-action="deleteMeeting" style="color:var(--error)">删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 8 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+    </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="meeting-detail-title" style="font-size:var(--font-size-16);font-weight:600;">会议详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showMeetingList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+
+        <div id="panel-meeting-1" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">集团安委会季度会议</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">安委会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">安全管理部</div></div>
+            <div class="detail-row"><div class="detail-label">会议时间</div><div class="detail-value">2026-04-10 14:00–16:30</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集团总部3楼会议室A</div></div>
+            <div class="detail-row"><div class="detail-label">主持人</div><div class="detail-value">刘副总经理</div></div>
+            <div class="detail-row"><div class="detail-label">参会人员</div><div class="detail-value">安全管理部全体、各二级企业安全负责人、集团分管领导等共28人</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-held">已召开</span></div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">会议纪要</div>
+            <div style="padding:12px 16px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:var(--font-size-13); line-height:1.8;">
+              <p><strong>一、Q1安全工作总结</strong></p>
+              <p>1. 一季度集团未发生重大安全事故，一般事故2起，同比下降33%。</p>
+              <p>2. 隐患排查整改率95%，仍有3项重大隐患整改中。</p>
+              <p><strong>二、Q2安全工作部署</strong></p>
+              <p>1. 各单位6月前完成危化品专项检查。</p>
+              <p>2. 推进安全标准化建设，目标年底达标率100%。</p>
+              <p><strong>三、决议事项</strong></p>
+              <p>1. 集团增配应急物资储备，预算20万元。</p>
+              <p>2. 各二级企业5月底前提交安全履职自查报告。</p>
             </div>
-            <div class="attachment-item">
-              <span class="attachment-icon">XLSX</span>
-              <span>Q1安全工作统计表.xlsx</span>
-              <span style="color:var(--text-description); margin-left:auto; font-size:12px;">156KB</span>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">决议事项</div>
+            <table class="data-table">
+              <thead>
+                <tr><th>序号</th><th>决议内容</th><th>责任人</th><th>完成期限</th><th>状态</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>集团增配应急物资储备，预算20万元</td><td>安全管理部 王主任</td><td>2026-06-30</td><td><span class="tag tag-planned">进行中</span></td></tr>
+                <tr><td>2</td><td>各二级企业提交安全履职自查报告</td><td>各二级企业安全负责人</td><td>2026-05-31</td><td><span class="tag tag-held">已完成</span></td></tr>
+                <tr><td>3</td><td>完成3项重大隐患整改并验收</td><td>安全管理部 李工</td><td>2026-06-15</td><td><span class="tag tag-planned">进行中</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">过程资料</div>
+            <div class="u-mb-12">
+              <div class="u-fs13-sec-mb8">附件</div>
+              <div class="attachment-list">
+                <div class="attachment-item">
+                  <span class="attachment-icon">PDF</span>
+                  <span>集团安委会Q2会议纪要.pdf</span>
+                  <span style="margin-left:auto;font-size:var(--font-size-12);color:var(--text-description);">2.3MB</span>
+                </div>
+                <div class="attachment-item">
+                  <span class="attachment-icon">XLSX</span>
+                  <span>Q1安全工作统计表.xlsx</span>
+                  <span style="margin-left:auto;font-size:var(--font-size-12);color:var(--text-description);">156KB</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="u-fs13-sec-mb8">现场照片</div>
+              <div class="photo-grid">
+                <div class="photo-placeholder">会议现场1</div>
+                <div class="photo-placeholder">会议现场2</div>
+                <div class="photo-placeholder">会议现场3</div>
+              </div>
+            </div>
+          </div>
+          <div class="filter-actions-row u-mt-16">
+            <button class="btn btn-primary btn-sm">编辑</button>
+            <button class="btn btn-default btn-sm" data-action="archiveMeeting">归档</button>
+          </div>
+        </div>
+
+        <div id="panel-meeting-2" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">5月安全例会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">安全例会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">安全管理部</div></div>
+            <div class="detail-row"><div class="detail-label">会议时间</div><div class="detail-value">2026-05-08 09:30–11:00</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集团总部2楼会议室B</div></div>
+            <div class="detail-row"><div class="detail-label">参会人数</div><div class="detail-value">15人</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-held">已召开</span></div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">会议纪要</div>
+            <div style="padding:12px 16px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:var(--font-size-13); line-height:1.8;">
+              <p>通报5月隐患排查情况；部署端午假期值班安排；强调动火作业审批合规性。</p>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">决议事项</div>
+            <table class="data-table">
+              <thead>
+                <tr><th>序号</th><th>决议内容</th><th>责任人</th><th>完成期限</th><th>状态</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>端午假期值班安排落实到位</td><td>各二级企业办公室</td><td>2026-05-30</td><td><span class="tag tag-held">已完成</span></td></tr>
+                <tr><td>2</td><td>动火作业审批流程合规性自查</td><td>安全管理部 张工</td><td>2026-06-15</td><td><span class="tag tag-planned">进行中</span></td></tr>
+                <tr><td>3</td><td>5月隐患整改项闭环验收</td><td>安全管理部 李工</td><td>2026-06-10</td><td><span class="tag tag-planned">进行中</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">过程资料</div>
+            <div class="attachment-list">
+              <div class="attachment-item">
+                <span class="attachment-icon">PDF</span>
+                <span>5月安全例会纪要.pdf</span>
+                <span style="margin-left:auto;font-size:var(--font-size-12);color:var(--text-description);">890KB</span>
+              </div>
             </div>
           </div>
         </div>
-        <div>
-          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">现场照片</div>
-          <div class="photo-grid">
-            <div class="photo-placeholder">会议现场1</div>
-            <div class="photo-placeholder">会议现场2</div>
-            <div class="photo-placeholder">会议现场3</div>
+
+        <div id="panel-meeting-3" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">危化品安全管理专题会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">专题会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">危化品仓储公司</div></div>
+            <div class="detail-row"><div class="detail-label">计划时间</div><div class="detail-value">2026-05-22 14:00</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">危化品仓储公司会议室</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-planned">计划中</span></div></div>
+          </div>
+          <div class="alert alert-info" style="margin-bottom:0;">
+            会议尚未召开，纪要与过程资料可在会议结束后上传。
+          </div>
+          <div class="filter-actions-row u-mt-16">
+            <button class="btn btn-primary btn-sm">编辑</button>
+            <button class="btn btn-default btn-sm" data-action="markHeld">标记已召开</button>
           </div>
         </div>
-      </div>
+
+        <div id="panel-meeting-4" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">新员工安全培训会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">培训会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">人力资源部</div></div>
+            <div class="detail-row"><div class="detail-label">计划时间</div><div class="detail-value">2026-05-25 10:00</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-planned">计划中</span></div></div>
+          </div>
+          <div class="alert alert-info" style="margin-bottom:0;">
+            会议尚未召开，纪要与过程资料可在会议结束后上传。
+          </div>
+        </div>
+
+        <div id="panel-meeting-5" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">安全标准化建设推进会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">专题会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">安全管理部</div></div>
+            <div class="detail-row"><div class="detail-label">会议时间</div><div class="detail-value">2026-03-15 09:00–12:00</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集团总部3楼会议室A</div></div>
+            <div class="detail-row"><div class="detail-label">主持人</div><div class="detail-value">张总经理</div></div>
+            <div class="detail-row"><div class="detail-label">参会人员</div><div class="detail-value">集团领导班子、各二级企业负责人、安全管理部全体共22人</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-held">已召开</span></div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">会议纪要</div>
+            <div style="padding:12px 16px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:var(--font-size-13); line-height:1.8;">
+              <p><strong>一、标准化建设进展通报</strong></p>
+              <p>1. 集团安全生产标准化创建方案已下发，各单位成立工作专班。</p>
+              <p>2. 集装箱码头公司已通过二级标准化评审，其他单位按计划推进。</p>
+              <p><strong>二、时间节点明确</strong></p>
+              <p>1. 6月底完成自评，9月底申请评审，年底前全部达标。</p>
+              <p>2. 各二级企业每月向安全管理部报送标准化推进月报。</p>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">决议事项</div>
+            <table class="data-table">
+              <thead>
+                <tr><th>序号</th><th>决议内容</th><th>责任人</th><th>完成期限</th><th>状态</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>6月底前完成安全生产标准化自评</td><td>各二级企业安全负责人</td><td>2026-06-30</td><td><span class="tag tag-planned">进行中</span></td></tr>
+                <tr><td>2</td><td>9月底前申请标准化评审</td><td>安全管理部 王主任</td><td>2026-09-30</td><td><span class="tag tag-planned">进行中</span></td></tr>
+                <tr><td>3</td><td>每月报送标准化推进月报</td><td>各二级企业安全负责人</td><td>2026-12-31</td><td><span class="tag tag-planned">进行中</span></td></tr>
+                <tr><td>4</td><td>年底前全部达标</td><td>安全管理部 王主任</td><td>2026-12-31</td><td><span class="tag tag-planned">进行中</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">过程资料</div>
+            <div class="attachment-list">
+              <div class="attachment-item">
+                <span class="attachment-icon">PDF</span>
+                <span>安全标准化建设推进会纪要.pdf</span>
+                <span style="margin-left:auto;font-size:var(--font-size-12);color:var(--text-description);">1.6MB</span>
+              </div>
+              <div class="attachment-item">
+                <span class="attachment-icon">DOCX</span>
+                <span>标准化创建工作方案.docx</span>
+                <span style="margin-left:auto;font-size:var(--font-size-12);color:var(--text-description);">320KB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-meeting-6" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">消防应急演练总结会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">专题会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">集装箱码头公司</div></div>
+            <div class="detail-row"><div class="detail-label">会议时间</div><div class="detail-value">2026-03-28 15:00–16:30</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集装箱码头办公楼2楼会议室</div></div>
+            <div class="detail-row"><div class="detail-label">主持人</div><div class="detail-value">李安全总监</div></div>
+            <div class="detail-row"><div class="detail-label">参会人员</div><div class="detail-value">码头安全科、消防队、各作业班组负责人共35人</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-archived">已归档</span></div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">会议纪要</div>
+            <div style="padding:12px 16px; background:var(--bg-table-stripe); border-radius:var(--radius-sm); font-size:var(--font-size-13); line-height:1.8;">
+              <p>总结3月消防演练成效：参演人数120人，疏散时间4分30秒，达到预期目标。</p>
+              <p>发现问题3项：部分消防栓水压不足、应急广播覆盖盲区2处、部分新员工灭火器操作不熟练。</p>
+              <p>整改措施：水压问题已报设备科维修，广播系统升级纳入Q2预算，新员工复训安排在4月上旬。</p>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">决议事项</div>
+            <table class="data-table">
+              <thead>
+                <tr><th>序号</th><th>决议内容</th><th>责任人</th><th>完成期限</th><th>状态</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>消防栓水压不足问题维修</td><td>设备科 赵科长</td><td>2026-04-15</td><td><span class="tag tag-held">已完成</span></td></tr>
+                <tr><td>2</td><td>应急广播系统升级消除覆盖盲区</td><td>设备科 赵科长</td><td>2026-06-30</td><td><span class="tag tag-planned">进行中</span></td></tr>
+                <tr><td>3</td><td>新员工灭火器操作复训</td><td>安全科 孙科长</td><td>2026-04-10</td><td><span class="tag tag-held">已完成</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">过程资料</div>
+            <div class="attachment-list">
+              <div class="attachment-item">
+                <span class="attachment-icon">PDF</span>
+                <span>消防演练总结报告.pdf</span>
+                <span style="margin-left:auto;font-size:var(--font-size-12);color:var(--text-description);">3.1MB</span>
+              </div>
+            </div>
+            <div class="photo-grid u-mt-12">
+              <div class="photo-placeholder">演练现场1</div>
+              <div class="photo-placeholder">演练现场2</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-meeting-7" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">6月安全例会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">安全例会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">安全管理部</div></div>
+            <div class="detail-row"><div class="detail-label">计划时间</div><div class="detail-value">2026-06-10 09:30</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">集团总部2楼会议室B</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-planned">计划中</span></div></div>
+          </div>
+          <div class="alert alert-info" style="margin-bottom:0;">
+            会议尚未召开，纪要与过程资料可在会议结束后上传。
+          </div>
+          <div class="filter-actions-row u-mt-16">
+            <button class="btn btn-primary btn-sm">编辑</button>
+            <button class="btn btn-default btn-sm" data-action="markHeld">标记已召开</button>
+          </div>
+        </div>
+
+        <div id="panel-meeting-8" class="meeting-detail-panel" style="display:none;">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div class="detail-row"><div class="detail-label">会议名称</div><div class="detail-value">港口作业安全培训会</div></div>
+            <div class="detail-row"><div class="detail-label">会议类型</div><div class="detail-value">培训会</div></div>
+            <div class="detail-row"><div class="detail-label">组织部门</div><div class="detail-value">港口物流公司</div></div>
+            <div class="detail-row"><div class="detail-label">计划时间</div><div class="detail-value">2026-06-15 14:00</div></div>
+            <div class="detail-row"><div class="detail-label">会议地点</div><div class="detail-value">港口物流公司培训室</div></div>
+            <div class="detail-row"><div class="detail-label">状态</div><div class="detail-value"><span class="tag tag-planned">计划中</span></div></div>
+          </div>
+          <div class="alert alert-info" style="margin-bottom:0;">
+            培训包括港口作业安全规程、特种设备操作安全、应急处置三部分内容。培训教材已准备完毕。
+          </div>
+          <div class="filter-actions-row u-mt-16">
+            <button class="btn btn-primary btn-sm">编辑</button>
+            <button class="btn btn-default btn-sm" data-action="markHeld">标记已召开</button>
+          </div>
+        </div>
+
+</div>
     </div>
   </div>
 
-  <!-- 新增会议弹窗 -->
   <div class="modal-overlay" id="modal-add">
     <div class="modal">
-      <div class="modal-header"><h3>新增安全会议</h3><button class="btn btn-text btn-sm" onclick="closeModal()" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+      <div class="modal-header"><h3>新增安全会议</h3><button class="modal-close" data-action="hideModal" data-param="'modal-add'"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button></div>
       <div class="modal-body">
-      <div class="form-group">
-        <div class="form-label"><span class="required">*</span>会议名称</div>
-        <div class="form-content"><input class="form-input" placeholder="请输入会议名称"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label"><span class="required">*</span>会议类型</div>
-        <div class="form-content">
-          <select class="form-input form-select">
-            <option>请选择会议类型</option>
-            <option>安委会</option>
-            <option>安全例会</option>
-            <option>专题会</option>
-            <option>培训会</option>
-          </select>
+        <div class="form-group">
+          <div class="form-label"><span class="required">*</span>会议名称</div>
+          <div class="form-content"><input class="form-input" placeholder="请输入会议名称"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label"><span class="required">*</span>会议类型</div>
+          <div class="form-content">
+            <select class="form-input form-select">
+              <option>请选择会议类型</option>
+              <option>安委会</option><option>安全例会</option><option>专题会</option><option>培训会</option><option>分析会</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label"><span class="required">*</span>会议时间</div>
+          <div class="form-content"><input class="form-input" type="datetime-local"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">会议地点</div>
+          <div class="form-content"><input class="form-input" placeholder="请输入会议地点"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">主持人</div>
+          <div class="form-content"><input class="form-input" placeholder="请输入主持人"></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">参会人员</div>
+          <div class="form-content"><textarea class="form-input" style="height:60px;padding:8px 12px;" placeholder="请输入参会人员，多人用逗号分隔"></textarea></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">会议议程</div>
+          <div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="请输入会议议程"></textarea></div>
         </div>
       </div>
-      <div class="form-group">
-        <div class="form-label"><span class="required">*</span>会议时间</div>
-        <div class="form-content"><input class="form-input" type="datetime-local"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">会议地点</div>
-        <div class="form-content"><input class="form-input" placeholder="请输入会议地点"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">主持人</div>
-        <div class="form-content"><input class="form-input" placeholder="请输入主持人"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">参会人员</div>
-        <div class="form-content"><textarea class="form-input" style="height:60px; padding:8px 12px;" placeholder="请输入参会人员，多人用逗号分隔"></textarea></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">会议议程</div>
-        <div class="form-content"><textarea class="form-input" style="height:80px; padding:8px 12px;" placeholder="请输入会议议程"></textarea></div>
-      </div>
-      </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal()">取消</button>
-        <button class="btn btn-primary">确定</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="'modal-add'">取消</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="'modal-add'">确定</button>
       </div>
     </div>
   </div>
 
-  <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
-    }
-
-    function viewDetail(id) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-item')[1].classList.add('active');
-      document.getElementById('tab-detail').classList.add('active');
-    }
-
-    function openModal() {
-      document.getElementById('modal-add').classList.add('show');
-    }
-
-    function closeModal() {
-      document.getElementById('modal-add').classList.remove('show');
-    }
-
-    document.getElementById('modal-add').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-  </script>
+<script>
+document.addEventListener('click', function(e) {
+  var node = e.target.closest('[data-action="selectUnit"]');
+  if (!node) return;
+  var unitId = node.getAttribute('data-unit');
+  if (typeof selectOrgUnit === 'function' && unitId) { selectOrgUnit('unitTree', unitId); }
+  else {
+    document.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('active'); });
+    node.classList.add('active');
+    var label = document.getElementById('currentUnitLabel');
+    if (label) label.textContent = '（' + node.textContent.trim() + '）';
+  }
+});
+</script>
+  <script src="meeting-logic.js?v=2.0"></script>
+  <script src="../system-admin/org-data.js"></script>
+  <script src="../shared/org-tree.js"></script>
+  <script>renderOrgTree('unitTree','currentUnitLabel',{mode:'units-only'});</script>
 </body>
 </html>

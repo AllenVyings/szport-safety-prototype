@@ -4,21 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>事故上报 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>    .page-view { display:none; }
+    .page-view.active { display:block; }
+    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-quick { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-follow { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-approving { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-archived { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-submitted { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-linked { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
+    .tag-quick { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-follow { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-approving { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-submitted { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-linked { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
     .detail-panel { width:360px; flex-shrink:0; }
     .detail-section { margin-bottom:16px; }
-    .detail-section-title { font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
-    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
     .detail-row .label { color:var(--text-secondary); }
     .detail-row .value { color:var(--text-primary); font-weight:500; }
     .timeline { border-left:2px solid var(--border); padding-left:16px; }
@@ -26,35 +28,47 @@
     .timeline-item::before { content:''; position:absolute; left:-21px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--border); }
     .timeline-item.done::before { background:var(--success); }
     .timeline-item.active::before { background:var(--primary); }
-    .timeline-item .time { font-size:12px; color:var(--text-description); }
-    .timeline-item .event { font-size:13px; color:var(--text-primary); }
+    .timeline-item .time { font-size:var(--font-size-12); color:var(--text-description); }
+    .timeline-item .event { font-size:var(--font-size-13); color:var(--text-primary); }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <!-- 统计概览 -->
-  <div class="stat-bar">
-    <div class="stat-item"><div class="stat-num">15</div><div class="stat-label">事故总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">2</div><div class="stat-label">快报</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">续报</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--text-secondary)">4</div><div class="stat-label">审批中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">6</div><div class="stat-label">已归档</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--risk-major)">2</div><div class="stat-label">重大事故</div></div>
+<body class="u-bg-page-px20">
+
+  <div id="view-list" class="page-view active">
+  <!-- 统计概览：按事故等级分类，点击可筛选 -->
+  <div class="stat-bar" style="gap:12px;">
+    <div class="stat-item" style="cursor:pointer;border-left:3px solid var(--info);padding-left:12px;" data-action="filterByLevel" data-param="一般" title="点击筛选一般事故">
+      <div class="stat-num" style="color:var(--info);">8</div><div class="stat-label">一般事故</div>
+    </div>
+    <div class="stat-item" style="cursor:pointer;border-left:3px solid var(--risk-significant);padding-left:12px;" data-action="filterByLevel" data-param="较大" title="点击筛选较大事故">
+      <div class="stat-num" style="color:var(--risk-significant);">3</div><div class="stat-label">较大事故</div>
+    </div>
+    <div class="stat-item" style="cursor:pointer;border-left:3px solid var(--error);padding-left:12px;" data-action="filterByLevel" data-param="重大" title="点击筛选重大事故">
+      <div class="stat-num" style="color:var(--error);">3</div><div class="stat-label">重大事故</div>
+    </div>
+    <div class="stat-item" style="cursor:pointer;border-left:3px solid var(--risk-major);padding-left:12px;" data-action="filterByLevel" data-param="特别重大" title="点击筛选特别重大事故">
+      <div class="stat-num" style="color:var(--risk-major);">1</div><div class="stat-label">特别重大</div>
+    </div>
+    <div class="stat-item" style="border-left:3px solid var(--border);padding-left:12px;">
+      <div class="stat-num">15</div><div class="stat-label">本年累计</div>
+    </div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('report')">事故上报</div>
-    <div class="tab-item" onclick="switchTab('zero')">零事故上报</div>
-    <div class="tab-item" onclick="switchTab('detail')">事故详情</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="report">事故上报</div>
+      <div class="tab-item" data-action="switchTab" data-param="zero">零事故上报</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab 1: 事故上报 -->
   <div id="tab-report" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索事故名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">事故名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">事故类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>物体打击</option>
           <option>车辆伤害</option>
           <option>火灾</option>
@@ -64,33 +78,34 @@
           <option>触电</option>
           <option>灼烫</option>
           <option>淹溺</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部级别</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">事故级别</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>特别重大</option>
           <option>重大</option>
           <option>较大</option>
           <option>一般</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>快报</option>
           <option>续报</option>
           <option>审批中</option>
           <option>已归档</option>
-        </select>
-        <input class="form-input" type="date" style="width:140px">
-        <input class="form-input" type="date" style="width:140px">
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">开始日期</span><input class="form-input" type="date" ></div>
+        <div class="filter-field"><span class="filter-label">结束日期</span><input class="form-input" type="date" ></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showQuickReport()">+ 新增快报</button>
-        <button class="btn btn-ghost" onclick="showFollowReport()">新增续报</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showQuickReport">+ 新增快报</button>
+        <button class="btn btn-ghost" data-action="showFollowReport">新增续报</button>
         <button class="btn btn-default">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -113,7 +128,7 @@
             <td>2026-05-10 09:15</td>
             <td>2026-05-10 09:45</td>
             <td><span class="tag tag-follow">续报</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">续报</button><button class="btn btn-text btn-sm">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-1'">查看详情</button><button class="btn btn-text btn-sm">续报</button><button class="btn btn-text btn-sm">审批</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -123,7 +138,7 @@
             <td>2026-04-18 14:30</td>
             <td>2026-04-18 15:00</td>
             <td><span class="tag tag-approving">审批中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-2'">查看详情</button><button class="btn btn-text btn-sm">审批</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -133,7 +148,7 @@
             <td>2026-03-25 11:00</td>
             <td>2026-03-25 11:20</td>
             <td><span class="tag tag-archived">已归档</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-3'">查看详情</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -143,7 +158,7 @@
             <td>2026-05-16 16:45</td>
             <td>2026-05-16 17:00</td>
             <td><span class="tag tag-quick">快报</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">续报</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-4'">查看详情</button><button class="btn btn-text btn-sm">续报</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -153,38 +168,40 @@
             <td>2026-02-20 08:30</td>
             <td>2026-02-20 09:00</td>
             <td><span class="tag tag-archived">已归档</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-5'">查看详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 15 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
     <!-- 快报弹窗说明 -->
     <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">快报/续报功能说明</div>
-      <div style="display:flex; gap:16px;">
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--warning); margin-bottom:6px;">快报</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">
+      <div class="u-fs14-fw600-title">快报/续报功能说明</div>
+      <div class="u-flex u-gap-16">
+        <div class="u-section-card">
+          <div style="font-size:var(--font-size-13); font-weight:600; color:var(--warning); margin-bottom:6px;">快报</div>
+          <div class="u-hint-text">
             事故名称 / 发生时间 / 发生地点 / 事故类型 / 伤亡情况 / 现场照片 / 处置经过<br>
             支持按国资委事故模板格式上报
           </div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">续报</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">
+        <div class="u-section-card">
+          <div class="u-fs13-fw600-primary-mb6">续报</div>
+          <div class="u-hint-text">
             原因分析 / 损失评估 / 善后处理<br>
             补充快报中未包含的详细信息
           </div>
         </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--error); margin-bottom:6px;">预警规则</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">
+        <div class="u-section-card">
+          <div style="font-size:var(--font-size-13); font-weight:600; color:var(--error); margin-bottom:6px;">预警规则</div>
+          <div class="u-hint-text">
             事故上报后实时通知集团<br>
             重大事故即时推送短信至集团领导<br>
             零事故上报截止前3天催报
@@ -196,34 +213,33 @@
 
   <!-- Tab 2: 零事故上报 -->
   <div id="tab-zero" class="tab-content">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <select class="form-input form-select" style="width:140px">
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">月份</span><select class="form-input form-select" >
           <option>2026年5月</option>
           <option>2026年4月</option>
           <option>2026年3月</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>待上报</option>
           <option>已上报（零事故）</option>
           <option>已关联事故</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-        <div>
-          <div style="font-size:14px; font-weight:600; color:var(--text-primary);">月度零事故上报任务</div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">系统每月自动生成零事故上报任务，未发生事故单位填报"零事故"确认</div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-default btn-sm">批量催报</button>
-          <button class="btn btn-primary btn-sm">汇总查看</button>
-        </div>
+      <div>
+        <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary);">月度零事故上报任务</div>
+        <div style="font-size:var(--font-size-12); color:var(--text-secondary); margin-top:4px;">系统每月自动生成零事故上报任务，未发生事故单位填报"零事故"确认</div>
       </div>
+      <div class="filter-actions-row">
+        <button class="btn btn-default btn-sm">批量催报</button>
+        <button class="btn btn-primary btn-sm">汇总查看</button>
+      </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -244,7 +260,7 @@
             <td><span class="tag tag-submitted">已上报（零事故）</span></td>
             <td>2026-05-31</td>
             <td>2026-05-10</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-6'">查看</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -253,7 +269,7 @@
             <td><span class="tag tag-linked">已关联事故</span></td>
             <td>2026-05-31</td>
             <td>2026-05-16</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">关联事故</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-7'">查看</button><button class="btn btn-text btn-sm">关联事故</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -262,7 +278,7 @@
             <td><span class="tag tag-submitted">已上报（零事故）</span></td>
             <td>2026-05-31</td>
             <td>2026-05-12</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-8'">查看</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -289,33 +305,48 @@
             <td><span class="tag tag-submitted">已上报（零事故）</span></td>
             <td>2026-05-31</td>
             <td>2026-05-08</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openAccidentDetail" data-param="'accident-9'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 14 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 6 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
 
     <!-- 零事故上报汇总 -->
     <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">2026年5月 零事故上报汇总</div>
-      <div style="display:flex; gap:16px;">
+      <div class="u-fs14-fw600-title">2026年5月 零事故上报汇总</div>
+      <div class="u-flex u-gap-16">
         <div class="stat-item"><div class="stat-num">14</div><div class="stat-label">应上报单位</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--success)">9</div><div class="stat-label">已上报（零事故）</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--primary)">2</div><div class="stat-label">已关联事故</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--warning)">3</div><div class="stat-label">待上报</div></div>
-        <div class="stat-item"><div class="stat-num" style="color:var(--success)">79%</div><div class="stat-label">完成率</div></div>
+        <div class="stat-item"><div class="stat-num u-text-success">9</div><div class="stat-label">已上报（零事故）</div></div>
+        <div class="stat-item"><div class="stat-num u-text-primary">2</div><div class="stat-label">已关联事故</div></div>
+        <div class="stat-item"><div class="stat-num u-text-warning">3</div><div class="stat-label">待上报</div></div>
+        <div class="stat-item"><div class="stat-num u-text-success">79%</div><div class="stat-label">完成率</div></div>
       </div>
     </div>
   </div>
 
-  <!-- Tab 3: 事故详情 -->
-  <div id="tab-detail" class="tab-content">
-    <div style="display:flex; gap:16px;">
-      <div style="flex:1;">
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;">事故详情</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn btn-primary btn-sm" data-action="showFollowReportDetail">续报</button>
+          <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showAccidentList">← 返回列表</button>
+        </div>
+      </div>
+      <div style="padding:20px 24px 24px;">
+    <div class="u-flex u-gap-16">
+      <div class="u-flex-1">
         <!-- 基本信息 -->
         <div class="card">
           <div class="detail-section">
@@ -359,6 +390,31 @@
             </div>
           </div>
         </div>
+
+        <!-- 审批进度 -->
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">审批进度</div>
+            <div class="timeline">
+              <div class="timeline-item done">
+                <div class="time">2026-05-10 09:45</div>
+                <div class="event">接报时间 — 张安全（集装箱码头公司）</div>
+              </div>
+              <div class="timeline-item done">
+                <div class="time">2026-05-10 10:00</div>
+                <div class="event">审核时间 — 李主任（安全管理部）审核通过</div>
+              </div>
+              <div class="timeline-item active">
+                <div class="time">进行中</div>
+                <div class="event">审批时间 — 待王总审批</div>
+              </div>
+              <div class="timeline-item">
+                <div class="time">--</div>
+                <div class="event">归档时间 — 待集团归档确认</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="detail-panel">
@@ -366,21 +422,21 @@
         <div class="card">
           <div class="detail-section">
             <div class="detail-section-title">关联整改措施</div>
-            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">
+            <div class="u-fs13-sec-mb8">
               <div style="padding:8px 0; border-bottom:1px solid var(--border-light);">
                 <div style="font-weight:500; color:var(--text-primary);">加强车辆限速管理</div>
-                <div style="font-size:12px;">责任人：李安全 &nbsp;|&nbsp; 截止：2026-06-10</div>
-                <div><span class="tag tag-pending" style="font-size:11px;">待整改</span></div>
+                <div class="u-fs-12">责任人：李安全 &nbsp;|&nbsp; 截止：2026-06-10</div>
+                <div><span class="tag tag-pending u-fs-11">待整改</span></div>
               </div>
               <div style="padding:8px 0; border-bottom:1px solid var(--border-light);">
                 <div style="font-weight:500; color:var(--text-primary);">增设堆场行车警示标识</div>
-                <div style="font-size:12px;">责任人：王安全 &nbsp;|&nbsp; 截止：2026-06-15</div>
-                <div><span class="tag tag-pending" style="font-size:11px;">待整改</span></div>
+                <div class="u-fs-12">责任人：王安全 &nbsp;|&nbsp; 截止：2026-06-15</div>
+                <div><span class="tag tag-pending u-fs-11">待整改</span></div>
               </div>
               <div style="padding:8px 0;">
                 <div style="font-weight:500; color:var(--text-primary);">开展车辆安全操作培训</div>
-                <div style="font-size:12px;">责任人：张培训 &nbsp;|&nbsp; 截止：2026-06-20</div>
-                <div><span class="tag tag-submitted" style="font-size:11px;">已完成</span></div>
+                <div class="u-fs-12">责任人：张培训 &nbsp;|&nbsp; 截止：2026-06-20</div>
+                <div><span class="tag tag-submitted u-fs-11">已完成</span></div>
               </div>
             </div>
           </div>
@@ -412,17 +468,123 @@
         </div>
       </div>
     </div>
+      </div>
+    </div>
+  </div><!-- /view-detail -->
+
+  <div class="modal-overlay" id="modal-accident-quick" style="display:none;">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header"><h3>新增事故快报</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-accident-quick">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">事故名称</label><div class="form-content"><input class="form-input" placeholder="简要描述事故"></div></div>
+        <div class="form-group"><label class="form-label">事故类型</label><div class="form-content"><select class="form-input form-select"><option>车辆伤害</option><option>物体打击</option><option>其他</option></select></div></div>
+        <div class="form-group"><label class="form-label">发生时间</label><div class="form-content"><input class="form-input" type="datetime-local"></div></div>
+        <div class="form-group"><label class="form-label">简要经过</label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="现场情况、伤亡初报等"></textarea></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-accident-quick">取消</button>
+        <button class="btn btn-primary" data-action="submitQuickReport">提交快报</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-accident-follow" style="display:none;">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header"><h3>事故续报</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-accident-follow">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">关联事故</label><div class="form-content"><select class="form-input form-select"><option>集装箱码头车辆碰撞事故</option></select></div></div>
+        <div class="form-group"><label class="form-label">原因分析 <span style="color:var(--error)">*</span></label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="详细分析事故发生的原因"></textarea></div></div>
+        <div class="form-group"><label class="form-label">损失评估</label><div class="form-content"><div style="display:flex;align-items:center;gap:8px;"><input class="form-input" type="number" placeholder="请输入" style="width:200px;"><span style="font-size:var(--font-size-13);color:var(--text-secondary);">万元</span></div></div></div>
+        <div class="form-group"><label class="form-label">善后处理</label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="善后处理措施及进展"></textarea></div></div>
+        <div class="form-group"><label class="form-label">补充照片</label><div class="form-content"><div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;color:var(--text-description);font-size:var(--font-size-13);cursor:pointer;">+ 点击上传照片（支持多图）</div></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-accident-follow">取消</button>
+        <button class="btn btn-primary" data-action="submitFollowReport">提交续报</button>
+      </div>
+    </div>
   </div>
 
   <script>
+    function showAccidentList() { setPageView('view-list', 'view-detail', 'list'); }
+    function openAccidentDetail(id) { setPageView('view-list', 'view-detail', 'detail'); }
+    window.showAccidentList = showAccidentList;
+    window.openAccidentDetail = openAccidentDetail;
+
     function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
+      document.querySelectorAll('#view-list .tab-item').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('#view-list .tab-content').forEach(function(t) { t.classList.remove('active'); });
+      var tab = document.querySelector('#view-list .tab-item[data-param="' + name + '"]');
+      if (tab) tab.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
     }
-    function showQuickReport() { alert('事故快报弹窗（开发中）\n包含：事故名称/时间/地点/类型/伤亡情况/现场照片/处置经过\n支持按国资委事故模板格式上报'); }
-    function showFollowReport() { alert('事故续报弹窗（开发中）\n补充：原因分析/损失评估/善后处理'); }
+    window.switchTab = switchTab;
+
+    function showQuickReport() { showModal('modal-accident-quick'); }
+    function showFollowReport() { showModal('modal-accident-follow'); }
+    function showFollowReportDetail() { showModal('modal-accident-follow'); }
+    window.showQuickReport = showQuickReport;
+    window.showFollowReport = showFollowReport;
+    window.showFollowReportDetail = showFollowReportDetail;
+
+    function filterByLevel(level) {
+      var select = document.querySelector('#tab-report select[title="事故级别"], #tab-report .filter-field:nth-child(3) select');
+      if (select) {
+        for (var i = 0; i < select.options.length; i++) {
+          if (select.options[i].text === level) {
+            select.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      showToast('已筛选：' + level + '（原型演示）', 'info');
+    }
+    window.filterByLevel = filterByLevel;
+
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+
+        switch (action) {
+          case 'filterByLevel':
+            if (param) filterByLevel(param);
+            break;
+          case 'showQuickReport':
+            showQuickReport();
+            break;
+          case 'showFollowReport':
+            showFollowReport();
+            break;
+          case 'showFollowReportDetail':
+            showFollowReportDetail();
+            break;
+          case 'switchTab':
+            if (param) switchTab(param);
+            break;
+          case 'submitQuickReport':
+            hideModal('modal-accident-quick');
+            showToast('快报已提交', 'success');
+            break;
+          case 'submitFollowReport':
+            hideModal('modal-accident-follow');
+            showToast('续报已提交', 'success');
+            break;
+          case 'hideModal':
+            if (param) hideModal(param);
+            break;
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+          hideModal(e.target.id);
+        }
+      });
+    })();
   </script>
+  <div class="toast" id="toast" class="u-none"></div>
 </body>
 </html>

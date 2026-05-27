@@ -4,271 +4,277 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>制度保障 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-effective { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-revised { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-abolished { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .alert-warning { padding:10px 14px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806; margin-bottom:12px; }
-    .alert-info { padding:10px 14px; background:#E6F7FF; border:1px solid #91CAFF; border-radius:var(--radius-sm); font-size:12px; color:#0958D9; margin-bottom:12px; }
-    .prd-footer { margin-top:20px; padding:10px 16px; background:#F5F5F5; border-radius:var(--radius-sm); font-size:12px; color:var(--text-description); text-align:center; }
-</style>
+    .tag-effective { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-revised { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-abolished { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-pending-revise { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .alert-warning { padding:10px 14px; background:var(--tag-warning-bg); border-color:var(--tag-warning-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-warning-color); margin-bottom:12px; }
+    .alert-info { padding:10px 14px; background:var(--tag-info-bg); border-color:var(--tag-info-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-info-color); margin-bottom:12px; }
+    .form-field { display:flex; flex-direction:column; gap:6px; }
+    .form-field-label { font-size:var(--font-size-13); color:var(--text-secondary); line-height:1; }
+    .form-field-label .required { color:var(--error); margin-right:2px; }
+    .form-textarea { width:100%; min-height:88px; padding:8px 12px; border:1px solid var(--border-input); border-radius:var(--input-radius); font-size:var(--font-size-13); font-family:var(--font-family); color:var(--text-primary); background:var(--bg-card); line-height:1.6; resize:vertical; outline:none; transition:border-color var(--duration-fast) var(--ease-out); }
+    .form-textarea:focus { border-color:var(--border-input-focus); box-shadow:0 0 0 2px rgba(35,102,236,0.1); }
+    .form-textarea::placeholder { color:var(--text-description); }
+    .upload-area { display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px; border:1px dashed var(--border); border-radius:var(--radius-md); cursor:pointer; transition:border-color var(--duration-fast); }
+    .upload-area:hover { border-color:var(--primary); background:var(--primary-5,rgba(35,102,236,0.03)); }
+    .upload-icon { width:40px; height:40px; }
+    .upload-text { font-size:var(--font-size-13); color:var(--primary); font-weight:var(--font-weight-semibold); }
+    .upload-hint { font-size:var(--font-size-11); color:var(--text-description); }
+    .upload-file-list { margin-top:8px; }
+    .upload-file-item { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-sm); font-size:var(--font-size-12); margin-bottom:4px; }
+    .upload-file-icon { width:16px; height:16px; flex-shrink:0; }
+    .upload-file-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-primary); }
+    .upload-file-size { color:var(--text-description); flex-shrink:0; }
+    .upload-file-remove { background:none; border:none; color:var(--text-description); cursor:pointer; font-size:var(--font-size-16); line-height:1; padding:0 2px; }
+    .upload-file-remove:hover { color:var(--error); }
+    .detail-file-list { display:flex; flex-wrap:wrap; gap:12px; }
+    .detail-file-card { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--border-light); border-radius:var(--radius-md); min-width:200px; cursor:pointer; transition:border-color var(--duration-fast); }
+    .detail-file-card:hover { border-color:var(--primary); }
+    .detail-file-card-icon { width:32px; height:32px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .detail-file-card-icon.pdf { background:var(--tag-error-bg); }
+    .detail-file-card-icon.doc { background:var(--tag-blue-bg); }
+    .detail-file-card-info { min-width:0; }
+    .detail-file-card-name { font-size:var(--font-size-13); color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .detail-file-card-size { font-size:var(--font-size-11); color:var(--text-description); margin-top:2px; }
+    .detail-file-empty { padding:20px; text-align:center; color:var(--text-description); font-size:var(--font-size-12); background:var(--bg-page); border-radius:var(--radius-md); }
+    .preview-file-tab { padding:4px 12px; font-size:var(--font-size-12); color:var(--text-secondary); border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); cursor:pointer; transition:all var(--duration-fast); }
+    .preview-file-tab.active { color:var(--primary); border-color:var(--primary); background:var(--primary-5,rgba(35,102,236,0.06)); }
+    .preview-empty { text-align:center; }
+    .preview-empty-icon { width:56px; height:56px; margin:0 auto 12px; opacity:0.3; }
+    .preview-empty-text { font-size:var(--font-size-13); color:var(--text-description); }
+    .preview-doc { width:100%; max-width:680px; padding:24px; background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); }
+    .preview-doc h4 { font-size:var(--font-size-14); font-weight:var(--font-weight-semibold); margin-bottom:12px; }
+    .preview-doc p { font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.8; margin-bottom:8px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">法律法规总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">18</div><div class="stat-label">规章制度总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">3</div><div class="stat-label">最近更新</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">2</div><div class="stat-label">待修订</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">1</div><div class="stat-label">已废止</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">18</div><div class="stat-label">规章制度总数</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">3</div><div class="stat-label">最近更新</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">2</div><div class="stat-label">待修订</div></div>
+    <div class="stat-item"><div class="stat-num u-text-description">1</div><div class="stat-label">已废止</div></div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('law')">法律法规台账</div>
-    <div class="tab-item" onclick="switchTab('rule')">规章制度台账</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="law">法律法规台账</div>
+      <div class="tab-item" data-action="switchTab" data-param="rule">规章制度台账</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab1 法律法规台账 -->
   <div id="tab-law" class="tab-content active">
     <div class="alert-warning">
       法律法规更新时，系统自动提醒相关制度修订（在"待修订"状态中标记）
     </div>
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索法规名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部法规类别</option>
-          <option>法律</option>
-          <option>行政法规</option>
-          <option>地方性法规</option>
-          <option>部门规章</option>
-          <option>地方规章</option>
-          <option>其他</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
-          <option>现行有效</option>
-          <option>已修订</option>
-          <option>已废止</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">法规名称</span><input class="form-input" placeholder="请输入"></div>
+        <div class="filter-field"><span class="filter-label">法规类别</span><select class="form-input form-select">
+          <option>全部</option><option>法律</option><option>行政法规</option><option>地方性法规</option><option>部门规章</option><option>地方规章</option><option>其他</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">发布时间</span><div style="display:flex;align-items:center;gap:4px;"><input type="date" class="form-input" id="law-date-start">—<input type="date" class="form-input" id="law-date-end"></div></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select">
+          <option>全部</option><option>现行有效</option><option>已修订</option><option>已废止</option>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterLaw">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetLawFilter">重置</button></div>
       </div>
     </div>
 
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-      <button class="btn btn-primary" onclick="showModal('addRegModal')">+ 新增</button>
-      <button class="btn btn-default">导出</button>
+    <div class="filter-actions-row">
+      <button class="btn btn-primary" data-action="showAddRegModal">+ 新增</button>
+      <button class="btn btn-default" data-action="batchDeleteReg" data-param="law">批量删除</button>
+      <button class="btn btn-default" data-action="exportData">导出</button>
     </div>
 
     <div class="card">
-      <table class="data-table">
+      <div class="table-wrap">
+      <table class="data-table" id="law-table">
+        <colgroup><col style="width:40px"><col style="width:48px"><col style="width:220px"><col style="width:100px"><col style="width:140px"><col style="width:110px"><col style="width:90px"><col style="width:140px"></colgroup>
         <thead>
-          <tr>
-            <th>序号</th>
-            <th>法规名称</th>
-            <th>法规类别</th>
-            <th>发布机关</th>
-            <th>生效日期</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>
+          <tr><th><input type="checkbox" data-action="toggleAllCheck" data-param="law-table"></th><th>序号</th><th>法规名称</th><th>法规类别</th><th>发布机关</th><th>生效日期</th><th>状态</th><th>操作</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>安全生产法</td>
-            <td><span class="tag tag-info">法律</span></td>
-            <td>全国人大常委会</td>
-            <td>2021-09-01</td>
-            <td><span class="tag tag-effective">现行有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>港口危险货物安全管理规定</td>
-            <td><span class="tag tag-warning">部门规章</span></td>
-            <td>交通运输部</td>
-            <td>2023-03-01</td>
-            <td><span class="tag tag-revised">已修订</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>广东省安全生产条例</td>
-            <td><span class="tag tag-success">地方性法规</span></td>
-            <td>广东省人大常委会</td>
-            <td>2023-10-01</td>
-            <td><span class="tag tag-effective">现行有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>深圳经济特区安全生产监督管理条例</td>
-            <td><span class="tag tag-success">地方性法规</span></td>
-            <td>深圳市人大常委会</td>
-            <td>2023-07-01</td>
-            <td><span class="tag tag-effective">现行有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-1"></td><td>1</td><td>安全生产法</td><td><span class="tag tag-info">法律</span></td><td>全国人大常委会</td><td>2021-09-01</td><td><span class="tag tag-effective">现行有效</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-1'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-1'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-1'">查看</button></div></td></tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-2"></td><td>2</td><td>港口危险货物安全管理规定</td><td><span class="tag tag-warning">部门规章</span></td><td>交通运输部</td><td>2023-03-01</td><td><span class="tag tag-revised">已修订</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-2'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-2'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-2'">查看</button></div></td></tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-3"></td><td>3</td><td>广东省安全生产条例</td><td><span class="tag tag-success">地方性法规</span></td><td>广东省人大常委会</td><td>2023-10-01</td><td><span class="tag tag-effective">现行有效</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-3'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-3'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-3'">查看</button></div></td></tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-4"></td><td>4</td><td>深圳经济特区安全生产监督管理条例</td><td><span class="tag tag-success">地方性法规</span></td><td>深圳市人大常委会</td><td>2023-07-01</td><td><span class="tag tag-effective">现行有效</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-4'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-4'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-4'">查看</button></div></td></tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 4 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 4 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- Tab2 规章制度台账 -->
   <div id="tab-rule" class="tab-content">
-    <div class="alert-info">
-      员工可通过培训知识库上传安全知识文件，审核通过后共享至全集团 | 关联模块：教育培训-培训知识库
-    </div>
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索制度名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部制度类型</option>
-          <option>管理制度</option>
-          <option>管理规定</option>
-          <option>操作规程</option>
-          <option>应急预案</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
-          <option>现行有效</option>
-          <option>待修订</option>
-          <option>已废止</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">制度名称</span><input class="form-input" placeholder="请输入"></div>
+        <div class="filter-field"><span class="filter-label">制度类型</span><select class="form-input form-select">
+          <option>全部</option><option>管理制度</option><option>管理规定</option><option>操作规程</option><option>应急预案</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select">
+          <option>全部</option><option>现行有效</option><option>待修订</option><option>已废止</option>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterRule">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetRuleFilter">重置</button></div>
       </div>
+    </div>
+
+    <div class="filter-actions-row">
+      <button class="btn btn-primary" data-action="showAddRegModal">+ 新增</button>
+      <button class="btn btn-default" data-action="batchDeleteReg" data-param="rule">批量删除</button>
+      <button class="btn btn-default" data-action="exportData">导出</button>
     </div>
 
     <div class="card">
-      <table class="data-table">
+      <div class="table-wrap">
+      <table class="data-table" id="rule-table">
+        <colgroup><col style="width:40px"><col style="width:48px"><col style="width:200px"><col style="width:100px"><col style="width:90px"><col style="width:110px"><col style="width:70px"><col style="width:90px"><col style="width:140px"></colgroup>
         <thead>
-          <tr>
-            <th>序号</th>
-            <th>制度名称</th>
-            <th>制度类型</th>
-            <th>适用范围</th>
-            <th>生效日期</th>
-            <th>版本</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>
+          <tr><th><input type="checkbox" data-action="toggleAllCheck" data-param="rule-table"></th><th>序号</th><th>制度名称</th><th>制度类型</th><th>适用范围</th><th>生效日期</th><th>版本</th><th>状态</th><th>操作</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>安全生产管理办法</td>
-            <td>管理制度</td>
-            <td>全集团</td>
-            <td>2026-01-01</td>
-            <td>V3.0</td>
-            <td><span class="tag tag-effective">现行有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>安全检查管理规定</td>
-            <td>管理规定</td>
-            <td>本单位</td>
-            <td>2026-01-01</td>
-            <td>V2.1</td>
-            <td><span class="tag tag-effective">现行有效</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>隐患排查治理制度</td>
-            <td>管理制度</td>
-            <td>全集团</td>
-            <td>2025-07-01</td>
-            <td>V2.0</td>
-            <td><span class="tag tag-pending-revise">待修订</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-5"></td><td>1</td><td>安全生产管理办法</td><td>管理制度</td><td>全集团</td><td>2026-01-01</td><td>V3.0</td><td><span class="tag tag-effective">现行有效</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-5'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-5'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-5'">查看</button></div></td></tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-6"></td><td>2</td><td>安全检查管理规定</td><td>管理规定</td><td>本单位</td><td>2026-01-01</td><td>V2.1</td><td><span class="tag tag-effective">现行有效</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-6'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-6'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-6'">查看</button></div></td></tr>
+          <tr><td><input type="checkbox" class="row-check" value="secu1-7"></td><td>3</td><td>隐患排查治理制度</td><td>管理制度</td><td>全集团</td><td>2025-07-01</td><td>V2.0</td><td><span class="tag tag-pending-revise">待修订</span></td>
+            <td><div><button class="btn btn-text btn-sm" data-action="editReg" data-param="'secu1-7'">编辑</button><button class="btn btn-text btn-sm u-text-error" data-action="deleteReg" data-param="'secu1-7'">删除</button><button class="btn btn-text btn-sm" data-action="viewReg" data-param="'secu1-7'">查看</button></div></td></tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 3 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 3 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
-  <!-- 新增制度弹窗 -->
-  <div id="addRegModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:var(--bg-card); border-radius:var(--radius-lg); width:640px; max-height:80vh; overflow:auto; padding:24px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="margin:0; font-size:16px;">新增规章制度</h3>
-        <button class="btn btn-text" onclick="hideModal('addRegModal')">&#10005;</button>
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <!-- 详情页 -->
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="reg-detail-title" style="font-size:var(--font-size-16);font-weight:var(--font-weight-semibold);">详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showSecurityBasicsRegulationList">← 返回列表</button>
       </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 制度名称</label>
-          <input class="form-input" style="width:100%" placeholder="请输入制度名称">
+      <div style="padding:20px 24px 24px;">
+        <!-- 上方：基础信息两列（含说明） -->
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">基本信息</div>
+            <div id="reg-detail-basic" style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px;"></div>
+          </div>
         </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 制度类型</label>
-          <select class="form-input form-select" style="width:100%">
-            <option>请选择</option>
-            <option>管理制度</option>
-            <option>管理规定</option>
-            <option>操作规程</option>
-            <option>应急预案</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;"><span style="color:var(--error)">*</span> 适用范围</label>
-          <select class="form-input form-select" style="width:100%">
-            <option>请选择</option>
-            <option>全集团</option>
-            <option>本单位</option>
-            <option>特定部门</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">关联法规</label>
-          <input class="form-input" style="width:100%" placeholder="请输入关联法规名称">
-        </div>
-        <div style="grid-column:span 2">
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">制度正文</label>
-          <textarea class="form-input" style="width:100%; height:120px" placeholder="请输入制度正文内容"></textarea>
-        </div>
-        <div style="grid-column:span 2">
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">附件上传</label>
-          <div style="border:1px dashed var(--border); border-radius:var(--radius-md); padding:20px; text-align:center; color:var(--text-description); font-size:13px; cursor:pointer;">
-            点击或拖拽上传附件（支持 .doc/.docx/.pdf，单文件不超过20MB）
+        <!-- 下方：文件预览窗口 -->
+        <div class="card" style="margin-top:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div style="font-size:var(--font-size-14);font-weight:var(--font-weight-semibold);color:var(--text-primary);">附件预览</div>
+            <div id="reg-detail-file-tabs" style="display:flex;gap:4px;"></div>
+          </div>
+          <div id="reg-detail-preview" style="min-height:320px;background:var(--bg-page);border-radius:0 0 var(--radius-lg) var(--radius-lg);display:flex;align-items:center;justify-content:center;">
+            <div id="reg-detail-preview-content"></div>
           </div>
         </div>
       </div>
-      <div style="margin-top:20px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
-        <button class="btn btn-default" onclick="hideModal('addRegModal')">取消</button>
-        <button class="btn btn-primary" onclick="hideModal('addRegModal')">确定</button>
+    </div>
+  </div><!-- /view-detail -->
+
+  <!-- 新增/编辑弹窗（共用） -->
+  <div class="modal-overlay" id="modal-reg-form">
+    <div class="modal" style="width:var(--modal-md)">
+      <div class="modal-header">
+        <h3 class="modal-title" id="reg-form-title">新增法律法规</h3>
+        <button class="modal-close" data-action="hideModal" data-param="modal-reg-form">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px 20px;">
+          <div class="form-field">
+            <label class="form-field-label"><span class="required">*</span>名称</label>
+            <input class="form-input" id="reg-name" placeholder="请输入名称">
+          </div>
+          <div class="form-field">
+            <label class="form-field-label"><span class="required">*</span>类别/类型</label>
+            <select class="form-select" id="reg-category">
+              <option>请选择</option><option>法律</option><option>行政法规</option><option>地方性法规</option><option>部门规章</option><option>地方规章</option><option>管理制度</option><option>管理规定</option><option>操作规程</option><option>应急预案</option><option>其他</option>
+            </select>
+          </div>
+          <div class="form-field" id="reg-publisher-group">
+            <label class="form-field-label">发布机关</label>
+            <input class="form-input" id="reg-publisher" placeholder="请输入发布机关">
+          </div>
+          <div class="form-field" id="reg-scope-group" style="display:none">
+            <label class="form-field-label">适用范围</label>
+            <select class="form-select" id="reg-scope">
+              <option>请选择</option><option>全集团</option><option>本单位</option><option>特定部门</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field-label"><span class="required">*</span>生效日期</label>
+            <input class="form-input" type="date" id="reg-date">
+          </div>
+          <div class="form-field" id="reg-status-group">
+            <label class="form-field-label">状态</label>
+            <select class="form-select" id="reg-status">
+              <option>现行有效</option><option>已修订</option><option>待修订</option><option>已废止</option>
+            </select>
+          </div>
+          <div class="form-field" id="reg-version-group" style="display:none">
+            <label class="form-field-label">版本</label>
+            <input class="form-input" id="reg-version" placeholder="如 V2.0">
+          </div>
+        </div>
+        <div class="form-field" style="margin-top:16px;">
+          <label class="form-field-label">说明</label>
+          <textarea class="form-textarea" id="reg-desc" rows="4" placeholder="请输入说明内容"></textarea>
+        </div>
+        <div class="form-field" style="margin-top:12px;">
+          <label class="form-field-label">附件</label>
+          <div class="upload-area" data-action="triggerUpload">
+            <svg class="upload-icon" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="8" fill="var(--primary-5,rgba(35,102,236,0.06))"/><path d="M20 14v12M14 20l6-6 6 6" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="upload-text">点击或拖拽上传</div>
+            <div class="upload-hint">支持 .doc/.docx/.pdf，单文件不超过 20MB</div>
+          </div>
+          <div class="upload-file-list" id="reg-file-list"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default btn-sm" data-action="hideModal" data-param="modal-reg-form">取消</button>
+        <button class="btn btn-primary btn-sm" data-action="saveRegulation">确定</button>
       </div>
     </div>
   </div>
 
-  <div class="prd-footer">对应PRD章节 3.12.2 制度保障 | 关联模块：教育培训-培训知识库</div>
-
-  <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
-    }
-    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
-  </script>
+  <script src="regulation-data.js?v=2.0"></script>
+  <script src="regulation-logic.js?v=2.0"></script>
 </body>
 </html>

@@ -4,306 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>数据看板 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>
-    /* ========== 看板专用样式 ========== */
-    .dashboard-tabs {
-      display: flex;
-      border-bottom: 2px solid var(--border);
-      margin-bottom: var(--spacing-5);
-    }
-    .dashboard-tab {
-      padding: var(--spacing-3) var(--spacing-6);
-      font-size: var(--font-size-15);
-      color: var(--text-secondary);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: all var(--duration-fast) var(--ease-out);
-      user-select: none;
-      font-weight: var(--font-weight-semibold);
-    }
-    .dashboard-tab:hover { color: var(--primary); }
-    .dashboard-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* 筛选栏 */
-    .dashboard-filter {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-3);
-      margin-bottom: var(--spacing-5);
-      flex-wrap: wrap;
-    }
-    .dashboard-filter .form-input,
-    .dashboard-filter .form-select {
-      width: 180px;
-    }
-    .dashboard-filter .filter-label {
-      font-size: var(--font-size-13);
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    /* 核心指标卡片 */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: var(--spacing-4);
-      margin-bottom: var(--spacing-5);
-    }
-    .kpi-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-5);
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      transition: box-shadow var(--duration-fast) var(--ease-out);
-    }
-    .kpi-card:hover { box-shadow: var(--shadow-card); }
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--primary);
-    }
-    .kpi-card.alert::before { background: var(--error); }
-    .kpi-card.alert .kpi-value { color: var(--error); }
-    .kpi-card .kpi-label {
-      font-size: var(--font-size-13);
-      color: var(--text-secondary);
-      margin-bottom: var(--spacing-2);
-    }
-    .kpi-card .kpi-value {
-      font-size: var(--font-size-28);
-      font-weight: var(--font-weight-bold);
-      color: var(--text-primary);
-      line-height: var(--line-height-tight);
-    }
-    .kpi-card .kpi-change {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      font-size: var(--font-size-12);
-      margin-top: var(--spacing-2);
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
-    }
-    .kpi-change.up { color: var(--success); background: var(--success-light); }
-    .kpi-change.down { color: var(--error); background: var(--error-light); }
-    .kpi-change.flat { color: var(--text-description); background: var(--bg-table-header); }
-    .kpi-card .kpi-alert-badge {
-      position: absolute;
-      top: var(--spacing-3);
-      right: var(--spacing-3);
-      background: var(--error);
-      color: var(--text-inverse);
-      font-size: var(--font-size-10);
-      padding: 1px 6px;
-      border-radius: var(--radius-sm);
-    }
-    .kpi-card .kpi-drill-hint {
-      position: absolute;
-      bottom: var(--spacing-3);
-      right: var(--spacing-4);
-      font-size: var(--font-size-11);
-      color: var(--primary);
-      opacity: 0;
-      transition: opacity var(--duration-fast) var(--ease-out);
-    }
-    .kpi-card:hover .kpi-drill-hint { opacity: 1; }
-
-    /* 图表区域 */
-    .chart-row {
-      display: grid;
-      gap: var(--spacing-4);
-      margin-bottom: var(--spacing-4);
-    }
-    .chart-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
-    .chart-row.cols-1 { grid-template-columns: 1fr; }
-
-    .chart-card {
-      background: var(--bg-card);
-      border-radius: var(--radius-md);
-      padding: var(--spacing-5);
-      box-shadow: var(--shadow-sm);
-    }
-    .chart-card .chart-title {
-      font-size: var(--font-size-14);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-primary);
-      margin-bottom: var(--spacing-4);
-    }
-
-    /* 模拟饼图（CSS绘制） */
-    .pie-chart-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--spacing-5);
-      min-height: 200px;
-    }
-    .pie-chart {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      position: relative;
-      flex-shrink: 0;
-    }
-    .pie-chart.center-hole::after {
-      content: '';
-      position: absolute;
-      top: 30%; left: 30%;
-      width: 40%; height: 40%;
-      border-radius: 50%;
-      background: var(--bg-card);
-    }
-    .pie-legend {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-2);
-    }
-    .pie-legend-item {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-2);
-      font-size: var(--font-size-12);
-      color: var(--text-secondary);
-    }
-    .pie-legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    /* 模拟折线图 */
-    .line-chart-container {
-      position: relative;
-      height: 200px;
-      padding-top: var(--spacing-4);
-    }
-    .line-chart-svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* 模拟条形图 */
-    .bar-chart-container {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-3);
-      padding-top: var(--spacing-2);
-    }
-    .bar-item {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-3);
-    }
-    .bar-item .bar-label {
-      width: 140px;
-      font-size: var(--font-size-13);
-      color: var(--text-secondary);
-      text-align: right;
-      flex-shrink: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .bar-item .bar-track {
-      flex: 1;
-      height: 24px;
-      background: var(--bg-table-header);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      position: relative;
-    }
-    .bar-item .bar-fill {
-      height: 100%;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      padding-left: var(--spacing-2);
-      font-size: var(--font-size-11);
-      color: var(--text-inverse);
-      min-width: 30px;
-      transition: width var(--duration-normal) var(--ease-out);
-    }
-    .bar-item .bar-score {
-      width: 36px;
-      font-size: var(--font-size-13);
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-primary);
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    /* 专题子Tab */
-    .topic-tabs {
-      display: flex;
-      gap: 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: var(--spacing-5);
-    }
-    .topic-tab {
-      padding: var(--spacing-3) var(--spacing-5);
-      font-size: var(--font-size-14);
-      color: var(--text-secondary);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      transition: all var(--duration-fast) var(--ease-out);
-      user-select: none;
-    }
-    .topic-tab:hover { color: var(--primary); }
-    .topic-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      font-weight: var(--font-weight-semibold);
-    }
-    .topic-panel { display: none; }
-    .topic-panel.active { display: block; }
-
-    /* 专题卡片网格 */
-    .topic-chart-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-4);
-    }
-    .topic-chart-grid.cols-2 {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* 下钻提示 */
-    .drill-hint {
-      font-size: var(--font-size-11);
-      color: var(--primary);
-      cursor: pointer;
-      margin-top: var(--spacing-2);
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-    }
-    .drill-hint:hover { text-decoration: underline; }
-
-    /* 字号微调 */
-    :root { --font-size-15: 15px; --font-size-28: 28px; }
-  </style>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <link rel="stylesheet" href="dashboard.css?v=2.0">
+<script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
 
   <!-- ==================== 主Tab切换 ==================== -->
   <div class="dashboard-tabs">
-    <div class="dashboard-tab active" data-tab="overview">安全态势总览</div>
-    <div class="dashboard-tab" data-tab="topic">专题数据展示</div>
+    <div class="dashboard-tab active" data-action="switchMainTab" data-param="'overview'">安全态势总览</div>
+    <div class="dashboard-tab" data-action="switchMainTab" data-param="'topic'">专题数据展示</div>
   </div>
 
   <!-- ==================== Tab1: 安全态势总览 (3.1.1) ==================== -->
@@ -311,55 +23,55 @@
 
     <!-- 筛选栏 -->
     <div class="dashboard-filter">
-      <span class="filter-label">组织层级：</span>
-      <select class="form-input form-select" style="width:160px">
+      <div class="filter-field"><span class="filter-label">组织层级</span><select class="form-input form-select">
         <option>深圳港集团</option>
         <option>盐田国际</option>
         <option>蛇口码头</option>
         <option>大铲湾码头</option>
         <option>赤湾港务</option>
-      </select>
-      <span class="filter-label">时间范围：</span>
-      <select class="form-input form-select" style="width:140px">
+      </select></div>
+      <div class="filter-field"><span class="filter-label">时间范围</span><select class="form-input form-select">
         <option>本月</option>
         <option>本季度</option>
         <option>本年度</option>
         <option>自定义</option>
-      </select>
-      <button class="btn btn-primary btn-sm">查询</button>
-      <button class="btn btn-default btn-sm">重置</button>
-      <span style="flex:1"></span>
-      <span style="font-size:var(--font-size-12);color:var(--text-description)">数据更新时间：2026-05-17 08:30</span>
+      </select></div>
+      <button class="btn btn-primary btn-sm" data-action="filterDashboard">查询</button>
+      <button class="btn btn-default btn-sm" data-action="resetDashboardFilter">重置</button>
+      <span class="u-flex-1"></span>
+      <span id="last-refresh" style="font-size:var(--font-size-12);color:var(--text-description)">数据更新时间：2026-05-17 08:30</span>
+      <button class="btn btn-text btn-sm" data-action="refreshData" style="margin-left:8px;">刷新</button>
+      <button class="btn btn-default btn-sm" data-action="exportDashboard" style="margin-left:4px;">导出</button>
     </div>
 
     <!-- 顶部：5个核心指标卡片 -->
     <div class="kpi-row">
-      <div class="kpi-card" onclick="alert('下钻：安全培训完成率明细')">
+      <div class="kpi-card" data-action="showDrillDown" data-param="training">
         <div class="kpi-label">安全培训完成率</div>
         <div class="kpi-value">87.3%</div>
         <div class="kpi-change up">↑ 较上月 +2.1%</div>
         <span class="kpi-drill-hint">点击下钻 →</span>
       </div>
-      <div class="kpi-card" onclick="alert('下钻：风险受控率明细')">
+      <div class="kpi-card" data-action="showDrillDown" data-param="risk">
         <div class="kpi-label">风险受控率</div>
         <div class="kpi-value">94.6%</div>
         <div class="kpi-change up">↑ 较上月 +0.8%</div>
         <span class="kpi-drill-hint">点击下钻 →</span>
       </div>
-      <div class="kpi-card alert" onclick="alert('下钻：隐患整改闭环率明细')">
+      <div class="kpi-card alert" data-action="showDrillDown" data-param="hazard">
         <div class="kpi-label">隐患整改闭环率</div>
         <div class="kpi-value">72.1%</div>
         <div class="kpi-change down">↓ 较上月 -5.3%</div>
         <div class="kpi-alert-badge">预警</div>
         <span class="kpi-drill-hint">点击下钻 →</span>
       </div>
-      <div class="kpi-card" onclick="alert('下钻：安全作业合规率明细')">
+      <div class="kpi-card" data-action="showDrillDown" data-param="work">
         <div class="kpi-label">安全作业合规率</div>
         <div class="kpi-value">96.2%</div>
         <div class="kpi-change flat">→ 持平</div>
         <span class="kpi-drill-hint">点击下钻 →</span>
       </div>
-      <div class="kpi-card alert" onclick="alert('下钻：应急演练完成率明细')">
+      <div class="kpi-card alert" data-action="showDrillDown" data-param="drill">
         <div class="kpi-label">应急演练完成率</div>
         <div class="kpi-value">65.8%</div>
         <div class="kpi-change down">↓ 较上月 -8.1%</div>
@@ -370,8 +82,9 @@
 
     <!-- 中部：3个图表 -->
     <div class="chart-row cols-3">
-      <!-- 风险四色分布图 -->
+      <!-- 风险四色分布图（保留饼图——4类目适合） -->
       <div class="chart-card">
+        <span class="drill-icon">↗</span>
         <div class="chart-title">风险四色分布</div>
         <div class="pie-chart-container">
           <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -387,11 +100,12 @@
             <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--risk-low)"></span>低风险 40%</div>
           </div>
         </div>
-        <div class="drill-hint">点击下钻查看风险明细 →</div>
+        <div class="drill-hint" data-action="drillToTopic" data-drill-topic="risk">点击下钻查看风险明细 →</div>
       </div>
 
-      <!-- 隐患等级分布图 -->
+      <!-- 隐患等级分布图（保留饼图——3类目适合） -->
       <div class="chart-card">
+        <span class="drill-icon">↗</span>
         <div class="chart-title">隐患等级分布</div>
         <div class="pie-chart-container">
           <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -400,16 +114,17 @@
             var(--info) 162deg 360deg
           );"></div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>重大隐患 15%</div>
+            <div class="pie-legend-item"><span class="pie-legend-dot u-bg-error"></span>重大隐患 15%</div>
             <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--warning)"></span>较大隐患 30%</div>
             <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--info)"></span>一般隐患 55%</div>
           </div>
         </div>
-        <div class="drill-hint">点击下钻查看隐患明细 →</div>
+        <div class="drill-hint" data-action="drillToTopic" data-drill-topic="hazard">点击下钻查看隐患明细 →</div>
       </div>
 
-      <!-- 月度隐患趋势图 -->
+      <!-- 月度隐患趋势图（D-05: 面积填充） -->
       <div class="chart-card">
+        <span class="drill-icon">↗</span>
         <div class="chart-title">月度隐患趋势</div>
         <div class="line-chart-container">
           <svg class="line-chart-svg" viewBox="0 0 400 180">
@@ -431,24 +146,18 @@
             <text x="232" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">4月</text>
             <text x="286" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">5月</text>
             <text x="340" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">6月</text>
+            <!-- 已闭环面积填充 -->
+            <polygon fill="rgba(16,185,129,0.08)" stroke="none"
+              points="40,155 70,119 124,104 178,90 232,79 286,90 340,75 340,155"/>
+            <!-- 新增隐患面积填充 -->
+            <polygon fill="rgba(0,102,204,0.08)" stroke="none"
+              points="40,155 70,97 124,111 178,83 232,65 286,75 340,54 340,155"/>
             <!-- 新增隐患折线（蓝色） -->
             <polyline fill="none" stroke="var(--primary)" stroke-width="2"
               points="70,97 124,111 178,83 232,65 286,75 340,54"/>
-            <circle cx="70" cy="97" r="3" fill="var(--primary)"/>
-            <circle cx="124" cy="111" r="3" fill="var(--primary)"/>
-            <circle cx="178" cy="83" r="3" fill="var(--primary)"/>
-            <circle cx="232" cy="65" r="3" fill="var(--primary)"/>
-            <circle cx="286" cy="75" r="3" fill="var(--primary)"/>
-            <circle cx="340" cy="54" r="3" fill="var(--primary)"/>
             <!-- 已闭环折线（绿色） -->
             <polyline fill="none" stroke="var(--success)" stroke-width="2" stroke-dasharray="6,3"
               points="70,119 124,104 178,90 232,79 286,90 340,75"/>
-            <circle cx="70" cy="119" r="3" fill="var(--success)"/>
-            <circle cx="124" cy="104" r="3" fill="var(--success)"/>
-            <circle cx="178" cy="90" r="3" fill="var(--success)"/>
-            <circle cx="232" cy="79" r="3" fill="var(--success)"/>
-            <circle cx="286" cy="90" r="3" fill="var(--success)"/>
-            <circle cx="340" cy="75" r="3" fill="var(--success)"/>
             <!-- 图例 -->
             <line x1="100" y1="10" x2="120" y2="10" stroke="var(--primary)" stroke-width="2"/>
             <text x="124" y="14" fill="var(--text-secondary)" font-size="10">新增隐患</text>
@@ -456,56 +165,73 @@
             <text x="224" y="14" fill="var(--text-secondary)" font-size="10">已闭环</text>
           </svg>
         </div>
-        <div class="drill-hint">点击下钻查看趋势明细 →</div>
+        <div class="drill-hint" data-action="drillToTopic" data-drill-topic="hazard">点击下钻查看趋势明细 →</div>
       </div>
     </div>
 
-    <!-- 底部：各单位安全评分排名 -->
+    <!-- 底部：各单位安全评分排名（D-06 序号+阈值线, D-09 四色语义） -->
     <div class="chart-card">
+      <span class="drill-icon">↗</span>
       <div class="chart-title">各单位安全评分排名</div>
       <div class="bar-chart-container">
         <div class="bar-item">
+          <span class="bar-rank">1</span>
           <span class="bar-label">盐田国际集装箱码头</span>
-          <div class="bar-track"><div class="bar-fill" style="width:94%;background:var(--primary)">94</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:94%;background:var(--risk-low)">94</div></div>
           <span class="bar-score">94</span>
         </div>
         <div class="bar-item">
+          <span class="bar-rank">2</span>
           <span class="bar-label">蛇口集装箱码头</span>
-          <div class="bar-track"><div class="bar-fill" style="width:91%;background:var(--primary)">91</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:91%;background:var(--risk-low)">91</div></div>
           <span class="bar-score">91</span>
         </div>
         <div class="bar-item">
+          <span class="bar-rank">3</span>
           <span class="bar-label">招商港口（华南）</span>
-          <div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--primary)">88</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--risk-moderate)">88</div></div>
           <span class="bar-score">88</span>
         </div>
         <div class="bar-item">
+          <span class="bar-rank">4</span>
           <span class="bar-label">大铲湾现代港口</span>
-          <div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--primary)">85</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:85%;background:var(--risk-moderate)">85</div></div>
           <span class="bar-score">85</span>
         </div>
         <div class="bar-item">
+          <span class="bar-rank">5</span>
           <span class="bar-label">赤湾港务</span>
-          <div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--warning)">82</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--risk-significant)">82</div></div>
           <span class="bar-score">82</span>
         </div>
-        <div class="bar-item">
+        <div class="bar-threshold-line"></div>
+        <div class="bar-item below-threshold">
+          <span class="bar-rank">6</span>
           <span class="bar-label">海星港口</span>
-          <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--warning)">78</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:78%;background:var(--risk-significant)">78</div></div>
           <span class="bar-score">78</span>
         </div>
-        <div class="bar-item">
+        <div class="bar-item below-threshold">
+          <span class="bar-rank">7</span>
           <span class="bar-label">妈湾港务</span>
-          <div class="bar-track"><div class="bar-fill" style="width:73%;background:var(--error)">73</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:73%;background:var(--risk-major)">73</div></div>
           <span class="bar-score">73</span>
         </div>
-        <div class="bar-item">
+        <div class="bar-item below-threshold">
+          <span class="bar-rank">8</span>
           <span class="bar-label">深圳港物流</span>
-          <div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--error)">68</div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--risk-major)">68</div></div>
           <span class="bar-score">68</span>
         </div>
       </div>
-      <div class="drill-hint">点击下钻查看评分明细 →</div>
+      <div class="drill-hint" data-action="drillToTopic">点击下钻查看评分明细 →</div>
+    </div>
+
+    <!-- 预警条带 -->
+    <div class="alert-strip" data-action="showAlertPanel">
+      <span class="alert-strip-icon">&#9888;</span>
+      <span>当前 <strong>2</strong> 项预警指标低于合格线，<strong>2</strong> 家单位安全评分不达标</span>
+      <span class="alert-strip-action">查看详情 →</span>
     </div>
 
   </div><!-- /panel-overview -->
@@ -515,52 +241,61 @@
 
     <!-- 专题子Tab -->
     <div class="topic-tabs">
-      <div class="topic-tab active" data-topic="training">培训</div>
-      <div class="topic-tab" data-topic="risk">风险</div>
-      <div class="topic-tab" data-topic="hazard">隐患</div>
-      <div class="topic-tab" data-topic="work">作业</div>
-      <div class="topic-tab" data-topic="emergency">应急</div>
+      <div class="topic-tab active" data-action="switchTopicTab" data-param="'training'">培训</div>
+      <div class="topic-tab" data-action="switchTopicTab" data-param="'risk'">风险</div>
+      <div class="topic-tab" data-action="switchTopicTab" data-param="'hazard'">隐患</div>
+      <div class="topic-tab" data-action="switchTopicTab" data-param="'work'">作业</div>
+      <div class="topic-tab" data-action="switchTopicTab" data-param="'emergency'">应急</div>
     </div>
 
-    <!-- 培训专题 -->
+    <!-- 培训专题（D-08: 2列布局，完成率大卡+小卡；D-03: 完成率→进度条） -->
     <div class="topic-panel active" id="topic-training">
-      <div class="topic-chart-grid">
+      <div class="topic-chart-grid layout-2col">
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">培训完成率</div>
-          <div class="pie-chart-container">
-            <div class="pie-chart center-hole" style="background: conic-gradient(
-              var(--success) 0deg 315deg,
-              var(--error) 315deg 360deg
-            );"></div>
-            <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>已完成 87.3%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>未完成 12.7%</div>
+          <div class="progress-ring-container">
+            <div class="progress-ring-wrap">
+              <svg viewBox="0 0 140 140">
+                <circle class="progress-ring-bg" cx="70" cy="70" r="58"/>
+                <circle class="progress-ring-fill success" cx="70" cy="70" r="58"
+                  stroke-dasharray="364.42" stroke-dashoffset="46.25"/>
+              </svg>
+              <div class="progress-ring-center">
+                <div class="progress-ring-value">87.3<span class="progress-ring-unit">%</span></div>
+              </div>
+            </div>
+            <div class="progress-ring-sub">
+              <span><span class="dot" style="background:var(--success)"></span>已完成 87.3%</span>
+              <span><span class="dot" style="background:var(--error)"></span>未完成 12.7%</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看培训完成明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="training">点击下钻查看培训完成明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">学时分布</div>
           <div class="bar-chart-container">
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">0-8学时</span>
+              <span class="bar-label u-w-80">0-8学时</span>
               <div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--risk-low)">15%</div></div>
             </div>
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">8-16学时</span>
+              <span class="bar-label u-w-80">8-16学时</span>
               <div class="bar-track"><div class="bar-fill" style="width:35%;background:var(--success)">35%</div></div>
             </div>
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">16-24学时</span>
+              <span class="bar-label u-w-80">16-24学时</span>
               <div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--primary)">30%</div></div>
             </div>
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">24+学时</span>
+              <span class="bar-label u-w-80">24+学时</span>
               <div class="bar-track"><div class="bar-fill" style="width:20%;background:var(--risk-significant)">20%</div></div>
             </div>
           </div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">持证情况</div>
           <div class="pie-chart-container">
             <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -569,20 +304,56 @@
               var(--error) 342deg 360deg
             );"></div>
             <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>持证有效 90%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-success"></span>持证有效 90%</div>
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--warning)"></span>即将到期 5%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>已过期 5%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-error"></span>已过期 5%</div>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看持证明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="training">点击下钻查看持证明细 →</div>
         </div>
       </div>
     </div>
 
-    <!-- 风险专题 -->
+    <!-- 风险专题（D-08: 1大+2小布局；D-03: 受控率→进度条；D-05: 趋势面积填充） -->
     <div class="topic-panel" id="topic-risk">
-      <div class="topic-chart-grid">
+      <div class="topic-chart-grid layout-1wide-2small">
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
+          <div class="chart-title">风险等级变化趋势</div>
+          <div class="line-chart-container">
+            <svg class="line-chart-svg" viewBox="0 0 400 180">
+              <line x1="40" y1="10" x2="40" y2="155" stroke="var(--border)" stroke-width="1"/>
+              <line x1="40" y1="155" x2="390" y2="155" stroke="var(--border)" stroke-width="1"/>
+              <text x="36" y="158" text-anchor="end" fill="var(--text-description)" font-size="10">0</text>
+              <text x="36" y="50" text-anchor="end" fill="var(--text-description)" font-size="10">100</text>
+              <text x="70" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">1月</text>
+              <text x="140" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">2月</text>
+              <text x="210" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">3月</text>
+              <text x="280" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">4月</text>
+              <text x="350" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">5月</text>
+              <!-- 极端风险面积 -->
+              <polygon fill="rgba(239,68,68,0.08)" stroke="none"
+                points="40,155 70,90 140,85 210,80 280,78 350,75 350,155"/>
+              <!-- 现实风险面积 -->
+              <polygon fill="rgba(16,185,129,0.08)" stroke="none"
+                points="40,155 70,120 140,118 210,115 280,110 350,108 350,155"/>
+              <!-- 极端风险 -->
+              <polyline fill="none" stroke="var(--risk-major)" stroke-width="2"
+                points="70,90 140,85 210,80 280,78 350,75"/>
+              <!-- 现实风险 -->
+              <polyline fill="none" stroke="var(--risk-low)" stroke-width="2"
+                points="70,120 140,118 210,115 280,110 350,108"/>
+              <!-- 图例 -->
+              <line x1="100" y1="10" x2="120" y2="10" stroke="var(--risk-major)" stroke-width="2"/>
+              <text x="124" y="14" fill="var(--text-secondary)" font-size="10">极端风险数</text>
+              <line x1="220" y1="10" x2="240" y2="10" stroke="var(--risk-low)" stroke-width="2"/>
+              <text x="244" y="14" fill="var(--text-secondary)" font-size="10">现实风险数</text>
+            </svg>
+          </div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="risk">点击下钻查看变化趋势明细 →</div>
+        </div>
+        <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">风险等级分布</div>
           <div class="pie-chart-container">
             <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -598,67 +369,37 @@
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--risk-low)"></span>低风险 40%</div>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看风险明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="risk">点击下钻查看风险明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">风险受控率</div>
-          <div class="pie-chart-container">
-            <div class="pie-chart center-hole" style="background: conic-gradient(
-              var(--success) 0deg 340deg,
-              var(--error) 340deg 360deg
-            );"></div>
-            <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>已受控 94.6%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>未受控 5.4%</div>
+          <div class="progress-ring-container">
+            <div class="progress-ring-wrap">
+              <svg viewBox="0 0 140 140">
+                <circle class="progress-ring-bg" cx="70" cy="70" r="58"/>
+                <circle class="progress-ring-fill success" cx="70" cy="70" r="58"
+                  stroke-dasharray="364.42" stroke-dashoffset="19.68"/>
+              </svg>
+              <div class="progress-ring-center">
+                <div class="progress-ring-value">94.6<span class="progress-ring-unit">%</span></div>
+              </div>
+            </div>
+            <div class="progress-ring-sub">
+              <span><span class="dot" style="background:var(--success)"></span>已受控 94.6%</span>
+              <span><span class="dot" style="background:var(--error)"></span>未受控 5.4%</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看受控率明细 →</div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">风险等级变化趋势</div>
-          <div class="line-chart-container">
-            <svg class="line-chart-svg" viewBox="0 0 400 180">
-              <line x1="40" y1="10" x2="40" y2="155" stroke="var(--border)" stroke-width="1"/>
-              <line x1="40" y1="155" x2="390" y2="155" stroke="var(--border)" stroke-width="1"/>
-              <text x="36" y="158" text-anchor="end" fill="var(--text-description)" font-size="10">0</text>
-              <text x="36" y="50" text-anchor="end" fill="var(--text-description)" font-size="10">100</text>
-              <text x="70" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">1月</text>
-              <text x="140" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">2月</text>
-              <text x="210" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">3月</text>
-              <text x="280" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">4月</text>
-              <text x="350" y="172" text-anchor="middle" fill="var(--text-description)" font-size="10">5月</text>
-              <!-- 极端风险 -->
-              <polyline fill="none" stroke="var(--risk-major)" stroke-width="2"
-                points="70,90 140,85 210,80 280,78 350,75"/>
-              <circle cx="70" cy="90" r="3" fill="var(--risk-major)"/>
-              <circle cx="140" cy="85" r="3" fill="var(--risk-major)"/>
-              <circle cx="210" cy="80" r="3" fill="var(--risk-major)"/>
-              <circle cx="280" cy="78" r="3" fill="var(--risk-major)"/>
-              <circle cx="350" cy="75" r="3" fill="var(--risk-major)"/>
-              <!-- 现实风险 -->
-              <polyline fill="none" stroke="var(--risk-low)" stroke-width="2"
-                points="70,120 140,118 210,115 280,110 350,108"/>
-              <circle cx="70" cy="120" r="3" fill="var(--risk-low)"/>
-              <circle cx="140" cy="118" r="3" fill="var(--risk-low)"/>
-              <circle cx="210" cy="115" r="3" fill="var(--risk-low)"/>
-              <circle cx="280" cy="110" r="3" fill="var(--risk-low)"/>
-              <circle cx="350" cy="108" r="3" fill="var(--risk-low)"/>
-              <!-- 图例 -->
-              <line x1="100" y1="10" x2="120" y2="10" stroke="var(--risk-major)" stroke-width="2"/>
-              <text x="124" y="14" fill="var(--text-secondary)" font-size="10">极端风险数</text>
-              <line x1="220" y1="10" x2="240" y2="10" stroke="var(--risk-low)" stroke-width="2"/>
-              <text x="244" y="14" fill="var(--text-secondary)" font-size="10">现实风险数</text>
-            </svg>
-          </div>
-          <div class="drill-hint">点击下钻查看变化趋势明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="risk">点击下钻查看受控率明细 →</div>
         </div>
       </div>
     </div>
 
-    <!-- 隐患专题 -->
+    <!-- 隐患专题（D-03: 闭环率→进度条；保留3列等权布局） -->
     <div class="topic-panel" id="topic-hazard">
       <div class="topic-chart-grid">
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">隐患等级分布</div>
           <div class="pie-chart-container">
             <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -667,28 +408,36 @@
               var(--info) 162deg 360deg
             );"></div>
             <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>重大隐患 15%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-error"></span>重大隐患 15%</div>
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--warning)"></span>较大隐患 30%</div>
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--info)"></span>一般隐患 55%</div>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看隐患明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="hazard">点击下钻查看隐患明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">整改闭环率</div>
-          <div class="pie-chart-container">
-            <div class="pie-chart center-hole" style="background: conic-gradient(
-              var(--success) 0deg 259deg,
-              var(--error) 259deg 360deg
-            );"></div>
-            <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>已闭环 72.1%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>未闭环 27.9%</div>
+          <div class="progress-ring-container">
+            <div class="progress-ring-wrap">
+              <svg viewBox="0 0 140 140">
+                <circle class="progress-ring-bg" cx="70" cy="70" r="58"/>
+                <circle class="progress-ring-fill warning" cx="70" cy="70" r="58"
+                  stroke-dasharray="364.42" stroke-dashoffset="101.55"/>
+              </svg>
+              <div class="progress-ring-center">
+                <div class="progress-ring-value">72.1<span class="progress-ring-unit">%</span></div>
+              </div>
+            </div>
+            <div class="progress-ring-sub">
+              <span><span class="dot" style="background:var(--success)"></span>已闭环 72.1%</span>
+              <span><span class="dot" style="background:var(--error)"></span>未闭环 27.9%</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看闭环率明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="hazard">点击下钻查看闭环率明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">同类隐患分析（TOP5）</div>
           <div class="bar-chart-container">
             <div class="bar-item">
@@ -717,15 +466,16 @@
               <span class="bar-score">10</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看同类隐患明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="hazard">点击下钻查看同类隐患明细 →</div>
         </div>
       </div>
     </div>
 
-    <!-- 作业专题 -->
+    <!-- 作业专题（D-03: 持证合规率→进度条） -->
     <div class="topic-panel" id="topic-work">
       <div class="topic-chart-grid">
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">作业类型分布</div>
           <div class="pie-chart-container">
             <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -741,69 +491,85 @@
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--risk-low)"></span>临时用电 30%</div>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看作业类型明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="work">点击下钻查看作业类型明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">持证合规率</div>
-          <div class="pie-chart-container">
-            <div class="pie-chart center-hole" style="background: conic-gradient(
-              var(--success) 0deg 346deg,
-              var(--error) 346deg 360deg
-            );"></div>
-            <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>持证合规 96.2%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>不合规 3.8%</div>
+          <div class="progress-ring-container">
+            <div class="progress-ring-wrap">
+              <svg viewBox="0 0 140 140">
+                <circle class="progress-ring-bg" cx="70" cy="70" r="58"/>
+                <circle class="progress-ring-fill success" cx="70" cy="70" r="58"
+                  stroke-dasharray="364.42" stroke-dashoffset="13.85"/>
+              </svg>
+              <div class="progress-ring-center">
+                <div class="progress-ring-value">96.2<span class="progress-ring-unit">%</span></div>
+              </div>
+            </div>
+            <div class="progress-ring-sub">
+              <span><span class="dot" style="background:var(--success)"></span>持证合规 96.2%</span>
+              <span><span class="dot" style="background:var(--error)"></span>不合规 3.8%</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看合规率明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="work">点击下钻查看合规率明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">作业状态</div>
           <div class="bar-chart-container">
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">已审批</span>
+              <span class="bar-label u-w-80">已审批</span>
               <div class="bar-track"><div class="bar-fill" style="width:60%;background:var(--success)">48</div></div>
               <span class="bar-score">48</span>
             </div>
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">进行中</span>
+              <span class="bar-label u-w-80">进行中</span>
               <div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--primary)">20</div></div>
               <span class="bar-score">20</span>
             </div>
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">待审批</span>
+              <span class="bar-label u-w-80">待审批</span>
               <div class="bar-track"><div class="bar-fill" style="width:10%;background:var(--warning)">8</div></div>
               <span class="bar-score">8</span>
             </div>
             <div class="bar-item">
-              <span class="bar-label" style="width:80px">已结束</span>
+              <span class="bar-label u-w-80">已结束</span>
               <div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--text-description)">4</div></div>
               <span class="bar-score">4</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看作业状态明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="work">点击下钻查看作业状态明细 →</div>
         </div>
       </div>
     </div>
 
-    <!-- 应急专题 -->
+    <!-- 应急专题（D-03: 演练完成率→进度条；D-08: 2列布局） -->
     <div class="topic-panel" id="topic-emergency">
-      <div class="topic-chart-grid">
+      <div class="topic-chart-grid layout-2col">
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">演练完成率</div>
-          <div class="pie-chart-container">
-            <div class="pie-chart center-hole" style="background: conic-gradient(
-              var(--success) 0deg 237deg,
-              var(--error) 237deg 360deg
-            );"></div>
-            <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>已完成 65.8%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>未完成 34.2%</div>
+          <div class="progress-ring-container">
+            <div class="progress-ring-wrap">
+              <svg viewBox="0 0 140 140">
+                <circle class="progress-ring-bg" cx="70" cy="70" r="58"/>
+                <circle class="progress-ring-fill warning" cx="70" cy="70" r="58"
+                  stroke-dasharray="364.42" stroke-dashoffset="124.79"/>
+              </svg>
+              <div class="progress-ring-center">
+                <div class="progress-ring-value">65.8<span class="progress-ring-unit">%</span></div>
+              </div>
+            </div>
+            <div class="progress-ring-sub">
+              <span><span class="dot" style="background:var(--success)"></span>已完成 65.8%</span>
+              <span><span class="dot" style="background:var(--error)"></span>未完成 34.2%</span>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看演练明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="emergency">点击下钻查看演练明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">预案覆盖率</div>
           <div class="pie-chart-container">
             <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -812,14 +578,15 @@
               var(--error) 349deg 360deg
             );"></div>
             <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>已覆盖 88.9%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-success"></span>已覆盖 88.9%</div>
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--warning)"></span>部分覆盖 8.1%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>未覆盖 3.0%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-error"></span>未覆盖 3.0%</div>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看预案覆盖明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="emergency">点击下钻查看预案覆盖明细 →</div>
         </div>
         <div class="chart-card">
+          <span class="drill-icon">↗</span>
           <div class="chart-title">物资达标率</div>
           <div class="pie-chart-container">
             <div class="pie-chart center-hole" style="background: conic-gradient(
@@ -828,38 +595,19 @@
               var(--error) 338deg 360deg
             );"></div>
             <div class="pie-legend">
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--success)"></span>达标 85.0%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-success"></span>达标 85.0%</div>
               <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--warning)"></span>临期 8.9%</div>
-              <div class="pie-legend-item"><span class="pie-legend-dot" style="background:var(--error)"></span>不达标 6.1%</div>
+              <div class="pie-legend-item"><span class="pie-legend-dot u-bg-error"></span>不达标 6.1%</div>
             </div>
           </div>
-          <div class="drill-hint">点击下钻查看物资达标明细 →</div>
+          <div class="drill-hint" data-action="drillToTopic" data-drill-topic="emergency">点击下钻查看物资达标明细 →</div>
         </div>
       </div>
     </div>
 
   </div><!-- /panel-topic -->
 
-  <script>
-    // 主Tab切换
-    document.querySelectorAll('.dashboard-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById('panel-' + this.dataset.tab).classList.add('active');
-      });
-    });
-
-    // 专题子Tab切换
-    document.querySelectorAll('.topic-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.topic-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.topic-panel').forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById('topic-' + this.dataset.topic).classList.add('active');
-      });
-    });
-  </script>
+  <script src="dashboard-data.js?v=2.0"></script>
+  <script src="dashboard-logic.js?v=2.0"></script>
 </body>
 </html>

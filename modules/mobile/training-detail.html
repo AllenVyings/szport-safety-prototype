@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>培训详情 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; flex: 1; }
+
+    /* 培训封面 */
+    .course-cover {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--primary) 100%);
+      padding: 18px 16px 22px; color: var(--text-inverse); flex-shrink: 0; position: relative;
+    }
+    .cc-cat { display: inline-block; font-size: 11px; padding: 2px 8px; background: rgba(255,255,255,0.22); border-radius: 10px; }
+    .cc-title { font-size: 18px; font-weight: 600; line-height: 1.4; margin: 8px 0; }
+    .cc-meta { display: flex; gap: 14px; font-size: 12px; opacity: 0.9; }
+    .cc-meta-item { display: inline-flex; align-items: center; gap: 4px; }
+
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 12px 80px; -webkit-overflow-scrolling: touch; }
+    .form-card { background: var(--bg-card); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .form-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; padding-left: 8px; border-left: 3px solid var(--primary); }
+    .course-desc { font-size: 13px; line-height: 1.7; color: var(--text-secondary); }
+
+    /* 章节列表 */
+    .chapter {
+      display: flex; align-items: center; gap: 10px; padding: 10px 0;
+      border-bottom: 1px solid var(--border-light); cursor: pointer;
+    }
+    .chapter:last-child { border-bottom: none; }
+    .ch-num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--bg-gray-lighter);
+      color: var(--text-secondary); font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .chapter.done .ch-num { background: var(--success); color: var(--text-inverse); }
+    .chapter.current .ch-num { background: var(--primary); color: var(--text-inverse); }
+    .ch-body { flex: 1; }
+    .ch-title { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+    .ch-meta { font-size: 11px; color: var(--text-description); margin-top: 2px; }
+    .ch-action { font-size: 12px; color: var(--primary); flex-shrink: 0; }
+    .ch-action.done { color: var(--success); }
+
+    /* 进度环 */
+    .progress-card { display: flex; align-items: center; gap: 16px; }
+    .progress-ring { position: relative; width: 64px; height: 64px; }
+    .progress-ring svg { transform: rotate(-90deg); }
+    .progress-ring-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 14px; font-weight: 700; color: var(--primary);
+    }
+    .progress-info { flex: 1; }
+    .progress-info .pi-title { font-size: 13px; color: var(--text-primary); font-weight: 600; }
+    .progress-info .pi-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .progress-info .pi-time { font-size: 11px; color: var(--text-description); margin-top: 4px; }
+
+    .action-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 16px 16px; background: var(--bg-card); border-top: 1px solid var(--border-light); display: flex; gap: 8px; z-index: 10; }
+    .action-btn { flex: 1; height: 42px; border-radius: 21px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .action-btn.primary { background: var(--primary); color: var(--text-inverse); }
+    .action-btn.ghost { background: var(--bg-gray-lighter); color: var(--text-primary); }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+      <span class="mobile-nav-title">培训详情</span>
+    </div>
+
+    <div class="course-cover">
+      <span class="cc-cat">三级安全教育 · 必修</span>
+      <div class="cc-title">港口危险作业安全规范专题培训</div>
+      <div class="cc-meta">
+        <span class="cc-meta-item">📺 6 章节</span>
+        <span class="cc-meta-item">⏱ 约 90 分钟</span>
+        <span class="cc-meta-item">📝 含考试</span>
+      </div>
+    </div>
+
+    <div class="mobile-content">
+      <div class="form-card">
+        <div class="form-card-title">学习进度</div>
+        <div class="progress-card">
+          <div class="progress-ring">
+            <svg width="64" height="64">
+              <circle cx="32" cy="32" r="28" fill="none" stroke="var(--bg-gray-lighter)" stroke-width="6"/>
+              <circle cx="32" cy="32" r="28" fill="none" stroke="var(--primary)" stroke-width="6"
+                      stroke-dasharray="176" stroke-dashoffset="59" stroke-linecap="round"/>
+            </svg>
+            <div class="progress-ring-text">67%</div>
+          </div>
+          <div class="progress-info">
+            <div class="pi-title">已学习 4/6 章节</div>
+            <div class="pi-sub">考试要求：完成全部章节 + ≥ 80 分</div>
+            <div class="pi-time">累计学时：62 分钟</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">课程简介</div>
+        <div class="course-desc">本培训面向港口作业人员，系统讲解高处作业、动火作业、有限空间作业等八大危险作业的安全管理要点、票证办理流程及现场应急处置方法。完成全部章节并通过考试后，可作为危险作业人员上岗资质凭证之一。</div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">课程章节</div>
+        <div class="chapter done" data-action="showToast" data-param="回看第1章">
+          <div class="ch-num">1</div>
+          <div class="ch-body">
+            <div class="ch-title">港口八大危险作业概述</div>
+            <div class="ch-meta">视频 · 12 分钟 · 已观看</div>
+          </div>
+          <div class="ch-action done">✓ 完成</div>
+        </div>
+        <div class="chapter done" data-action="showToast" data-param="回看第2章">
+          <div class="ch-num">2</div>
+          <div class="ch-body">
+            <div class="ch-title">高处作业安全规范</div>
+            <div class="ch-meta">视频 · 15 分钟 · 已观看</div>
+          </div>
+          <div class="ch-action done">✓ 完成</div>
+        </div>
+        <div class="chapter done" data-action="showToast" data-param="回看第3章">
+          <div class="ch-num">3</div>
+          <div class="ch-body">
+            <div class="ch-title">动火作业票证管理</div>
+            <div class="ch-meta">视频 · 18 分钟 · 已观看</div>
+          </div>
+          <div class="ch-action done">✓ 完成</div>
+        </div>
+        <div class="chapter current" data-action="resumeLearning">
+          <div class="ch-num">4</div>
+          <div class="ch-body">
+            <div class="ch-title">有限空间作业关键控制点</div>
+            <div class="ch-meta">视频 · 17 分钟 · 已观看 8 分钟</div>
+          </div>
+          <div class="ch-action">继续 ▶</div>
+        </div>
+        <div class="chapter" data-action="showToast" data-param="需完成上一章节">
+          <div class="ch-num">5</div>
+          <div class="ch-body">
+            <div class="ch-title">吊装与起重作业</div>
+            <div class="ch-meta">视频 · 14 分钟</div>
+          </div>
+          <div class="ch-action">未解锁</div>
+        </div>
+        <div class="chapter" data-action="showToast" data-param="需完成上一章节">
+          <div class="ch-num">6</div>
+          <div class="ch-body">
+            <div class="ch-title">应急处置与考试</div>
+            <div class="ch-meta">视频 · 14 分钟 + 30 题</div>
+          </div>
+          <div class="ch-action">未解锁</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="action-btn ghost" data-action="showToast" data-param="加入收藏">收藏</button>
+      <button class="action-btn primary" data-action="resumeLearning">继续学习</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'resumeLearning': if (window.showToast) showToast('进入第4章 · 有限空间作业（08:00 处续播）', 'success'); break;
+          case 'showToast': if (param && window.showToast) showToast(param, 'info'); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

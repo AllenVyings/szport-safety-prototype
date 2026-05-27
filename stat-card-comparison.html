@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统计卡片方案对比</title>
+  <style>
+    :root {
+      --primary: #2366EC;
+      --success: #00B15E;
+      --warning: #E97C00;
+      --error: #D10000;
+      --bg-card: #fff;
+      --bg-page: #F5F6FA;
+      --text-primary: #1A1A2E;
+      --text-secondary: #6B7280;
+      --text-description: #9CA3AF;
+      --border: #E5E7EB;
+      --radius-md: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-page); padding: 32px; color: var(--text-primary); }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    h2 { font-size: 16px; color: var(--text-secondary); margin-bottom: 24px; }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .section { background: var(--bg-card); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+    .section-label { font-size: 12px; font-weight: 600; color: var(--primary); background: rgba(35,102,236,0.08); padding: 2px 10px; border-radius: 4px; display: inline-block; margin-bottom: 12px; }
+    .section-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+    .module-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 20px 0 12px; padding-left: 10px; border-left: 3px solid var(--primary); }
+
+    /* 统计卡片 */
+    .stat-cards { display: grid; gap: 12px; margin-bottom: 16px; }
+    .stat-cards.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .stat-cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .stat-cards.cols-6 { grid-template-columns: repeat(6, 1fr); }
+    .stat-card {
+      background: var(--bg-card); border-radius: var(--radius-md); padding: 16px;
+      border: 1px solid var(--border); position: relative;
+    }
+    .stat-card-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .stat-card-value { font-size: 24px; font-weight: 700; }
+    .stat-card-sub { font-size: 11px; color: var(--text-description); margin-top: 4px; }
+    .stat-card-ratio { font-size: 11px; color: var(--primary); margin-top: 2px; font-weight: 500; }
+    .stat-card-trend { font-size: 11px; margin-top: 2px; }
+    .stat-card-trend.up { color: var(--error); }
+    .stat-card-trend.down { color: var(--success); }
+    .stat-card .highlight { color: var(--primary); }
+    .stat-card .overflow-num { color: var(--error); font-weight: 600; }
+
+    .tag { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 3px; font-size: 11px; }
+    .tag-sm { font-size: 10px; padding: 0 4px; }
+    .tag-red { background: rgba(209,0,0,0.08); color: var(--error); }
+    .tag-orange { background: rgba(233,124,0,0.08); color: var(--warning); }
+    .tag-blue { background: rgba(35,102,236,0.08); color: var(--primary); }
+
+    .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .compare-col { min-width: 0; }
+    .compare-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--primary); }
+  </style>
+</head>
+<body>
+
+<h1>统计卡片方案对比</h1>
+<h2>三种方案的真实 UI 效果，请直观感受后选择</h2>
+
+<!-- ===================== 模块1：危险作业 ===================== -->
+<div class="section">
+  <div class="section-label">模块：危险作业管理</div>
+  <div class="section-desc">PRD 要求 4 种作业类型独立展示数量及占比：动火作业 / 受限空间 / 高处作业 / 吊装作业</div>
+
+  <div class="module-title">方案 A：按 PRD 拆成独立卡片</div>
+  <div class="stat-cards cols-4">
+    <div class="stat-card">
+      <div class="stat-card-label">动火作业</div>
+      <div class="stat-card-value" style="color:var(--error)">45</div>
+      <div class="stat-card-ratio">占比 45%</div>
+      <div class="stat-card-sub">实施中 2 / 待审批 3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">受限空间</div>
+      <div class="stat-card-value" style="color:var(--warning)">23</div>
+      <div class="stat-card-ratio">占比 23%</div>
+      <div class="stat-card-sub">实施中 1 / 待审批 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高处作业</div>
+      <div class="stat-card-value" style="color:var(--primary)">18</div>
+      <div class="stat-card-ratio">占比 18%</div>
+      <div class="stat-card-sub">实施中 1 / 待审批 1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">吊装作业</div>
+      <div class="stat-card-value" style="color:var(--success)">14</div>
+      <div class="stat-card-ratio">占比 14%</div>
+      <div class="stat-card-sub">实施中 0 / 待审批 2</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="module-title">方案 B：保留合并 + 补数据</div>
+  <div class="stat-cards cols-4">
+    <div class="stat-card">
+      <div class="stat-card-label">作业总数</div>
+      <div class="stat-card-value highlight">100</div>
+      <div class="stat-card-trend up">较上月 +12%</div>
+      <div class="stat-card-sub">本月新增 23</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">动火作业</div>
+      <div class="stat-card-value" style="color:var(--error)">45</div>
+      <div class="stat-card-ratio">占比 45%</div>
+      <div class="stat-card-sub">实施中 2 / 待审批 3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">受限空间</div>
+      <div class="stat-card-value" style="color:var(--warning)">23</div>
+      <div class="stat-card-ratio">占比 23%</div>
+      <div class="stat-card-sub">实施中 1 / 待审批 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高处 / 吊装</div>
+      <div class="stat-card-value" style="color:var(--primary)">32</div>
+      <div class="stat-card-sub">高 18 / 吊 14 &nbsp;|&nbsp; 占比 32%</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="module-title">方案 C：≤4 拆独立，>4 合并</div>
+  <div class="stat-cards cols-4">
+    <div class="stat-card">
+      <div class="stat-card-label">动火作业</div>
+      <div class="stat-card-value" style="color:var(--error)">45</div>
+      <div class="stat-card-ratio">占比 45%</div>
+      <div class="stat-card-sub">实施中 2 / 待审批 3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">受限空间</div>
+      <div class="stat-card-value" style="color:var(--warning)">23</div>
+      <div class="stat-card-ratio">占比 23%</div>
+      <div class="stat-card-sub">实施中 1 / 待审批 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高处作业</div>
+      <div class="stat-card-value" style="color:var(--primary)">18</div>
+      <div class="stat-card-ratio">占比 18%</div>
+      <div class="stat-card-sub">实施中 1 / 待审批 1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">吊装作业</div>
+      <div class="stat-card-value" style="color:var(--success)">14</div>
+      <div class="stat-card-ratio">占比 14%</div>
+      <div class="stat-card-sub">实施中 0 / 待审批 2</div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--text-description);margin-top:4px;">危险作业 4 类 ≤ 4 → 拆独立（同方案A）</div>
+</div>
+
+<!-- ===================== 模块2：职业健康 ===================== -->
+<div class="section">
+  <div class="section-label">模块：职业健康管理</div>
+  <div class="section-desc">PRD 要求 6 类危害因素独立展示数量及超标数：粉尘 / 噪声 / 化学品 / 高温 / 振动 / 辐射</div>
+
+  <div class="module-title">方案 A：按 PRD 拆成独立卡片</div>
+  <div class="stat-cards cols-6">
+    <div class="stat-card">
+      <div class="stat-card-label">粉尘</div>
+      <div class="stat-card-value" style="color:var(--primary)">12</div>
+      <div class="stat-card-sub">超标 <span class="overflow-num">2</span></div>
+      <div class="stat-card-trend up">较上月 +1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">噪声</div>
+      <div class="stat-card-value" style="color:var(--primary)">8</div>
+      <div class="stat-card-sub">超标 <span class="overflow-num">1</span></div>
+      <div class="stat-card-trend down">较上月 -1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">化学品</div>
+      <div class="stat-card-value" style="color:var(--primary)">6</div>
+      <div class="stat-card-sub">超标 0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高温</div>
+      <div class="stat-card-value" style="color:var(--primary)">4</div>
+      <div class="stat-card-sub">超标 0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">振动</div>
+      <div class="stat-card-value" style="color:var(--primary)">3</div>
+      <div class="stat-card-sub">超标 0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">辐射</div>
+      <div class="stat-card-value" style="color:var(--primary)">2</div>
+      <div class="stat-card-sub">超标 0</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="module-title">方案 B：保留合并 + 补数据</div>
+  <div class="stat-cards cols-3">
+    <div class="stat-card">
+      <div class="stat-card-label">危害因素总数</div>
+      <div class="stat-card-value highlight">35</div>
+      <div class="stat-card-trend up">较上月 +2</div>
+      <div class="stat-card-sub">超标 3 项</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">粉尘 / 噪声</div>
+      <div class="stat-card-value" style="color:var(--primary)">20</div>
+      <div class="stat-card-sub">粉 12（超2）/ 噪 8（超1）</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">化学品 / 高温</div>
+      <div class="stat-card-value" style="color:var(--primary)">10</div>
+      <div class="stat-card-sub">化 6 / 高温 4</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">振动 / 辐射</div>
+      <div class="stat-card-value" style="color:var(--primary)">5</div>
+      <div class="stat-card-sub">振 3 / 辐 2</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="module-title">方案 C：≤4 拆独立，>4 合并</div>
+  <div class="stat-cards cols-3">
+    <div class="stat-card">
+      <div class="stat-card-label">粉尘 / 噪声</div>
+      <div class="stat-card-value" style="color:var(--primary)">20</div>
+      <div class="stat-card-sub">粉 12（超<span class="overflow-num">2</span>）/ 噪 8（超<span class="overflow-num">1</span>）</div>
+      <div class="stat-card-trend up">粉+1 / 噪-1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">化学品 / 高温</div>
+      <div class="stat-card-value" style="color:var(--primary)">10</div>
+      <div class="stat-card-sub">化 6 / 高温 4</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">振动 / 辐射</div>
+      <div class="stat-card-value" style="color:var(--primary)">5</div>
+      <div class="stat-card-sub">振 3 / 辐 2</div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--text-description);margin-top:4px;">职业健康 6 类 > 4 → 合理分组（2个/组），不设总数卡片</div>
+</div>
+
+<!-- ===================== 模块3：行为管控 ===================== -->
+<div class="section">
+  <div class="section-label">模块：行为管控</div>
+  <div class="section-desc">PRD 要求按行为类型维度展示数量及占比：未佩戴安全帽 / 违规吸烟 / 高处作业等</div>
+
+  <div class="module-title">方案 A：按 PRD 拆成独立卡片</div>
+  <div class="stat-cards cols-4">
+    <div class="stat-card">
+      <div class="stat-card-label">未佩戴安全帽</div>
+      <div class="stat-card-value" style="color:var(--error)">38</div>
+      <div class="stat-card-ratio">占比 35%</div>
+      <div class="stat-card-trend down">较上月 -8%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">违规吸烟</div>
+      <div class="stat-card-value" style="color:var(--warning)">28</div>
+      <div class="stat-card-ratio">占比 26%</div>
+      <div class="stat-card-trend up">较上月 +3%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高处作业违规</div>
+      <div class="stat-card-value" style="color:var(--primary)">24</div>
+      <div class="stat-card-ratio">占比 22%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">进入禁区</div>
+      <div class="stat-card-value" style="color:var(--primary)">18</div>
+      <div class="stat-card-ratio">占比 17%</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="module-title">方案 B：保留合并 + 补数据</div>
+  <div class="stat-cards cols-4">
+    <div class="stat-card">
+      <div class="stat-card-label">事件总数（本月）</div>
+      <div class="stat-card-value highlight">108</div>
+      <div class="stat-card-trend down">较上月 -12%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">未佩戴安全帽</div>
+      <div class="stat-card-value" style="color:var(--error)">38</div>
+      <div class="stat-card-ratio">占比 35%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">违规吸烟 / 进入禁区</div>
+      <div class="stat-card-value" style="color:var(--warning)">46</div>
+      <div class="stat-card-sub">吸烟 28 / 禁区 18</div>
+      <div class="stat-card-ratio">占比 43%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高处作业 / 其他</div>
+      <div class="stat-card-value" style="color:var(--primary)">24</div>
+      <div class="stat-card-sub">高 24 / 其他 0</div>
+      <div class="stat-card-ratio">占比 22%</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="module-title">方案 C：≤4 拆独立，>4 合并</div>
+  <div class="stat-cards cols-4">
+    <div class="stat-card">
+      <div class="stat-card-label">未佩戴安全帽</div>
+      <div class="stat-card-value" style="color:var(--error)">38</div>
+      <div class="stat-card-ratio">占比 35%</div>
+      <div class="stat-card-trend down">较上月 -8%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">违规吸烟</div>
+      <div class="stat-card-value" style="color:var(--warning)">28</div>
+      <div class="stat-card-ratio">占比 26%</div>
+      <div class="stat-card-trend up">较上月 +3%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">高处作业违规</div>
+      <div class="stat-card-value" style="color:var(--primary)">24</div>
+      <div class="stat-card-ratio">占比 22%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">进入禁区</div>
+      <div class="stat-card-value" style="color:var(--primary)">18</div>
+      <div class="stat-card-ratio">占比 17%</div>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--text-description);margin-top:4px;">行为管控 4 类 ≤ 4 → 拆独立（同方案A），不设总数卡片</div>
+</div>
+
+<!-- ===================== 总结对比 ===================== -->
+<div class="section">
+  <div class="section-label">三种方案总结</div>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <thead>
+      <tr style="background:var(--bg-page);">
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">维度</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">方案A：按PRD独立</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">方案B：合并+补数据</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);">方案C：自适应</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">空间占用</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">最多（职业健康6张卡占满一行）</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">最省（3-4张卡）</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">适中（≤4拆独立，>4分组）</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">数据精度</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">每类独立数值+占比+环比，最清晰</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">合并卡片内两类数据挤一行，需拆分阅读</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">少类精确，多类分组仍可读</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">PRD一致度</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">100%</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">约70%（结构偏离但数据补齐）</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">约85%（少类一致，多类合理变通）</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">适用场景</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">数据量少、类型少的模块</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">类型多、需节省空间的模块</td>
+        <td style="padding:8px 12px;border-bottom:1px solid var(--border);">全场景自适应</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

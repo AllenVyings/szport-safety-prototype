@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人体检 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-dark-primary);
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 20px 20px;
+    }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame {
+      width: 375px; height: 740px; background: var(--bg-gray-lighter);
+      border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+    .phone-statusbar {
+      height: 44px; background: var(--brand); display: flex; align-items: flex-end;
+      justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse);
+      font-size: 12px; flex-shrink: 0;
+    }
+    .mobile-header {
+      background: var(--brand); padding: 12px 16px 16px; color: var(--text-inverse); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mobile-header-title { font-size: 17px; font-weight: 600; }
+    .header-back {
+      font-size: 14px; color: rgba(255,255,255,0.8); text-decoration: none;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .mobile-content {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 0 0 60px 0; -webkit-overflow-scrolling: touch;
+    }
+    .medical-stats {
+      display: flex; gap: 0; margin: 12px; background: var(--bg-card);
+      border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden;
+    }
+    .stat-item {
+      flex: 1; text-align: center; padding: 14px 8px;
+      border-right: 1px solid var(--border-light);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-value { font-size: 20px; font-weight: 700; }
+    .stat-value.green { color: var(--success); }
+    .stat-value.orange { color: var(--warning); }
+    .stat-value.red { color: var(--error); }
+    .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .medical-card {
+      background: var(--bg-card); margin: 8px 12px; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04); padding: 14px; cursor: pointer;
+    }
+    .medical-card:active { background: var(--bg-hover); }
+    .medical-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .medical-type { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .medical-status { font-size: 11px; padding: 2px 8px; border-radius: var(--radius-full); font-weight: 500; }
+    .medical-status.normal { background: var(--tag-success-bg); color: var(--tag-success-color); }
+    .medical-status.abnormal { background: var(--tag-warning-bg); color: var(--tag-warning-color); }
+    .medical-status.pending { background: var(--tag-info-bg); color: var(--tag-info-color); }
+    .medical-status.expired { background: var(--tag-error-bg); color: var(--tag-error-color); }
+    .medical-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .medical-remark { font-size: 12px; color: var(--text-secondary); line-height: 1.4; }
+    .medical-remark .highlight { color: var(--warning); font-weight: 500; }
+    .medical-detail {
+      display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light);
+    }
+    .medical-card.expanded .medical-detail { display: block; }
+    .detail-item {
+      display: flex; justify-content: space-between; padding: 4px 0;
+      font-size: 12px;
+    }
+    .detail-item .label { color: var(--text-secondary); }
+    .detail-item .value { color: var(--text-primary); }
+    .detail-item .value.warn { color: var(--warning); }
+    .mobile-tabbar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+      background: var(--bg-card); border-top: 1px solid var(--border-light);
+      display: flex; align-items: center; justify-content: space-around;
+      flex-shrink: 0; z-index: 10;
+    }
+    .tabbar-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer; padding: 4px 12px; text-decoration: none; color: inherit;
+    }
+    .tabbar-item .tabbar-icon { font-size: 20px; color: var(--text-description); }
+    .tabbar-item .tabbar-label { font-size: 10px; color: var(--text-description); }
+    .tabbar-item.active .tabbar-icon { color: var(--primary); }
+    .tabbar-item.active .tabbar-label { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+
+  <div class="phone-frame">
+    <div class="phone-statusbar">
+      <span>09:41</span>
+      <span>5G 100%</span>
+    </div>
+
+    <div class="mobile-header">
+      <div class="mobile-header-title">个人体检</div>
+      <a href="mobile-profile.html" class="header-back">返回 ›</a>
+    </div>
+
+    <div class="mobile-content">
+
+      <!-- 统计 -->
+      <div class="medical-stats">
+        <div class="stat-item">
+          <div class="stat-value green">2</div>
+          <div class="stat-label">正常</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value orange">1</div>
+          <div class="stat-label">待复查</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value red">1</div>
+          <div class="stat-label">已过期</div>
+        </div>
+      </div>
+
+      <!-- 体检记录 -->
+      <div class="medical-card" data-action="toggleExpand">
+        <div class="medical-header">
+          <span class="medical-type">2026年度职业健康体检</span>
+          <span class="medical-status normal">正常</span>
+        </div>
+        <div class="medical-meta">
+          <span>📅 2026-04-15</span>
+          <span>🏥 深圳港职工医院</span>
+        </div>
+        <div class="medical-remark">体检结论：未见职业禁忌症，可继续从事当前岗位工作</div>
+        <div class="medical-detail">
+          <div class="detail-item"><span class="label">体检类型</span><span class="value">职业健康体检</span></div>
+          <div class="detail-item"><span class="label">接害因素</span><span class="value">粉尘、噪声</span></div>
+          <div class="detail-item"><span class="label">心电图</span><span class="value">正常</span></div>
+          <div class="detail-item"><span class="label">肺功能</span><span class="value">正常</span></div>
+          <div class="detail-item"><span class="label">听力</span><span class="value warn">左耳轻度下降</span></div>
+          <div class="detail-item"><span class="label">血常规</span><span class="value">正常</span></div>
+        </div>
+      </div>
+
+      <div class="medical-card" data-action="toggleExpand">
+        <div class="medical-header">
+          <span class="medical-type">2025年度职业健康体检</span>
+          <span class="medical-status abnormal">待复查</span>
+        </div>
+        <div class="medical-meta">
+          <span>📅 2025-09-20</span>
+          <span>🏥 深圳港职工医院</span>
+        </div>
+        <div class="medical-remark">体检结论：<span class="highlight">听力异常，建议复查</span></div>
+        <div class="medical-detail">
+          <div class="detail-item"><span class="label">体检类型</span><span class="value">职业健康体检</span></div>
+          <div class="detail-item"><span class="label">接害因素</span><span class="value">粉尘、噪声</span></div>
+          <div class="detail-item"><span class="label">心电图</span><span class="value">正常</span></div>
+          <div class="detail-item"><span class="label">肺功能</span><span class="value">正常</span></div>
+          <div class="detail-item"><span class="label">听力</span><span class="value warn">双耳高频听阈提高</span></div>
+          <div class="detail-item"><span class="label">复查建议</span><span class="value warn">3个月内复查听力</span></div>
+        </div>
+      </div>
+
+      <div class="medical-card" data-action="toggleExpand">
+        <div class="medical-header">
+          <span class="medical-type">2026年常规体检</span>
+          <span class="medical-status normal">正常</span>
+        </div>
+        <div class="medical-meta">
+          <span>📅 2026-03-08</span>
+          <span>🏥 深圳港职工医院</span>
+        </div>
+        <div class="medical-remark">体检结论：各项指标正常，建议注意作息规律</div>
+        <div class="medical-detail">
+          <div class="detail-item"><span class="label">体检类型</span><span class="value">年度常规体检</span></div>
+          <div class="detail-item"><span class="label">血压</span><span class="value">120/78 mmHg</span></div>
+          <div class="detail-item"><span class="label">血糖</span><span class="value">5.2 mmol/L</span></div>
+          <div class="detail-item"><span class="label">肝功能</span><span class="value">正常</span></div>
+          <div class="detail-item"><span class="label">胸透</span><span class="value">正常</span></div>
+        </div>
+      </div>
+
+      <div class="medical-card" data-action="toggleExpand">
+        <div class="medical-header">
+          <span class="medical-type">2024年度职业健康体检</span>
+          <span class="medical-status expired">已过期</span>
+        </div>
+        <div class="medical-meta">
+          <span>📅 2024-10-12</span>
+          <span>🏥 深圳港职工医院</span>
+        </div>
+        <div class="medical-remark">体检已过期，需尽快安排本年度职业健康体检</div>
+        <div class="medical-detail">
+          <div class="detail-item"><span class="label">体检类型</span><span class="value">职业健康体检</span></div>
+          <div class="detail-item"><span class="label">有效期</span><span class="value warn">已过期（2025-10-12到期）</span></div>
+          <div class="detail-item"><span class="label">体检结论</span><span class="value">正常</span></div>
+        </div>
+      </div>
+
+    </div><!-- /mobile-content -->
+
+    <div class="mobile-tabbar">
+      <a href="mobile-home.html" class="tabbar-item">
+        <span class="tabbar-icon">🏠</span>
+        <span class="tabbar-label">首页</span>
+      </a>
+      <a href="mobile-function.html" class="tabbar-item">
+        <span class="tabbar-icon">📱</span>
+        <span class="tabbar-label">功能</span>
+      </a>
+      <a href="mobile-message.html" class="tabbar-item">
+        <span class="tabbar-icon">💬</span>
+        <span class="tabbar-label">消息</span>
+      </a>
+      <a href="mobile-profile.html" class="tabbar-item active">
+        <span class="tabbar-icon">👤</span>
+        <span class="tabbar-label">我的</span>
+      </a>
+    </div>
+
+  </div><!-- /phone-frame -->
+
+  <script>
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        switch (action) {
+          case 'toggleExpand': btn.classList.toggle('expanded'); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

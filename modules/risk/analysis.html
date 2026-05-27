@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>风险统计分析 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .stat-item .stat-trend { font-size:11px; margin-top:2px; }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>    .stat-item .stat-trend { font-size:var(--font-size-11); margin-top:2px; }
     .stat-item .stat-trend.up { color:var(--color-error); }
     .stat-item .stat-trend.down { color:var(--color-success); }
     .stat-item .stat-trend.flat { color:var(--text-quaternary); }
@@ -14,57 +15,58 @@
     .tab-content { display:none; }
     .tab-content.active { display:block; }
     .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-    .chart-card { background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:16px; }
-    .chart-card .chart-title { font-size:14px; font-weight:500; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
-    .chart-card .chart-title .chart-subtitle { font-size:11px; color:var(--text-quaternary); font-weight:400; }
+    .chart-card { background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:16px; cursor:pointer; transition:box-shadow var(--duration-fast); }
+    .chart-card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+    .chart-card .chart-title { font-size:var(--font-size-14); font-weight:500; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+    .chart-card .chart-title .chart-subtitle { font-size:var(--font-size-11); color:var(--text-quaternary); font-weight:400; }
     .bar-chart { display:flex; align-items:flex-end; gap:8px; height:180px; padding-top:12px; }
     .bar-group { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
     .bar-stack { width:100%; max-width:48px; display:flex; flex-direction:column-reverse; border-radius:4px 4px 0 0; overflow:hidden; }
     .bar-segment { width:100%; min-height:2px; transition:height .3s; }
-    .bar-segment.red { background:#F5222D; }
-    .bar-segment.orange { background:#FA8C16; }
-    .bar-segment.yellow { background:#FADB14; }
-    .bar-segment.blue { background:#1890FF; }
-    .bar-label { font-size:11px; color:var(--text-tertiary); }
-    .bar-value { font-size:10px; color:var(--text-quaternary); }
+    .bar-segment.red { background:var(--chart-red); }
+    .bar-segment.orange { background:var(--chart-orange); }
+    .bar-segment.yellow { background:var(--chart-yellow); }
+    .bar-segment.blue { background:var(--chart-blue); }
+    .bar-label { font-size:var(--font-size-11); color:var(--text-tertiary); }
+    .bar-value { font-size:var(--font-size-10); color:var(--text-quaternary); }
     .pie-chart { display:flex; align-items:center; gap:24px; }
     .pie-visual { width:160px; height:160px; border-radius:50%; position:relative; }
     .pie-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
-    .pie-center .pie-total { font-size:28px; font-weight:700; }
-    .pie-center .pie-label { font-size:11px; color:var(--text-tertiary); }
+    .pie-center .pie-total { font-size:var(--font-size-28); font-weight:700; }
+    .pie-center .pie-label { font-size:var(--font-size-11); color:var(--text-tertiary); }
     .pie-legend { display:flex; flex-direction:column; gap:8px; }
-    .pie-legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+    .pie-legend-item { display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); }
     .pie-legend-dot { width:10px; height:10px; border-radius:2px; }
     .pie-legend-value { font-weight:500; margin-left:auto; min-width:24px; text-align:right; }
-    .pie-legend-pct { font-size:11px; color:var(--text-quaternary); min-width:40px; text-align:right; }
+    .pie-legend-pct { font-size:var(--font-size-11); color:var(--text-quaternary); min-width:40px; text-align:right; }
     .trend-chart { width:100%; }
     .trend-line { display:flex; align-items:flex-end; gap:2px; height:140px; }
     .trend-bar { flex:1; background:var(--primary); border-radius:2px 2px 0 0; min-height:2px; position:relative; cursor:pointer; }
     .trend-bar:hover { opacity:.8; }
-    .trend-bar .trend-tip { display:none; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.75); color:#fff; padding:4px 8px; border-radius:4px; font-size:11px; white-space:nowrap; margin-bottom:4px; }
+    .trend-bar .trend-tip { display:none; position:absolute; bottom:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.75); color:var(--text-inverse); padding:4px 8px; border-radius:4px; font-size:var(--font-size-11); white-space:nowrap; margin-bottom:4px; }
     .trend-bar:hover .trend-tip { display:block; }
     .trend-labels { display:flex; gap:2px; margin-top:4px; }
-    .trend-labels span { flex:1; text-align:center; font-size:10px; color:var(--text-quaternary); }
+    .trend-labels span { flex:1; text-align:center; font-size:var(--font-size-10); color:var(--text-quaternary); }
     .rank-list { list-style:none; padding:0; margin:0; }
-    .rank-item { display:flex; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-lighter); font-size:13px; }
+    .rank-item { display:flex; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-lighter); font-size:var(--font-size-13); }
     .rank-item:last-child { border-bottom:none; }
-    .rank-num { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; margin-right:8px; flex-shrink:0; }
-    .rank-num.top1 { background:#F5222D; color:#fff; }
-    .rank-num.top2 { background:#FA8C16; color:#fff; }
-    .rank-num.top3 { background:#FADB14; color:#614700; }
+    .rank-num { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:var(--font-size-12); font-weight:600; margin-right:8px; flex-shrink:0; }
+    .rank-num.top1 { background:var(--chart-red); color:var(--text-inverse); }
+    .rank-num.top2 { background:var(--chart-orange); color:var(--text-inverse); }
+    .rank-num.top3 { background:var(--chart-yellow); color:var(--chart-yellow-text); }
     .rank-num.normal { background:var(--bg-page); color:var(--text-tertiary); }
     .rank-name { flex:1; }
     .rank-bar-bg { width:120px; height:8px; background:var(--bg-page); border-radius:4px; margin:0 12px; overflow:hidden; }
     .rank-bar-fill { height:100%; border-radius:4px; }
     .rank-count { font-weight:500; min-width:32px; text-align:right; }
     .gis-placeholder { width:100%; height:360px; background:var(--bg-page); border-radius:var(--radius-md); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-quaternary); }
-    .gis-placeholder .icon { font-size:48px; margin-bottom:12px; }
-    .filter-bar-right { display:flex; gap:8px; margin-left:auto; }
-</style>
+    .gis-placeholder .icon { font-size:var(--font-size-48); margin-bottom:12px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
   <!-- 统计概览 -->
-  <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">当前视角：深圳港集团（全集团） | 可按组织架构层级筛选</div>
+  <div style="font-size:var(--font-size-12); color:var(--text-tertiary); margin-bottom:8px;">当前视角：深圳港集团（全集团） | 可按组织架构层级筛选</div>
   <div class="stat-bar">
     <div class="stat-item">
       <div class="stat-num">156</div>
@@ -72,57 +74,58 @@
       <div class="stat-trend up">↑ 12 较上月</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:#F5222D">8</div>
+      <div class="stat-num" style="color:var(--chart-red)">8</div>
       <div class="stat-label">重大风险</div>
       <div class="stat-trend up">↑ 1 新增</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:#FA8C16">23</div>
+      <div class="stat-num" style="color:var(--chart-orange)">23</div>
       <div class="stat-label">较大风险</div>
       <div class="stat-trend flat">— 持平</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:var(--color-success)">93.6%</div>
+      <div class="stat-num u-text-success">93.6%</div>
       <div class="stat-label">受控率</div>
-      <div class="stat-trend up" style="color:var(--color-success)">↑ 2.1%</div>
+      <div class="stat-trend up u-text-success">↑ 2.1%</div>
     </div>
     <div class="stat-item">
-      <div class="stat-num" style="color:var(--color-error)">2</div>
+      <div class="stat-num u-text-error">2</div>
       <div class="stat-label">等级上升预警</div>
       <div class="stat-trend up">需关注</div>
     </div>
   </div>
 
   <div style="display:flex; align-items:center; margin-bottom:16px;">
-    <span style="font-size:12px; color:var(--text-tertiary);">数据权限：按组织架构层级过滤</span>
-    <button class="btn btn-default" style="margin-left:auto;">导出报告</button>
+    <span style="font-size:var(--font-size-12); color:var(--text-tertiary);">数据权限：按组织架构层级过滤</span>
+    <button class="btn btn-default" style="margin-left:auto;" data-action="exportReport">导出报告</button>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('overview')">综合概览</div>
-    <div class="tab-item" onclick="switchTab('dimension')">多维分析</div>
-    <div class="tab-item" onclick="switchTab('gis')">GIS分布</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="overview">综合概览</div>
+      <div class="tab-item" data-action="switchTab" data-param="dimension">多维分析</div>
+      <div class="tab-item" data-action="switchTab" data-param="gis">GIS分布</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- 综合概览 -->
   <div id="tab-overview" class="tab-content active">
     <div class="chart-grid">
       <!-- 风险等级分布（饼图） -->
-      <div class="chart-card">
-        <div class="chart-title">风险等级分布<span class="chart-subtitle">按四色等级统计</span></div>
+      <div class="chart-card" data-action="openDrillDown" data-param="'riskLevel'">
+        <div class="chart-title">风险等级分布<span class="chart-subtitle">点击查看详情</span></div>
         <div class="pie-chart">
-          <div class="pie-visual" style="background:conic-gradient(#F5222D 0% 5.1%, #FA8C16 5.1% 19.9%, #FADB14 19.9% 62.8%, #1890FF 62.8% 100%)">
+          <div class="pie-visual" id="risk-level-pie" style="background:conic-gradient(var(--chart-red) 0% 5.1%, var(--chart-orange) 5.1% 19.9%, var(--chart-yellow) 19.9% 62.8%, var(--chart-blue) 62.8% 100%)">
             <div class="pie-center">
               <div class="pie-total">156</div>
               <div class="pie-label">风险点总数</div>
             </div>
           </div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#F5222D"></div>重大风险<div class="pie-legend-value">8</div><div class="pie-legend-pct">5.1%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FA8C16"></div>较大风险<div class="pie-legend-value">23</div><div class="pie-legend-pct">14.7%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FADB14"></div>一般风险<div class="pie-legend-value">67</div><div class="pie-legend-pct">42.9%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#1890FF"></div>低风险<div class="pie-legend-value">58</div><div class="pie-legend-pct">37.2%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-red)"></div>重大风险<div class="pie-legend-value">8</div><div class="pie-legend-pct">5.1%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-orange)"></div>较大风险<div class="pie-legend-value">23</div><div class="pie-legend-pct">14.7%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-yellow)"></div>一般风险<div class="pie-legend-value">67</div><div class="pie-legend-pct">42.9%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-blue)"></div>低风险<div class="pie-legend-value">58</div><div class="pie-legend-pct">37.2%</div></div>
           </div>
         </div>
       </div>
@@ -130,37 +133,12 @@
       <!-- 各单位风险分布（柱状图） -->
       <div class="chart-card">
         <div class="chart-title">各单位风险分布<span class="chart-subtitle">按四色等级堆叠</span></div>
-        <div class="bar-chart">
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:28px"></div><div class="bar-segment yellow" style="height:32px"></div><div class="bar-segment orange" style="height:12px"></div><div class="bar-segment red" style="height:8px"></div></div>
-            <div class="bar-label">集装箱</div><div class="bar-value">42</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:24px"></div><div class="bar-segment yellow" style="height:36px"></div><div class="bar-segment orange" style="height:16px"></div><div class="bar-segment red" style="height:16px"></div></div>
-            <div class="bar-label">油品码头</div><div class="bar-value">48</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:20px"></div><div class="bar-segment yellow" style="height:24px"></div><div class="bar-segment orange" style="height:8px"></div></div></div>
-            <div class="bar-label">散货码头</div><div class="bar-value">28</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:16px"></div><div class="bar-segment yellow" style="height:12px"></div></div></div>
-            <div class="bar-label">物流公司</div><div class="bar-value">15</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:12px"></div><div class="bar-segment yellow" style="height:8px"></div></div></div>
-            <div class="bar-label">物业公司</div><div class="bar-value">12</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:8px"></div><div class="bar-segment yellow" style="height:8px"></div><div class="bar-segment orange" style="height:4px"></div></div></div>
-            <div class="bar-label">建筑施工</div><div class="bar-value">11</div>
-          </div>
-        </div>
+        <div class="bar-chart" id="unit-chart"></div>
         <div style="display:flex; gap:16px; justify-content:center; margin-top:8px;">
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#F5222D; border-radius:2px; display:inline-block"></span>重大</span>
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#FA8C16; border-radius:2px; display:inline-block"></span>较大</span>
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#FADB14; border-radius:2px; display:inline-block"></span>一般</span>
-          <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#1890FF; border-radius:2px; display:inline-block"></span>低</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-red); border-radius:2px; display:inline-block"></span>重大</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-orange); border-radius:2px; display:inline-block"></span>较大</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-yellow); border-radius:2px; display:inline-block"></span>一般</span>
+          <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-blue); border-radius:2px; display:inline-block"></span>低</span>
         </div>
       </div>
 
@@ -168,23 +146,8 @@
       <div class="chart-card">
         <div class="chart-title">风险数量月度趋势<span class="chart-subtitle">近12个月</span></div>
         <div class="trend-chart">
-          <div class="trend-line">
-            <div class="trend-bar" style="height:60%"><div class="trend-tip">6月: 128</div></div>
-            <div class="trend-bar" style="height:62%"><div class="trend-tip">7月: 132</div></div>
-            <div class="trend-bar" style="height:64%"><div class="trend-tip">8月: 136</div></div>
-            <div class="trend-bar" style="height:63%"><div class="trend-tip">9月: 134</div></div>
-            <div class="trend-bar" style="height:65%"><div class="trend-tip">10月: 138</div></div>
-            <div class="trend-bar" style="height:66%"><div class="trend-tip">11月: 140</div></div>
-            <div class="trend-bar" style="height:67%"><div class="trend-tip">12月: 142</div></div>
-            <div class="trend-bar" style="height:68%"><div class="trend-tip">1月: 144</div></div>
-            <div class="trend-bar" style="height:69%"><div class="trend-tip">2月: 146</div></div>
-            <div class="trend-bar" style="height:70%"><div class="trend-tip">3月: 148</div></div>
-            <div class="trend-bar" style="height:72%"><div class="trend-tip">4月: 152</div></div>
-            <div class="trend-bar" style="height:74%; background:var(--primary)"><div class="trend-tip">5月: 156</div></div>
-          </div>
-          <div class="trend-labels">
-            <span>6月</span><span>7月</span><span>8月</span><span>9月</span><span>10月</span><span>11月</span><span>12月</span><span>1月</span><span>2月</span><span>3月</span><span>4月</span><span>5月</span>
-          </div>
+          <div class="trend-line" id="trend-line"></div>
+          <div class="trend-labels" id="trend-labels"></div>
         </div>
       </div>
 
@@ -192,40 +155,40 @@
       <div class="chart-card">
         <div class="chart-title">管控状态分布<span class="chart-subtitle">按受控/管控中/已消除</span></div>
         <div class="pie-chart">
-          <div class="pie-visual" style="background:conic-gradient:#52C41A 0% 62.8%, #1890FF 62.8% 89.7%, #8C8C8C 89.7% 100%)">
+          <div class="pie-visual" id="control-pie" style="background:conic-gradient(var(--chart-green) 0% 62.8%, var(--chart-blue) 62.8% 89.7%, var(--chart-gray) 89.7% 100%)">
             <div class="pie-center">
-              <div class="pie-total" style="font-size:20px">93.6%</div>
+              <div class="pie-total" style="font-size:var(--font-size-20)">93.6%</div>
               <div class="pie-label">受控率</div>
             </div>
           </div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#52C41A"></div>受控<div class="pie-legend-value">98</div><div class="pie-legend-pct">62.8%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#1890FF"></div>管控中<div class="pie-legend-value">42</div><div class="pie-legend-pct">26.9%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#8C8C8C"></div>已消除<div class="pie-legend-value">16</div><div class="pie-legend-pct">10.3%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-green)"></div>受控<div class="pie-legend-value">98</div><div class="pie-legend-pct">62.8%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-blue)"></div>管控中<div class="pie-legend-value">42</div><div class="pie-legend-pct">26.9%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-gray)"></div>已消除<div class="pie-legend-value">16</div><div class="pie-legend-pct">10.3%</div></div>
           </div>
         </div>
         <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border-lighter);">
-          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">管控措施覆盖率</div>
-          <div style="display:flex; gap:12px;">
+          <div style="font-size:var(--font-size-12); color:var(--text-secondary); margin-bottom:8px;">管控措施覆盖率</div>
+          <div class="u-flex u-gap-12">
             <div style="flex:1; text-align:center; padding:8px; background:var(--bg-page); border-radius:var(--radius-sm);">
-              <div style="font-size:18px; font-weight:600; color:var(--color-success)">96.2%</div>
-              <div style="font-size:11px; color:var(--text-tertiary)">工程技术措施</div>
+              <div style="font-size:var(--font-size-18); font-weight:600; color:var(--color-success)">96.2%</div>
+              <div style="font-size:var(--font-size-11); color:var(--text-tertiary)">工程技术措施</div>
             </div>
             <div style="flex:1; text-align:center; padding:8px; background:var(--bg-page); border-radius:var(--radius-sm);">
-              <div style="font-size:18px; font-weight:600; color:var(--color-success)">98.7%</div>
-              <div style="font-size:11px; color:var(--text-tertiary)">管理措施</div>
+              <div style="font-size:var(--font-size-18); font-weight:600; color:var(--color-success)">98.7%</div>
+              <div style="font-size:var(--font-size-11); color:var(--text-tertiary)">管理措施</div>
             </div>
             <div style="flex:1; text-align:center; padding:8px; background:var(--bg-page); border-radius:var(--radius-sm);">
-              <div style="font-size:18px; font-weight:600; color:var(--color-success)">94.5%</div>
-              <div style="font-size:11px; color:var(--text-tertiary)">培训教育措施</div>
+              <div style="font-size:var(--font-size-18); font-weight:600; color:var(--color-success)">94.5%</div>
+              <div style="font-size:var(--font-size-11); color:var(--text-tertiary)">培训教育措施</div>
             </div>
             <div style="flex:1; text-align:center; padding:8px; background:var(--bg-page); border-radius:var(--radius-sm);">
-              <div style="font-size:18px; font-weight:600; color:var(--color-success)">91.3%</div>
-              <div style="font-size:11px; color:var(--text-tertiary)">个体防护措施</div>
+              <div style="font-size:var(--font-size-18); font-weight:600; color:var(--color-success)">91.3%</div>
+              <div style="font-size:var(--font-size-11); color:var(--text-tertiary)">个体防护措施</div>
             </div>
             <div style="flex:1; text-align:center; padding:8px; background:var(--bg-page); border-radius:var(--radius-sm);">
-              <div style="font-size:18px; font-weight:600; color:var(--color-success)">89.7%</div>
-              <div style="font-size:11px; color:var(--text-tertiary)">应急处置措施</div>
+              <div style="font-size:var(--font-size-18); font-weight:600; color:var(--color-success)">89.7%</div>
+              <div style="font-size:var(--font-size-11); color:var(--text-tertiary)">应急处置措施</div>
             </div>
           </div>
         </div>
@@ -236,28 +199,18 @@
     <div class="chart-card">
       <div class="chart-title">重大风险点排行<span class="chart-subtitle">按风险值降序</span></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
-        <ul class="rank-list">
-          <li class="rank-item"><span class="rank-num top1">1</span><span class="rank-name">1号原油储罐区</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:100%; background:#F5222D"></div></div><span class="rank-count" style="color:#F5222D">25</span></li>
-          <li class="rank-item"><span class="rank-num top2">2</span><span class="rank-name">3号泊位输油管道</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:84%; background:#F5222D"></div></div><span class="rank-count" style="color:#F5222D">21</span></li>
-          <li class="rank-item"><span class="rank-num top3">3</span><span class="rank-name">LNG接收站</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:72%; background:#F5222D"></div></div><span class="rank-count" style="color:#F5222D">18</span></li>
-          <li class="rank-item"><span class="rank-num normal">4</span><span class="rank-name">2号原油储罐区</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:64%; background:#FA8C16"></div></div><span class="rank-count" style="color:#FA8C16">16</span></li>
-        </ul>
-        <ul class="rank-list">
-          <li class="rank-item"><span class="rank-num normal">5</span><span class="rank-name">集装箱码头岸桥作业</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:56%; background:#FA8C16"></div></div><span class="rank-count" style="color:#FA8C16">14</span></li>
-          <li class="rank-item"><span class="rank-num normal">6</span><span class="rank-name">配电间高压设备</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:48%; background:#FA8C16"></div></div><span class="rank-count" style="color:#FA8C16">12</span></li>
-          <li class="rank-item"><span class="rank-num normal">7</span><span class="rank-name">危化品装卸平台</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:40%; background:#FA8C16"></div></div><span class="rank-count" style="color:#FA8C16">10</span></li>
-          <li class="rank-item"><span class="rank-num normal">8</span><span class="rank-name">油罐区防火堤</span><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:32%; background:#FADB14"></div></div><span class="rank-count" style="color:#D4B106">8</span></li>
-        </ul>
+        <ul class="rank-list rank-list-dynamic" style="max-height:400px; overflow-y:auto;"></ul>
+        <ul class="rank-list rank-list-dynamic" style="max-height:400px; overflow-y:auto;"></ul>
       </div>
     </div>
   </div>
 
   <!-- 多维分析 -->
   <div id="tab-dimension" class="tab-content">
-    <div class="card" style="margin-bottom:16px;">
+    <div class="card u-mb-16">
       <div class="filter-bar">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部组织</option>
+        <div class="filter-field"><span class="filter-label">组织</span><select class="form-input form-select">
+          <option>全部</option>
           <optgroup label="深圳港集团">
             <option>全部二级企业</option>
             <option>集装箱码头公司</option>
@@ -267,20 +220,20 @@
             <option>物业公司</option>
             <option>建筑施工公司</option>
           </optgroup>
-        </select>
-        <select class="form-input form-select" style="width:140px">
+        </select></div>
+        <div class="filter-field"><span class="filter-label">分类维度</span><select class="form-input form-select">
           <option>按危险源类型</option>
           <option>按事故类型</option>
           <option>按风险分级</option>
           <option>按风险等级</option>
           <option>按风险四色</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
+        </select></div>
+        <div class="filter-field"><span class="filter-label">年度</span><select class="form-input form-select">
           <option>2026年</option>
           <option>2025年</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterDimension">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetDimensionFilter">重置</button></div>
       </div>
     </div>
 
@@ -288,51 +241,26 @@
       <!-- 按危险源类型 -->
       <div class="chart-card">
         <div class="chart-title">按危险源类型分布</div>
-        <div class="bar-chart">
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:20px"></div><div class="bar-segment yellow" style="height:28px"></div><div class="bar-segment orange" style="height:12px"></div><div class="bar-segment red" style="height:8px"></div></div>
-            <div class="bar-label">危化品</div><div class="bar-value">38</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:24px"></div><div class="bar-segment yellow" style="height:32px"></div><div class="bar-segment orange" style="height:8px"></div></div></div>
-            <div class="bar-label">港口运营</div><div class="bar-value">42</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:16px"></div><div class="bar-segment yellow" style="height:20px"></div><div class="bar-segment orange" style="height:4px"></div></div></div>
-            <div class="bar-label">电气安全</div><div class="bar-value">26</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:12px"></div><div class="bar-segment yellow" style="height:16px"></div><div class="bar-segment orange" style="height:4px"></div></div></div>
-            <div class="bar-label">消防安全</div><div class="bar-value">20</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:8px"></div><div class="bar-segment yellow" style="height:12px"></div></div></div>
-            <div class="bar-label">机械伤害</div><div class="bar-value">16</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment blue" style="height:8px"></div><div class="bar-segment yellow" style="height:8px"></div></div></div>
-            <div class="bar-label">高处坠落</div><div class="bar-value">14</div>
-          </div>
-        </div>
+        <div class="bar-chart" id="hazard-type-chart"></div>
       </div>
 
       <!-- 按事故类型 -->
       <div class="chart-card">
         <div class="chart-title">按事故类型分布</div>
         <div class="pie-chart">
-          <div class="pie-visual" style="background:conic-gradient(#F5222D 0% 24.4%, #FA8C16 24.4% 42.3%, #FADB14 42.3% 62.8%, #1890FF 62.8% 80.8%, #52C41A 80.8% 91%, #722ED1 91% 100%)">
+          <div class="pie-visual" id="accident-type-pie" style="background:conic-gradient(var(--chart-red) 0% 24.4%, var(--chart-orange) 24.4% 42.3%, var(--chart-yellow) 42.3% 62.8%, var(--chart-blue) 62.8% 80.8%, var(--chart-green) 80.8% 91%, var(--chart-purple) 91% 100%)">
             <div class="pie-center">
               <div class="pie-total">156</div>
               <div class="pie-label">事故类型</div>
             </div>
           </div>
           <div class="pie-legend">
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#F5222D"></div>火灾爆炸<div class="pie-legend-value">38</div><div class="pie-legend-pct">24.4%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FA8C16"></div>中毒窒息<div class="pie-legend-value">28</div><div class="pie-legend-pct">17.9%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#FADB14"></div>起重伤害<div class="pie-legend-value">32</div><div class="pie-legend-pct">20.5%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#1890FF"></div>触电<div class="pie-legend-value">28</div><div class="pie-legend-pct">17.9%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#52C41A"></div>高处坠落<div class="pie-legend-value">16</div><div class="pie-legend-pct">10.3%</div></div>
-            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:#722ED1"></div>其他<div class="pie-legend-value">14</div><div class="pie-legend-pct">9.0%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-red)"></div>火灾爆炸<div class="pie-legend-value">38</div><div class="pie-legend-pct">24.4%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-orange)"></div>中毒窒息<div class="pie-legend-value">28</div><div class="pie-legend-pct">17.9%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-yellow)"></div>起重伤害<div class="pie-legend-value">32</div><div class="pie-legend-pct">20.5%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-blue)"></div>触电<div class="pie-legend-value">28</div><div class="pie-legend-pct">17.9%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-green)"></div>高处坠落<div class="pie-legend-value">16</div><div class="pie-legend-pct">10.3%</div></div>
+            <div class="pie-legend-item"><div class="pie-legend-dot" style="background:var(--chart-purple)"></div>其他<div class="pie-legend-value">14</div><div class="pie-legend-pct">9.0%</div></div>
           </div>
         </div>
       </div>
@@ -340,107 +268,60 @@
       <!-- 管控层级统计 -->
       <div class="chart-card">
         <div class="chart-title">按管控层级统计</div>
-        <div class="bar-chart">
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment red" style="height:16px"></div><div class="bar-segment orange" style="height:24px"></div></div>
-            <div class="bar-label">公司级</div><div class="bar-value">31</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment orange" style="height:12px"></div><div class="bar-segment yellow" style="height:36px"></div></div>
-            <div class="bar-label">部门级</div><div class="bar-value">56</div>
-          </div>
-          <div class="bar-group">
-            <div class="bar-stack"><div class="bar-segment yellow" style="height:20px"></div><div class="bar-segment blue" style="height:28px"></div></div>
-            <div class="bar-label">班组级</div><div class="bar-value">69</div>
-          </div>
-        </div>
+        <div class="bar-chart" id="control-level-chart"></div>
       </div>
 
       <!-- 各单位对比 -->
       <div class="chart-card">
         <div class="chart-title">各单位受控率对比</div>
-        <div style="padding:12px 0;">
-          <div style="display:flex; align-items:center; margin-bottom:12px;">
-            <span style="font-size:13px; width:80px; color:var(--text-secondary)">集装箱码头</span>
-            <div style="flex:1; height:24px; background:var(--bg-page); border-radius:4px; overflow:hidden; margin:0 8px;">
-              <div style="width:95.2%; height:100%; background:var(--color-success); border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:11px; color:#fff;">95.2%</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; margin-bottom:12px;">
-            <span style="font-size:13px; width:80px; color:var(--text-secondary)">油品码头</span>
-            <div style="flex:1; height:24px; background:var(--bg-page); border-radius:4px; overflow:hidden; margin:0 8px;">
-              <div style="width:89.6%; height:100%; background:#FA8C16; border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:11px; color:#fff;">89.6%</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; margin-bottom:12px;">
-            <span style="font-size:13px; width:80px; color:var(--text-secondary)">散货码头</span>
-            <div style="flex:1; height:24px; background:var(--bg-page); border-radius:4px; overflow:hidden; margin:0 8px;">
-              <div style="width:96.4%; height:100%; background:var(--color-success); border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:11px; color:#fff;">96.4%</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; margin-bottom:12px;">
-            <span style="font-size:13px; width:80px; color:var(--text-secondary)">物流公司</span>
-            <div style="flex:1; height:24px; background:var(--bg-page); border-radius:4px; overflow:hidden; margin:0 8px;">
-              <div style="width:93.3%; height:100%; background:var(--color-success); border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:11px; color:#fff;">93.3%</div>
-            </div>
-          </div>
-          <div style="display:flex; align-items:center;">
-            <span style="font-size:13px; width:80px; color:var(--text-secondary)">物业公司</span>
-            <div style="flex:1; height:24px; background:var(--bg-page); border-radius:4px; overflow:hidden; margin:0 8px;">
-              <div style="width:91.7%; height:100%; background:var(--color-success); border-radius:4px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px; font-size:11px; color:#fff;">91.7%</div>
-            </div>
-          </div>
-        </div>
+        <div id="unit-control-rate" style="padding:12px 0;"></div>
       </div>
     </div>
   </div>
 
   <!-- GIS分布 -->
   <div id="tab-gis" class="tab-content">
-    <div class="card" style="margin-bottom:16px;">
+    <div class="card u-mb-16">
       <div class="filter-bar">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部等级</option>
+        <div class="filter-field"><span class="filter-label">等级</span><select class="form-input form-select">
+          <option>全部</option>
           <option>重大（红色）</option>
           <option>较大（橙色）</option>
           <option>一般（黄色）</option>
           <option>低（蓝色）</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部危险源类型</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">危险源类型</span><select class="form-input form-select">
+          <option>全部</option>
           <option>危化品存储</option>
           <option>港口运营</option>
           <option>电气安全</option>
           <option>消防安全</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-        <div class="filter-bar-right">
-          <button class="btn btn-default btn-sm">聚合显示</button>
-          <button class="btn btn-default btn-sm">热力图</button>
-        </div>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterGis">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetGisFilter">重置</button></div>
       </div>
     </div>
+    <div class="filter-actions-row">
+      <button class="btn btn-default btn-sm">聚合显示</button>
+      <button class="btn btn-default btn-sm">热力图</button>
+    </div>
     <div class="gis-placeholder">
-      <div class="icon">🌍</div>
-      <div style="font-size:14px; margin-bottom:4px;">GIS地图风险分布展示</div>
-      <div style="font-size:12px;">对接GIS服务后，在此展示风险点地理分布及四色标记</div>
+      <div class="icon">&#127757;</div>
+      <div style="font-size:var(--font-size-14); margin-bottom:4px;">GIS地图风险分布展示</div>
+      <div class="u-fs-12">对接GIS服务后，在此展示风险点地理分布及四色标记</div>
       <div style="display:flex; gap:16px; margin-top:16px;">
-        <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#F5222D; border-radius:2px; display:inline-block"></span>重大风险</span>
-        <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#FA8C16; border-radius:2px; display:inline-block"></span>较大风险</span>
-        <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#FADB14; border-radius:2px; display:inline-block"></span>一般风险</span>
-        <span style="font-size:11px; display:flex; align-items:center; gap:4px"><span style="width:10px; height:10px; background:#1890FF; border-radius:2px; display:inline-block"></span>低风险</span>
+        <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-red); border-radius:2px; display:inline-block"></span>重大风险</span>
+        <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-orange); border-radius:2px; display:inline-block"></span>较大风险</span>
+        <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-yellow); border-radius:2px; display:inline-block"></span>一般风险</span>
+        <span class="u-fs11-flex-ac"><span style="width:10px; height:10px; background:var(--chart-blue); border-radius:2px; display:inline-block"></span>低风险</span>
       </div>
     </div>
   </div>
 
-  <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
-    }
-  </script>
+    </div>
+  </div>
+
+  <script src="analysis-data.js?v=2.0"></script>
+  <script src="analysis-logic.js?v=2.0"></script>
 </body>
 </html>

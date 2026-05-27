@@ -222,11 +222,25 @@ const MENU_CONFIG = [
     icon: '🚨',
     children: [
       {
-        id: 'emergency-preparedness',
-        name: '应急准备',
-        module: 'emergency/preparedness',
-        path: 'modules/emergency/preparedness.html',
-        description: '应急预案与物资管理'
+        id: 'emergency-personnel',
+        name: '应急人员',
+        module: 'emergency/personnel',
+        path: 'modules/emergency/personnel.html',
+        description: '应急人员台账与AB角管理'
+      },
+      {
+        id: 'emergency-plan',
+        name: '应急预案',
+        module: 'emergency/plan',
+        path: 'modules/emergency/plan.html',
+        description: '应急预案编制与备案管理'
+      },
+      {
+        id: 'emergency-resource',
+        name: '应急资源',
+        module: 'emergency/resource',
+        path: 'modules/emergency/resource.html',
+        description: '应急物资与调拨管理'
       },
       {
         id: 'emergency-drill',
@@ -279,45 +293,24 @@ const MENU_CONFIG = [
     children: [
       {
         id: 'assessment-target',
-        name: '考核对象与管控分级',
+        name: '考核对象',
         module: 'assessment/target',
         path: 'modules/assessment/target.html',
-        description: 'A/B/C级企业管理与考核对象'
+        description: 'A/B/C级企业管理与考核对象（PRD 3.10.1）'
       },
       {
-        id: 'assessment-control',
-        name: '控制指标',
-        module: 'assessment/control',
-        path: 'modules/assessment/control.html',
-        description: '一票否决项管理'
-      },
-      {
-        id: 'assessment-work',
-        name: '工作指标与扣分规则',
-        module: 'assessment/work',
-        path: 'modules/assessment/work.html',
-        description: '日常扣分指标与扣分标准'
-      },
-      {
-        id: 'assessment-bonus',
-        name: '加分项与举报奖励',
-        module: 'assessment/bonus',
-        path: 'modules/assessment/bonus.html',
-        description: '加分项目与隐患举报奖励'
+        id: 'assessment-indicators',
+        name: '考核规则',
+        module: 'assessment/indicators',
+        path: 'modules/assessment/indicators.html',
+        description: '否决项/扣分/加分规则管理（PRD 3.10.2）'
       },
       {
         id: 'assessment-result',
-        name: '绩效评定与结果应用',
+        name: '考核评定',
         module: 'assessment/result',
         path: 'modules/assessment/result.html',
-        description: 'K值计算与评定等级'
-      },
-      {
-        id: 'assessment-frequency',
-        name: '考核频次与执行',
-        module: 'assessment/frequency',
-        path: 'modules/assessment/frequency.html',
-        description: '月度/季度/年度考核执行'
+        description: '考核计划/执行/评定/公示与奖惩（PRD 3.10.3）'
       }
     ]
   },
@@ -336,9 +329,29 @@ const MENU_CONFIG = [
       {
         id: 'management-project',
         name: '项目信息',
-        module: 'management/project',
-        path: 'modules/management/project.html',
-        description: '在建/在营项目管理'
+        children: [
+          {
+            id: 'management-project-info',
+            name: '项目基本信息',
+            module: 'management/project-info',
+            path: 'modules/management/project-info.html',
+            description: '项目台账管理与状态流转'
+          },
+          {
+            id: 'management-project-personnel',
+            name: '项目人员管理',
+            module: 'management/project-personnel',
+            path: 'modules/management/project-personnel.html',
+            description: '按项目维度维护人员台账'
+          },
+          {
+            id: 'management-project-safety',
+            name: '项目安全记录',
+            module: 'management/project-safety',
+            path: 'modules/management/project-safety.html',
+            description: '查看项目关联安全业务数据'
+          }
+        ]
       },
       {
         id: 'management-publish',
@@ -373,7 +386,7 @@ const MENU_CONFIG = [
         name: '组织保障',
         module: 'security-basics/org',
         path: 'modules/security-basics/org.html',
-        description: '安委会/安委办组织配置'
+        description: '左侧§3.13.1全量单位树，右侧双Tab：安全架构图与机构职责配置'
       },
       {
         id: 'security-basics-regulation',
@@ -388,6 +401,13 @@ const MENU_CONFIG = [
         module: 'security-basics/fund',
         path: 'modules/security-basics/fund.html',
         description: '安全费用提取与使用'
+      },
+      {
+        id: 'security-basics-tech',
+        name: '科技保障',
+        module: 'security-basics/tech',
+        path: 'modules/security-basics/tech.html',
+        description: '科技保障项目台账管理（GB/T33000-2025 5.5）'
       }
     ]
   },
@@ -430,6 +450,20 @@ const MENU_CONFIG = [
         module: 'system-admin/operation-log',
         path: 'modules/system-admin/operation-log.html',
         description: '全系统操作审计与日志查询'
+      },
+      {
+        id: 'system-basic-config',
+        name: '基础配置',
+        module: 'system-admin/basic-config',
+        path: 'modules/system-admin/basic-config.html',
+        description: '业务模块下拉选项来源（风险管控分类/评估单元/风险点/事故类型）'
+      },
+      {
+        id: 'system-data-dict',
+        name: '数据字典',
+        module: 'system-admin/data-dict',
+        path: 'modules/system-admin/data-dict.html',
+        description: '业务枚举与字典项维护'
       }
     ]
   },
@@ -451,8 +485,13 @@ function findMenuItem(menuId) {
   for (const item of MENU_CONFIG) {
     if (item.id === menuId) return item;
     if (item.children) {
-      const child = item.children.find(c => c.id === menuId);
-      if (child) return child;
+      for (const child of item.children) {
+        if (child.id === menuId) return child;
+        if (child.children) {
+          const grandchild = child.children.find(gc => gc.id === menuId);
+          if (grandchild) return grandchild;
+        }
+      }
     }
   }
   return null;
@@ -465,8 +504,13 @@ function getBreadcrumb(menuId) {
   for (const item of MENU_CONFIG) {
     if (item.id === menuId) return [{ name: item.name }];
     if (item.children) {
-      const child = item.children.find(c => c.id === menuId);
-      if (child) return [{ name: item.name }, { name: child.name }];
+      for (const child of item.children) {
+        if (child.id === menuId) return [{ name: item.name }, { name: child.name }];
+        if (child.children) {
+          const grandchild = child.children.find(gc => gc.id === menuId);
+          if (grandchild) return [{ name: item.name }, { name: child.name }, { name: grandchild.name }];
+        }
+      }
     }
   }
   return [];

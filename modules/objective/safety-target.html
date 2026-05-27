@@ -4,334 +4,668 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安全目标 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
-    .tab-content { display:none; }
-    .tab-content.active { display:block; }
-    .tag-draft { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-issued { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-executing { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-completed { background:#F6FFED; color:#237804; border:1px solid #73D13D; }
-    .tag-uncompleted { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
-    .org-tree { width:220px; min-width:220px; border-right:1px solid var(--border); padding:12px; overflow-y:auto; }
-    .org-tree-title { font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:8px; }
-    .org-node { padding:8px 12px; border-radius:var(--radius-sm); font-size:13px; cursor:pointer; color:var(--text-primary); transition:all var(--duration-fast) var(--ease-out); }
-    .org-node:hover { background:var(--bg-hover); color:var(--primary); }
-    .org-node.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
-    .org-node-group { padding-left:16px; }
-    .progress-bar { height:6px; background:var(--border-light); border-radius:3px; overflow:hidden; }
-    .progress-fill { height:100%; border-radius:3px; transition:width var(--duration-normal) var(--ease-out); }
-</style>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    body { padding: 20px 20px 0; background: var(--bg-page); height: 100vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; }
+    .page-view { display: none; flex: 1; min-height: 0; flex-direction: column; }
+    .page-view.active { display: flex; }
+    .page-card { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+    .page-card .split-layout { flex: 1; min-height: 0; margin-top: 0; }
+    .st-tree-panel { width: 300px; min-width: 300px; display: flex; flex-direction: column; padding: 16px; border-right: 1px solid var(--border-divider); min-height: 0; }
+    .st-tree-title { font-size: var(--font-size-14); font-weight: 600; margin-bottom: 10px; }
+    .st-tree-search { margin-bottom: 8px; }
+    .st-tree-body { flex: 1; min-height: 0; overflow-y: auto; }
+    .st-main { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 16px 20px 20px; overflow: hidden; }
+    .st-main-head { flex-shrink: 0; margin-bottom: 12px; font-size: var(--font-size-16); font-weight: 600; }
+    .st-main-head span { font-size: var(--font-size-13); font-weight: 400; color: var(--text-secondary); margin-left: 8px; }
+    .st-table-wrap { flex: 1; min-height: 0; overflow: auto; }
+    .detail-section-title { font-size: var(--font-size-14); font-weight: 600; margin: 20px 0 12px; padding-left: 10px; border-left: 3px solid var(--primary); }
+    .detail-section-title:first-of-type { margin-top: 0; }
+    .scope-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 960px) { .scope-grid { grid-template-columns: 1fr; } }
+    .scope-panel { border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 12px; max-height: 220px; overflow-y: auto; }
+    .scope-panel h4 { font-size: var(--font-size-13); font-weight: 600; margin-bottom: 8px; }
+    .scope-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: var(--font-size-13); }
+    .weight-bar { padding: 8px 12px; background: var(--bg-table-header); border-radius: var(--radius-sm); font-size: var(--font-size-13); margin-bottom: 8px; }
+    .weight-bar.warn { color: var(--warning); background: var(--tag-warning-bg); }
+    .form-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--border-light); margin-top: 16px; }
+    .source-tag { display: inline-flex; padding: 1px 8px; border-radius: 10px; font-size: var(--font-size-11); }
+    .source-sys { background: var(--tag-info-bg); color: var(--tag-info-color); }
+    .source-manual { background: var(--bg-disabled); color: var(--chart-gray); border: 1px solid var(--tag-default-border); }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg-card); border-radius: var(--radius-lg); max-height: 85vh; display: flex; flex-direction: column; width: min(760px, 94vw); }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border-light); }
+    .modal-header h3 { margin: 0 0 4px; font-size: var(--font-size-16); }
+    .modal-header .sub { font-size: var(--font-size-12); color: var(--text-tertiary); }
+    .modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; min-height: 0; }
+    .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; gap: 8px; }
+    .sign-timeline { padding-left: 20px; border-left: 2px solid var(--border-light); margin-top: 8px; }
+    .sign-timeline .tl-item { position: relative; padding: 0 0 14px 16px; font-size: var(--font-size-13); color: var(--text-secondary); }
+    .sign-timeline .tl-item::before { content: ''; position: absolute; left: -25px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--success); border: 2px solid var(--bg-card); }
+    .sign-timeline .tl-item strong { display: block; color: var(--text-primary); font-weight: 500; }
+    /* 指标表分组头 */
+    .data-table tr.group-header td { background: var(--primary-light, #e8f4ff); font-weight: 600; font-size: var(--font-size-13); color: var(--primary, #1a73e8); padding: 8px 12px; border-bottom: 1px solid var(--border-light); }
+    /* 版本时间轴 */
+    .version-timeline { padding-left: 20px; border-left: 2px solid var(--primary, #1a73e8); margin-top: 8px; }
+    .version-timeline .vt-item { position: relative; padding: 0 0 18px 16px; font-size: var(--font-size-13); color: var(--text-secondary); }
+    .version-timeline .vt-item:last-child { padding-bottom: 0; }
+    .version-timeline .vt-item::before { content: ''; position: absolute; left: -25px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg-card); border: 3px solid var(--primary, #1a73e8); }
+    .version-timeline .vt-item.current::before { background: var(--primary, #1a73e8); }
+    .version-timeline .vt-item .vt-year { font-weight: 600; color: var(--text-primary); margin-right: 6px; }
+    .version-timeline .vt-item .vt-detail { color: var(--text-secondary); }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
-  <!-- 统计概览 -->
-  <div class="stat-bar">
-    <div class="stat-item"><div class="stat-num">18</div><div class="stat-label">目标总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">6</div><div class="stat-label">已下达</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">8</div><div class="stat-label">执行中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--error)">2</div><div class="stat-label">未完成</div></div>
-  </div>
+<body>
 
-  <!-- 预警提示 -->
-  <div class="alert alert-warning" style="margin-bottom:16px;">
-    <strong>预警规则</strong> — 完成率&lt;60%时自动提醒责任人；季度末未达标升级提醒至上级负责人
-  </div>
-
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('manage')">目标管理</div>
-    <div class="tab-item" onclick="switchTab('track')">目标分解追踪</div>
-  </div>
-
-  <!-- Tab1 目标管理 -->
-  <div id="tab-manage" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索目标名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
-          <option>制定中</option>
-          <option>已下达</option>
-          <option>执行中</option>
-          <option>已完成</option>
-          <option>未完成</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部层级</option>
-          <option>集团级</option>
-          <option>公司级</option>
-          <option>部门级</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
-      </div>
-    </div>
-    <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="openModal()">+ 新增目标</button>
-        <button class="btn btn-default">导出</button>
-      </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>目标名称</th>
-            <th>责任单位</th>
-            <th>考核年度</th>
-            <th>分解层级</th>
-            <th>完成率</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>集团年度零事故目标</td>
-            <td>集团安全管理部</td>
-            <td>2026</td>
-            <td><span class="tag tag-info">集团级</span></td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:72%; background:var(--success);"></div></div>
-                <span style="font-size:13px; font-weight:500;">72%</span>
+  <!-- 列表：左树 + 右表 -->
+  <div id="view-list" class="page-view active">
+    <div class="card page-card">
+      <div class="split-layout">
+        <aside class="split-left st-tree-panel">
+          <div class="st-tree-title">单位组织树</div>
+          <input type="text" class="form-input st-tree-search" placeholder="搜索单位" id="treeSearch">
+          <div class="st-tree-body" id="unitTree"></div>
+        </aside>
+        <div class="split-right st-main">
+          <div class="st-main-head">安全目标 · 考核指标方案<span id="currentUnitLabel">（深圳港集团）</span></div>
+          <div class="card u-content-section" style="flex-shrink:0;">
+            <div class="filter-bar u-mb-0">
+              <div class="filter-field"><span class="filter-label">年度</span>
+                <select class="form-input form-select"><option>2026</option><option>2025</option></select>
               </div>
-            </td>
-            <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>二级企业安全生产达标目标</td>
-            <td>港口物流公司</td>
-            <td>2026</td>
-            <td><span class="tag tag-info">公司级</span></td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:0%; background:var(--primary);"></div></div>
-                <span style="font-size:13px; font-weight:500;">0%</span>
+              <div class="filter-field"><span class="filter-label">方案名称</span>
+                <input class="form-input" placeholder="请输入">
               </div>
-            </td>
-            <td><span class="tag tag-issued">已下达</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td>危化品管理专项目标</td>
-            <td>危化品仓储公司</td>
-            <td>2026</td>
-            <td><span class="tag tag-info">公司级</span></td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:45%; background:var(--warning);"></div></div>
-                <span style="font-size:13px; font-weight:500; color:var(--warning);">45%</span>
+              <div class="filter-field"><span class="filter-label">状态</span>
+                <select class="form-input form-select">
+                  <option>全部</option><option>草稿</option><option>审批中</option><option>已发布</option><option>已停用</option>
+                </select>
               </div>
-            </td>
-            <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td>消防安全能力提升目标</td>
-            <td>集团安全管理部</td>
-            <td>2026</td>
-            <td><span class="tag tag-info">集团级</span></td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:88%; background:var(--success);"></div></div>
-                <span style="font-size:13px; font-weight:500;">88%</span>
+              <div class="filter-bar-actions">
+                <button class="btn btn-primary btn-sm">查询</button>
+                <button class="btn btn-default btn-sm">重置</button>
               </div>
-            </td>
-            <td><span class="tag tag-executing">执行中</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td>2025年度安全培训覆盖率</td>
-            <td>港口运营公司</td>
-            <td>2025</td>
-            <td><span class="tag tag-info">公司级</span></td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:52%; background:var(--error);"></div></div>
-                <span style="font-size:13px; font-weight:500; color:var(--error);">52%</span>
-              </div>
-            </td>
-            <td><span class="tag tag-uncompleted">未完成</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="pagination">
-        <span>共 5 条</span>
-        <div class="pagination-page active">1</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab2 目标分解追踪 -->
-  <div id="tab-track" class="tab-content">
-    <div class="card" style="padding:0; overflow:hidden;">
-      <div style="display:flex; min-height:400px;">
-        <!-- 左侧组织树 -->
-        <div class="org-tree">
-          <div class="org-tree-title">组织架构</div>
-          <div class="org-node active" onclick="selectOrg(this, 'group')">深圳港集团</div>
-          <div class="org-node-group">
-            <div class="org-node" onclick="selectOrg(this, 'company1')">港口物流公司</div>
-            <div class="org-node" onclick="selectOrg(this, 'company2')">危化品仓储公司</div>
-            <div class="org-node" onclick="selectOrg(this, 'company3')">港口运营公司</div>
-            <div class="org-node" onclick="selectOrg(this, 'company4')">航运服务公司</div>
+            </div>
+          </div>
+          <div class="card" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+            <div class="filter-actions-row">
+              <button class="btn btn-primary" data-action="openForm" data-param="'new'">+ 新建方案</button>
+              <!-- M2: 复制上年方案禁用逻辑 — 当所选单位无上年已发布方案时，此按钮应禁用 -->
+              <button class="btn btn-default" data-action="copyPrevYear" id="btnCopyPrevYear" disabled title="当前单位无上年已发布方案，无法复制">复制上年方案</button>
+              <button class="btn btn-default" id="btnRefParent" data-action="openModal" data-param="'modal-ref-parent'">引用上级方案</button>
+              <button class="btn btn-default">导出</button>
+            </div>
+            <div class="st-table-wrap table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>序号</th><th>方案名称</th><th>年度</th><th>指标项数</th><th>权重合计</th><th>适用范围摘要</th><th>状态</th><th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>2026年度安全考核指标方案</td><td>2026</td><td>12</td><td>100%</td>
+                    <td>部室 5；下属单位 8</td>
+                    <td><span class="tag tag-success">已发布</span></td>
+                    <td>
+                      <button class="btn btn-text btn-sm" data-action="openDetail" data-param="'published'">查看</button>
+                      <button class="btn btn-text btn-sm u-text-primary" data-action="reviseScheme">修订</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>2026年度方案（修订稿）</td><td>2026</td><td>11</td><td class="u-text-warning">98%</td>
+                    <td>部室 5；下属单位 8</td>
+                    <td><span class="tag tag-default">草稿</span></td>
+                    <td>
+                      <button class="btn btn-text btn-sm" data-action="openForm" data-param="'edit'">编辑</button>
+                      <button class="btn btn-text btn-sm u-text-error" data-action="deleteDraft">删除</button>
+                      <button class="btn btn-text btn-sm">提交审批</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination-bar">
+              <span class="pagination-info">共 2 条</span>
+              <select class="pagination-size"><option>10条/页</option></select>
+              <div class="pagination"><div class="pagination-page active">1</div></div>
+            </div>
           </div>
         </div>
-        <!-- 右侧目标执行情况 -->
-        <div style="flex:1; padding:16px; overflow-x:auto;">
-          <div style="font-size:15px; font-weight:500; margin-bottom:12px; color:var(--text-primary);" id="track-org-name">深圳港集团 — 目标执行情况</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑 -->
+  <div id="view-form" class="page-view">
+    <div class="card u-p-0" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;flex-shrink:0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;" id="formTitle">编辑考核指标方案</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showView" data-param="'list'">← 返回列表</button>
+      </div>
+      <div style="padding:0 24px;flex:1;min-height:0;overflow-y:auto;">
+        <div class="alert alert-info u-mt-16" id="refSourceBanner" style="display:none;">已从「深圳港集团」2026 年度已发布方案复制 10 项指标（与上级脱钩后可本地调整）</div>
+        <div class="detail-section-title">基本信息</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><span class="required">*</span>所属单位</label>
+            <div class="form-content"><input class="form-input" readonly value="深圳港集团"></div>
+          </div>
+          <div class="form-group"><label class="form-label"><span class="required">*</span>考核年度</label>
+            <div class="form-content"><select class="form-input form-select"><option>2026</option></select></div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;"><label class="form-label"><span class="required">*</span>方案名称</label>
+            <div class="form-content"><input class="form-input" value="2026年度方案（修订稿）"></div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">说明</label>
+          <div class="form-content"><textarea class="form-input" rows="2" placeholder="选填"></textarea></div>
+        </div>
+
+        <div class="detail-section-title">考核指标明细</div>
+        <div class="weight-bar warn" id="weightSum">权重合计：98%（须为 100% 方可提交审批）</div>
+        <div class="filter-actions-row u-mb-8">
+          <button class="btn btn-default btn-sm" data-action="openModal" data-param="'modal-add-system'">+ 系统指标</button>
+          <button class="btn btn-default btn-sm" data-action="openModal" data-param="'modal-add-manual'">+ 系统外指标</button>
+        </div>
+        <!-- H1: 编辑页指标表按来源模块分组 -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>序号</th><th>指标名称</th><th>类型</th><th>数据来源</th><th>目标/评价标准</th><th>权重%</th><th>操作</th></tr>
+            </thead>
+            <tbody>
+              <tr class="group-header"><td colspan="7">安全培训</td></tr>
+              <tr>
+                <td>1</td><td>培训学时完成率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>教育培训</td><td>≥95%</td><td>10</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr>
+                <td>2</td><td>安全文化建设达标</td>
+                <td><span class="source-tag source-manual">系统外</span></td><td>手工填报</td><td>达标</td><td>8</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr class="group-header"><td colspan="7">隐患排查</td></tr>
+              <tr>
+                <td>3</td><td>隐患整改率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>隐患排查治理</td><td>≥90%</td><td>15</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr>
+                <td>4</td><td>重大隐患数</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>隐患排查治理</td><td>=0</td><td>12</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr class="group-header"><td colspan="7">应急管理</td></tr>
+              <tr>
+                <td>5</td><td>应急演练完成率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>应急演练</td><td>100%</td><td>8</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr>
+                <td>6</td><td>应急预案覆盖率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>应急演练</td><td>100%</td><td>7</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr class="group-header"><td colspan="7">设备设施</td></tr>
+              <tr>
+                <td>7</td><td>设备定检率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>设备设施管理</td><td>100%</td><td>10</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr>
+                <td>8</td><td>特种设备隐患整改率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>设备设施管理</td><td>≥95%</td><td>8</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr class="group-header"><td colspan="7">其他</td></tr>
+              <tr>
+                <td>9</td><td>风险管控覆盖率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>风险管控</td><td>100%</td><td>10</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr>
+                <td>10</td><td>危险作业审批率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>危险作业</td><td>100%</td><td>7</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+              <tr>
+                <td>11</td><td>事故报告及时率</td>
+                <td><span class="source-tag source-sys">系统参数</span></td><td>事故管理</td><td>100%</td><td>3</td>
+                <td><button class="btn btn-text btn-sm u-text-error">删除</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="detail-section-title">考核适用范围</div>
+        <p class="u-hint-text u-mb-12">选中哪些即考核哪些；下属单位按<strong>单位整体</strong>考核，不分解至对方内部部室。</p>
+        <div class="scope-grid">
+          <div class="scope-panel">
+            <h4>本级考核部室 <button class="btn btn-text btn-sm">全选</button> <button class="btn btn-text btn-sm">清空</button></h4>
+            <label class="scope-item"><input type="checkbox" checked> 安全管理部</label>
+            <label class="scope-item"><input type="checkbox" checked> 综合办公室</label>
+            <label class="scope-item"><input type="checkbox"> 财务部</label>
+            <label class="scope-item"><input type="checkbox" checked> 工程技术部</label>
+          </div>
+          <div class="scope-panel">
+            <h4>下属考核单位 <button class="btn btn-text btn-sm">全选</button> <button class="btn btn-text btn-sm">清空</button></h4>
+            <label class="scope-item"><input type="checkbox" checked> 西部港区公司</label>
+            <label class="scope-item"><input type="checkbox" checked> 港口物流公司</label>
+            <label class="scope-item"><input type="checkbox" checked> 危化品仓储公司</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-footer">
+        <button class="btn btn-default" data-action="showView" data-param="'list'">取消</button>
+        <button class="btn btn-default">保存草稿</button>
+        <button class="btn btn-primary">提交审批</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 详情 -->
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0" style="flex:1;min-height:0;display:flex;flex-direction:column;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;flex-shrink:0;">
+        <div>
+          <span style="font-size:var(--font-size-16);font-weight:600;">2026年度安全考核指标方案</span>
+          <span class="tag tag-success u-ml-8">已发布</span>
+          <span class="u-ml-8" style="font-size:var(--font-size-13);color:var(--text-secondary);">2026</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-default btn-sm" data-action="reviseScheme">修订</button>
+          <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showView" data-param="'list'">← 返回列表</button>
+        </div>
+      </div>
+      <div style="padding:0 24px 24px;flex:1;overflow-y:auto;">
+        <div class="alert alert-info u-mt-16">本方案可被绩效考核引用；考核周期锁定后以快照为准。<a href="../assessment/result.html" class="u-text-primary">前往绩效考核</a></div>
+        <div class="detail-section-title">基本信息</div>
+        <div class="detail-grid u-mb-16">
+          <div class="detail-item"><span class="detail-label">所属单位</span><span class="detail-value">深圳港集团</span></div>
+          <div class="detail-item"><span class="detail-label">指标项数</span><span class="detail-value">12</span></div>
+          <div class="detail-item"><span class="detail-label">权重合计</span><span class="detail-value">100%</span></div>
+        </div>
+        <div class="detail-section-title">考核指标明细</div>
+        <div class="table-wrap u-mb-16">
+          <table class="data-table">
+            <thead><tr><th>序号</th><th>指标名称</th><th>类型</th><th>数据来源</th><th>目标/评价标准</th><th>权重%</th></tr></thead>
+            <tbody>
+              <tr class="group-header"><td colspan="6">安全培训</td></tr>
+              <tr><td>1</td><td>培训学时完成率</td><td><span class="source-tag source-sys">系统参数</span></td><td>教育培训</td><td>≥95%</td><td>10</td></tr>
+              <tr><td>2</td><td>安全文化建设达标</td><td><span class="source-tag source-manual">系统外</span></td><td>手工填报</td><td>达标</td><td>8</td></tr>
+              <tr class="group-header"><td colspan="6">隐患排查</td></tr>
+              <tr><td>3</td><td>隐患整改率</td><td><span class="source-tag source-sys">系统参数</span></td><td>隐患排查治理</td><td>≥90%</td><td>15</td></tr>
+              <tr><td>4</td><td>重大隐患数</td><td><span class="source-tag source-sys">系统参数</span></td><td>隐患排查治理</td><td>=0</td><td>12</td></tr>
+              <tr class="group-header"><td colspan="6">应急管理</td></tr>
+              <tr><td>5</td><td>应急演练完成率</td><td><span class="source-tag source-sys">系统参数</span></td><td>应急演练</td><td>100%</td><td>8</td></tr>
+              <tr><td>6</td><td>应急预案覆盖率</td><td><span class="source-tag source-sys">系统参数</span></td><td>应急演练</td><td>100%</td><td>7</td></tr>
+              <tr class="group-header"><td colspan="6">设备设施</td></tr>
+              <tr><td>7</td><td>设备定检率</td><td><span class="source-tag source-sys">系统参数</span></td><td>设备设施管理</td><td>100%</td><td>10</td></tr>
+              <tr><td>8</td><td>特种设备隐患整改率</td><td><span class="source-tag source-sys">系统参数</span></td><td>设备设施管理</td><td>≥95%</td><td>8</td></tr>
+              <tr class="group-header"><td colspan="6">其他</td></tr>
+              <tr><td>9</td><td>风险管控覆盖率</td><td><span class="source-tag source-sys">系统参数</span></td><td>风险管控</td><td>100%</td><td>10</td></tr>
+              <tr><td>10</td><td>危险作业审批率</td><td><span class="source-tag source-sys">系统参数</span></td><td>危险作业</td><td>100%</td><td>7</td></tr>
+              <tr><td>11</td><td>事故报告及时率</td><td><span class="source-tag source-sys">系统参数</span></td><td>事故管理</td><td>100%</td><td>5</td></tr>
+              <tr><td>12</td><td>安全投入执行率</td><td><span class="source-tag source-manual">系统外</span></td><td>手工填报</td><td>≥90%</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="detail-section-title">考核适用范围</div>
+        <p class="u-mb-8"><strong>本级部室：</strong>安全管理部、综合办公室、工程技术部、设备管理部、人力资源部</p>
+        <p class="u-mb-16"><strong>下属单位：</strong>西部港区公司、港口物流公司、危化品仓储公司、港口运营公司、航运服务公司、工程建设公司、信息中心、后勤保障部（8 家）</p>
+        <div class="detail-section-title">审批进度</div>
+        <div class="sign-timeline">
+          <div class="tl-item"><strong>提交审批</strong>张明 · 2026-03-01 10:00</div>
+          <div class="tl-item"><strong>安全总监审核</strong>李强 · 2026-03-02 14:30</div>
+          <div class="tl-item"><strong>分管负责人审批</strong>王磊 · 2026-03-03 09:15</div>
+          <div class="tl-item"><strong>已发布</strong>2026-03-03 09:20</div>
+        </div>
+        <div class="detail-section-title">指标版本记录</div>
+        <p class="u-hint-text u-mb-8">该方案历年版本与目标值变更记录</p>
+        <!-- M1: 版本时间轴改为方案粒度(V1/V2) -->
+        <div class="version-timeline">
+          <div class="vt-item current"><span class="vt-year">V2 (2026-03-20)</span><span class="vt-detail">已发布 · 操作人：李四（修订后重新发布）</span></div>
+          <div class="vt-item"><span class="vt-year">V1 (2026-01-15)</span><span class="vt-detail">草稿 · 操作人：张三（首次创建）</span></div>
+          <div class="vt-item"><span class="vt-year">V1 (2025-02-10)</span><span class="vt-detail">已发布 · 操作人：王五（2025年度方案）</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H2: 从上级引入指标 — 系统自动锁定直接上级最新已发布方案，无需下拉选择 -->
+  <div class="modal-overlay" id="modal-ref-parent">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>从上级引入指标</h3>
+        <div class="sub">系统自动锁定直接上级单位「深圳港集团」的最新已发布方案；复制后与上级脱钩，可本地调整</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">上级方案</label>
+          <div style="padding:8px 12px;background:var(--bg-table-header);border-radius:var(--radius-sm);font-size:var(--font-size-13);color:var(--text-primary);">
+            已自动锁定：深圳港集团 2026年度安全考核指标方案（已发布）
+          </div>
+        </div>
+        <div class="table-wrap u-mt-12">
           <table class="data-table">
             <thead>
               <tr>
-                <th>目标名称</th>
-                <th>分解指标</th>
-                <th>当前值</th>
-                <th>目标值</th>
-                <th>完成率</th>
-                <th>状态</th>
+                <th style="width:40px;"><input type="checkbox" checked title="全选"></th>
+                <th>指标名称</th><th>类型</th><th>模块</th><th>标准</th><th>权重%</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>集团年度零事故目标</td>
-                <td>重大事故数</td>
-                <td>0</td>
-                <td>0</td>
-                <td><span style="color:var(--success); font-weight:500;">100%</span></td>
-                <td><span class="tag tag-executing">执行中</span></td>
-              </tr>
-              <tr>
-                <td>集团年度零事故目标</td>
-                <td>一般事故数</td>
-                <td>2</td>
-                <td>0</td>
-                <td><span style="color:var(--error); font-weight:500;">未达标</span></td>
-                <td><span class="tag tag-uncompleted">未完成</span></td>
-              </tr>
-              <tr>
-                <td>消防安全能力提升目标</td>
-                <td>消防设施完好率</td>
-                <td>96%</td>
-                <td>100%</td>
-                <td><span style="color:var(--success); font-weight:500;">96%</span></td>
-                <td><span class="tag tag-executing">执行中</span></td>
-              </tr>
-              <tr>
-                <td>消防安全能力提升目标</td>
-                <td>消防演练覆盖率</td>
-                <td>88%</td>
-                <td>100%</td>
-                <td><span style="color:var(--success); font-weight:500;">88%</span></td>
-                <td><span class="tag tag-executing">执行中</span></td>
-              </tr>
-              <tr>
-                <td>安全培训覆盖率</td>
-                <td>全员培训率</td>
-                <td>72%</td>
-                <td>100%</td>
-                <td><span style="color:var(--warning); font-weight:500;">72%</span></td>
-                <td><span class="tag tag-executing">执行中</span></td>
-              </tr>
+              <tr><td><input type="checkbox" checked></td><td>隐患整改率</td><td>系统参数</td><td>隐患排查</td><td>≥90%</td><td>15</td></tr>
+              <tr><td><input type="checkbox" checked></td><td>培训学时完成率</td><td>系统参数</td><td>教育培训</td><td>≥95%</td><td>10</td></tr>
+              <tr><td><input type="checkbox" checked></td><td>应急演练完成率</td><td>系统参数</td><td>应急演练</td><td>100%</td><td>8</td></tr>
             </tbody>
-            <tfoot>
-              <tr style="background:var(--bg-table-header); font-weight:500;">
-                <td colspan="4">汇总</td>
-                <td><span style="color:var(--primary); font-weight:600;">72%</span></td>
-                <td>执行中</td>
-              </tr>
-            </tfoot>
           </table>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="closeModal" data-param="'modal-ref-parent'">取消</button>
+        <button class="btn btn-primary" data-action="confirmRefParent">确认引入并编辑</button>
       </div>
     </div>
   </div>
 
-  <!-- 新增目标弹窗 -->
-  <div class="modal-overlay" id="modal-add">
-    <div class="modal">
-      <div class="modal-header"><h3>新增安全目标</h3><button class="btn btn-text btn-sm" onclick="closeModal()" style="font-size:18px; color:var(--text-description);">&times;</button></div>
+  <!-- 系统指标 -->
+  <div class="modal-overlay" id="modal-add-system">
+    <div class="modal" style="width:min(640px,94vw);">
+      <div class="modal-header"><h3>添加系统指标</h3></div>
       <div class="modal-body">
-      <div class="form-group">
-        <div class="form-label"><span class="required">*</span>目标名称</div>
-        <div class="form-content"><input class="form-input" placeholder="请输入目标名称"></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label"><span class="required">*</span>责任单位</div>
-        <div class="form-content">
-          <select class="form-input form-select">
-            <option>请选择责任单位</option>
-            <option>集团安全管理部</option>
-            <option>港口物流公司</option>
-            <option>危化品仓储公司</option>
-            <option>港口运营公司</option>
-          </select>
+        <div class="form-group">
+          <label class="form-label">业务模块</label>
+          <select class="form-input form-select"><option>隐患排查治理</option><option>教育培训</option><option>危险作业</option><option>事故管理</option><option>应急演练</option><option>风险管控</option></select>
         </div>
-      </div>
-      <div class="form-group">
-        <div class="form-label"><span class="required">*</span>考核年度</div>
-        <div class="form-content">
-          <select class="form-input form-select">
-            <option>2026</option>
-            <option>2025</option>
-          </select>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th style="width:40px;"></th><th>参数名称</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td><input type="checkbox"></td><td>隐患整改率</td><td>周期内已整改/应整改</td></tr>
+              <tr><td><input type="checkbox"></td><td>重大隐患数</td><td>自动从事故隐患模块统计</td></tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">目标描述</div>
-        <div class="form-content"><textarea class="form-input" style="height:80px; padding:8px 12px;" placeholder="请输入目标描述"></textarea></div>
-      </div>
-      <div class="form-group">
-        <div class="form-label">关联指标</div>
-        <div class="form-content"><input class="form-input" placeholder="如：重大事故数、培训覆盖率等，多个用逗号分隔"></div>
-      </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal()">取消</button>
-        <button class="btn btn-primary">确定</button>
+        <button class="btn btn-default" data-action="closeModal" data-param="'modal-add-system'">取消</button>
+        <button class="btn btn-primary" data-action="closeModal" data-param="'modal-add-system'">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统外 -->
+  <div class="modal-overlay" id="modal-add-manual">
+    <div class="modal" style="width:min(480px,94vw);">
+      <div class="modal-header"><h3>添加系统外指标</h3></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label"><span class="required">*</span>指标名称</label>
+          <input class="form-input" placeholder="请输入"></div>
+        <div class="form-group"><label class="form-label"><span class="required">*</span>目标/评价标准</label>
+          <input class="form-input" placeholder="请输入"></div>
+        <div class="form-group"><label class="form-label"><span class="required">*</span>权重%</label>
+          <input class="form-input" type="number" placeholder="0-100"></div>
+        <!-- L1: 系统外指标弹窗加备注字段 -->
+        <div class="form-group"><label class="form-label">备注</label>
+          <textarea class="form-input" rows="2" placeholder="选填，补充说明指标来源或计算方式"></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="closeModal" data-param="'modal-add-manual'">取消</button>
+        <button class="btn btn-primary" data-action="closeModal" data-param="'modal-add-manual'">确定</button>
       </div>
     </div>
   </div>
 
   <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
+  (function() {
+    var currentUnit = 'group';
+
+    // ---- 各单位方案模拟数据 ----
+    var _planData = {
+      group: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:12, weight:'100%', scope:'部室 5；下属单位 8', status:'tag-success', statusText:'已发布', operable:'published' },
+        { name:'2026年度方案（修订稿）', year:'2026', count:11, weight:'98%', weightWarn:true, scope:'部室 5；下属单位 8', status:'tag-default', statusText:'草稿', operable:'draft' }
+      ],
+      u01: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:8, weight:'100%', scope:'部门 3；下属单位 2', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u02: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:7, weight:'100%', scope:'部门 2；下属单位 3', status:'tag-success', statusText:'已发布', operable:'published' },
+        { name:'2026年度方案（修订稿）', year:'2026', count:6, weight:'95%', weightWarn:true, scope:'部门 2', status:'tag-default', statusText:'草稿', operable:'draft' }
+      ],
+      u03: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:6, weight:'100%', scope:'部门 2', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u04: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:5, weight:'100%', scope:'部门 2', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u05: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:6, weight:'100%', scope:'部门 2', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u06: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:4, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' },
+        { name:'2026年度方案（修订稿）', year:'2026', count:4, weight:'90%', weightWarn:true, scope:'部门 1', status:'tag-default', statusText:'草稿', operable:'draft' }
+      ],
+      u07: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:7, weight:'100%', scope:'部门 2', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u08: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:4, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u09: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:5, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u10: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:5, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u11: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:4, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' },
+        { name:'2025年度安全考核指标方案', year:'2025', count:4, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u12: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:5, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' }
+      ],
+      u13: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:5, weight:'100%', scope:'部门 1', status:'tag-warning', statusText:'审批中', operable:'approving' }
+      ],
+      u14: [
+        { name:'2026年度安全考核指标方案', year:'2026', count:4, weight:'100%', scope:'部门 1', status:'tag-success', statusText:'已发布', operable:'published' }
+      ]
+    };
+
+    // 部门节点归属到其父单位
+    var _deptParent = { 'd01':'group','d02':'group','d03':'group','d04':'group','d05':'group','d06':'group','d07':'group','d08':'group','d09':'group','d10':'group','d11':'group','d12':'group','d13':'group','d14':'group','d15':'group','d16':'group' };
+    // 从 org-data 填充部门→单位映射
+    function _buildDeptMap() {
+      if (typeof orgList === 'undefined') return;
+      var root = orgList[0];
+      if (!root || !root.children) return;
+      // 集团直属部门
+      root.children.forEach(function(c) {
+        if (c.type === '部门') _deptParent[c.id] = 'group';
+      });
+      // 各单位下属部门
+      root.children.forEach(function(unit) {
+        if (unit.type !== '单位' || !unit.children) return;
+        unit.children.forEach(function(dept) {
+          _deptParent[dept.id] = unit.id;
+        });
+      });
     }
 
-    function selectOrg(el, orgId) {
-      document.querySelectorAll('.org-node').forEach(n => n.classList.remove('active'));
-      el.classList.add('active');
-      var nameMap = {
-        'group': '深圳港集团',
-        'company1': '港口物流公司',
-        'company2': '危化品仓储公司',
-        'company3': '港口运营公司',
-        'company4': '航运服务公司'
-      };
-      document.getElementById('track-org-name').textContent = nameMap[orgId] + ' — 目标执行情况';
+    function _resolveUnitId(nodeId) {
+      if (!nodeId) return 'group';
+      if (_planData[nodeId]) return nodeId;
+      if (_deptParent[nodeId]) return _deptParent[nodeId];
+      // nodeId 可能是部门但尚未在 map 中，走遍历
+      return 'group';
     }
 
-    function openModal() {
-      document.getElementById('modal-add').classList.add('show');
+    function _getUnitName(unitId) {
+      if (unitId === 'group' && typeof orgList !== 'undefined' && orgList[0]) return orgList[0].name;
+      if (typeof orgList !== 'undefined' && orgList[0] && orgList[0].children) {
+        for (var i = 0; i < orgList[0].children.length; i++) {
+          var c = orgList[0].children[i];
+          if (c.id === unitId) return c.name;
+        }
+      }
+      return unitId;
     }
 
-    function closeModal() {
-      document.getElementById('modal-add').classList.remove('show');
+    // ---- 渲染表格 ----
+    function renderTable(unitId) {
+      var resolved = _resolveUnitId(unitId);
+      var plans = _planData[resolved] || [];
+      var tbody = document.querySelector('#view-list .st-table-wrap tbody');
+      if (!tbody) return;
+
+      var html = '';
+      if (plans.length === 0) {
+        html = '<tr><td colspan="8" style="text-align:center;color:var(--text-tertiary);padding:32px 0;">暂无方案数据</td></tr>';
+      } else {
+        plans.forEach(function(p, idx) {
+          var weightTd = p.weightWarn ? '<td class="u-text-warning">' + p.weight + '</td>' : '<td>' + p.weight + '</td>';
+          var ops = '';
+          if (p.operable === 'published') {
+            ops = '<button class="btn btn-text btn-sm" data-action="openDetail" data-param="\'published\'">查看</button>'
+              + '<button class="btn btn-text btn-sm u-text-primary" data-action="reviseScheme">修订</button>';
+          } else if (p.operable === 'draft') {
+            ops = '<button class="btn btn-text btn-sm" data-action="openForm" data-param="\'edit\'">编辑</button>'
+              + '<button class="btn btn-text btn-sm u-text-error" data-action="deleteDraft">删除</button>'
+              + '<button class="btn btn-text btn-sm">提交审批</button>';
+          } else if (p.operable === 'approving') {
+            ops = '<button class="btn btn-text btn-sm" data-action="openDetail" data-param="\'published\'">查看</button>';
+          }
+          html += '<tr>'
+            + '<td>' + (idx + 1) + '</td>'
+            + '<td>' + p.name + '</td>'
+            + '<td>' + p.year + '</td>'
+            + '<td>' + p.count + '</td>'
+            + weightTd
+            + '<td>' + p.scope + '</td>'
+            + '<td><span class="tag ' + p.status + '">' + p.statusText + '</span></td>'
+            + '<td>' + ops + '</td>'
+            + '</tr>';
+        });
+      }
+      tbody.innerHTML = html;
+
+      // 更新分页
+      var pagInfo = document.querySelector('#view-list .pagination-info');
+      if (pagInfo) pagInfo.textContent = '共 ' + plans.length + ' 条';
     }
 
-    document.getElementById('modal-add').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
+    function showView(id) {
+      document.querySelectorAll('.page-view').forEach(function(v) { v.classList.remove('active'); });
+      var el = document.getElementById('view-' + id);
+      if (el) el.classList.add('active');
+    }
+
+    function openModal(id) {
+      var m = document.getElementById(id);
+      if (m) m.classList.add('show');
+    }
+    function closeModal(id) {
+      var m = document.getElementById(id);
+      if (m) m.classList.remove('show');
+    }
+
+    function updateUnitContext(unitId) {
+      currentUnit = unitId;
+      var unitName = _getUnitName(unitId);
+      document.getElementById('currentUnitLabel').textContent = '（' + unitName + '）';
+
+      // 刷新右侧表格
+      renderTable(unitId);
+
+      var isGroup = (unitId === 'group');
+      var isSubUnit = !isGroup && unitId.indexOf('u') === 0;
+
+      // 引用上级方案按钮：仅下级单位可用
+      var btnRef = document.getElementById('btnRefParent');
+      if (btnRef) {
+        btnRef.disabled = !isSubUnit;
+        btnRef.title = isSubUnit ? '' : '仅下级单位可引用直接上级方案';
+      }
+      // 复制上年方案按钮
+      var btnCopy = document.getElementById('btnCopyPrevYear');
+      if (btnCopy) {
+        var resolved = _resolveUnitId(unitId);
+        var plans = _planData[resolved] || [];
+        var hasPrev = plans.some(function(p) { return p.year === '2025'; }) || isGroup;
+        btnCopy.disabled = !hasPrev;
+        btnCopy.title = hasPrev ? '' : '当前单位无上年已发布方案，无法复制';
+      }
+    }
+
+    document.body.addEventListener('click', function(e) {
+      var t = e.target.closest('[data-action]');
+      if (!t) return;
+      var action = t.getAttribute('data-action');
+      var param = t.getAttribute('data-param');
+      if (action === 'showView') {
+        showView(param.replace(/'/g, ''));
+      } else if (action === 'selectUnit') {
+        var sUnitId = t.getAttribute('data-unit') || param;
+        if (typeof selectOrgUnit === 'function' && sUnitId) { selectOrgUnit('unitTree', sUnitId); }
+        else { document.querySelectorAll('.tree-node').forEach(function(n) { n.classList.remove('active'); }); t.classList.add('active'); }
+        updateUnitContext(t.getAttribute('data-unit') || param);
+      } else if (action === 'openForm') {
+        document.getElementById('formTitle').textContent = param.indexOf('new') >= 0 ? '新建考核指标方案' : '编辑考核指标方案';
+        document.getElementById('refSourceBanner').style.display = 'none';
+        showView('form');
+      } else if (action === 'openDetail') {
+        showView('detail');
+      } else if (action === 'openModal') {
+        openModal(param.replace(/'/g, ''));
+      } else if (action === 'closeModal') {
+        closeModal(param.replace(/'/g, ''));
+      } else if (action === 'confirmRefParent') {
+        closeModal('modal-ref-parent');
+        document.getElementById('refSourceBanner').style.display = 'block';
+        document.getElementById('formTitle').textContent = '编辑考核指标方案';
+        showView('form');
+        if (typeof showToast === 'function') showToast('已引入上级指标，请调整后保存', 'success');
+      } else if (action === 'reviseScheme') {
+        document.getElementById('formTitle').textContent = '修订考核指标方案（草稿）';
+        document.getElementById('refSourceBanner').style.display = 'none';
+        showView('form');
+        if (typeof showToast === 'function') showToast('已复制为草稿，原已发布方案不变', 'info');
+      } else if (action === 'copyPrevYear') {
+        if (typeof showToast === 'function') showToast('已复制2025年度方案为草稿，请调整后保存', 'success');
+        document.getElementById('formTitle').textContent = '新建考核指标方案（复制自2025年度）';
+        document.getElementById('refSourceBanner').style.display = 'block';
+        document.getElementById('refSourceBanner').textContent = '已从2025年度方案复制指标项，可本地调整后提交审批';
+        showView('form');
+      } else if (action === 'deleteDraft') {
+        if (confirm('确定删除该草稿方案？')) {
+          if (typeof showToast === 'function') showToast('已删除（原型）', 'success');
+        }
+      }
     });
+
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.classList.remove('show');
+      });
+    });
+
+    _buildDeptMap();
+    updateUnitContext('group');
+  })();
   </script>
+  <script src="../system-admin/org-data.js"></script>
+  <script src="../shared/org-tree.js"></script>
+  <script>renderOrgTree('unitTree','currentUnitLabel',{mode:'units-only'});</script>
 </body>
 </html>

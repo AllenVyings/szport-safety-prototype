@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>扫码巡检 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; }
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 0; -webkit-overflow-scrolling: touch; background: var(--bg-gray-lighter); }
+
+    /* 扫码入口 */
+    .scan-hero { background: linear-gradient(135deg, var(--primary), #1a4fbf); padding: 30px 20px; text-align: center; color: var(--text-inverse); }
+    .scan-qr-btn { width: 120px; height: 120px; margin: 0 auto 16px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: all 0.2s; }
+    .scan-qr-btn:active { background: rgba(255,255,255,0.25); transform: scale(0.96); }
+    .scan-hero-title { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .scan-hero-desc { font-size: 13px; opacity: 0.8; }
+
+    /* 最近巡检 */
+    .section-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px; }
+    .section-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .section-more { font-size: 13px; color: var(--primary); cursor: pointer; }
+
+    /* 设备卡片 */
+    .device-list { padding: 0 12px 12px; }
+    .device-card { background: var(--bg-card); border-radius: 10px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .device-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .device-card-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .device-card-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .device-card-tag.normal { background: rgba(0,177,94,0.1); color: var(--success); }
+    .device-card-tag.overdue { background: rgba(244,67,54,0.1); color: var(--error); }
+    .device-card-tag.pending { background: rgba(233,124,0,0.1); color: var(--warning); }
+    .device-card-info { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6; }
+    .device-card-actions { display: flex; gap: 8px; }
+    .device-btn { flex: 1; height: 32px; border-radius: 16px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; }
+    .device-btn.primary { background: var(--primary); color: var(--text-inverse); }
+    .device-btn.outline { background: none; border: 1px solid var(--border); color: var(--text-secondary); }
+
+    /* 巡检检查项（扫码后） */
+    .insp-checklist { padding: 0 12px 12px; }
+    .insp-check-item { display: flex; align-items: center; gap: 10px; background: var(--bg-card); padding: 12px 14px; border-bottom: 1px solid var(--border-light); }
+    .insp-check-item:first-child { border-radius: 10px 10px 0 0; }
+    .insp-check-item:last-child { border-radius: 0 0 10px 10px; border: none; }
+    .insp-check-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .insp-check-icon.ok { background: rgba(0,177,94,0.15); color: var(--success); }
+    .insp-check-icon.warn { background: rgba(233,124,0,0.15); color: var(--warning); }
+    .insp-check-icon.fail { background: rgba(244,67,54,0.15); color: var(--error); }
+    .insp-check-icon.skip { background: var(--bg-gray-lighter); color: var(--text-description); cursor:pointer; }
+    .insp-check-item.clickable { cursor:pointer; }
+    .insp-check-item.clickable:active { background: var(--bg-gray-lighter); }
+    /* Check item action buttons */
+    .insp-check-actions { display:none; gap:6px; margin-left:4px; }
+    .insp-check-item.pending .insp-check-actions { display:flex; }
+    .insp-act-btn { width:28px; height:28px; border-radius:50%; border:1.5px solid; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; background:transparent; }
+    .insp-act-btn.ok-btn { border-color:var(--success); color:var(--success); }
+    .insp-act-btn.ok-btn:active { background:var(--success); color:#fff; }
+    .insp-act-btn.warn-btn { border-color:var(--warning); color:var(--warning); }
+    .insp-act-btn.warn-btn:active { background:var(--warning); color:#fff; }
+    .insp-act-btn.fail-btn { border-color:var(--error); color:var(--error); }
+    .insp-act-btn.fail-btn:active { background:var(--error); color:#fff; }
+    .insp-check-name { flex: 1; font-size: 14px; color: var(--text-primary); }
+    .insp-check-result { font-size: 12px; font-weight: 500; }
+    .insp-check-result.ok { color: var(--success); }
+    .insp-check-result.warn { color: var(--warning); }
+    .insp-check-result.fail { color: var(--error); }
+    .insp-check-result.skip { color: var(--text-description); }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+      <span class="mobile-nav-title">扫码巡检</span>
+    </div>
+    <div class="mobile-content">
+      <div class="scan-hero">
+        <div class="scan-qr-btn" data-action="simulateScan">📷</div>
+        <div class="scan-hero-title">扫描设备二维码</div>
+        <div class="scan-hero-desc">对准设备安全码即可开始巡检</div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">待巡检设备</div>
+        <div class="section-more" data-action="showToast" data-param="查看全部设备列表">全部 &rsaquo;</div>
+      </div>
+      <div class="device-list" id="deviceList"></div>
+
+      <div id="checklistSection" class="u-none">
+        <div class="section-header">
+          <div class="section-title">巡检检查项</div>
+          <div class="section-more u-text-success" id="checkProgress">0/6</div>
+        </div>
+        <div class="insp-checklist" id="checklistBody"></div>
+        <div style="padding:12px 12px 20px;">
+          <button class="device-btn primary" style="width:100%;height:40px;border-radius:20px;font-size:var(--font-size-15);" data-action="submitInspection">提交巡检结果</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var pendingDevices = [
+      { name:'门机MH-01', id:'EQ-001', type:'起重机械', lastInsp:'2026-05-18', status:'normal', statusName:'今日待检' },
+      { name:'岸桥QC-01', id:'EQ-002', type:'起重机械', lastInsp:'2026-05-20', status:'overdue', statusName:'已逾期' },
+      { name:'消防水泵组FP-01', id:'EQ-007', type:'消防设施', lastInsp:'2026-05-15', status:'pending', statusName:'明日待检' }
+    ];
+
+    var checkItems = [
+      { name:'金属结构检查', result:'ok', label:'正常' },
+      { name:'制动系统检查', result:'ok', label:'正常' },
+      { name:'钢丝绳检查', result:'warn', label:'轻微磨损' },
+      { name:'电气系统检查', result:'skip', label:'待检' },
+      { name:'安全装置检查', result:'skip', label:'待检' },
+      { name:'润滑系统检查', result:'skip', label:'待检' }
+    ];
+
+    function renderDeviceList() {
+      var el = document.getElementById('deviceList');
+      var html = '';
+      pendingDevices.forEach(function(dev) {
+        html += '<div class="device-card">'
+          + '<div class="device-card-header"><span class="device-card-name">' + dev.name + '</span><span class="device-card-tag ' + dev.status + '">' + dev.statusName + '</span></div>'
+          + '<div class="device-card-info">编号：' + dev.id + ' | 类型：' + dev.type + '<br>上次巡检：' + dev.lastInsp + '</div>'
+          + '<div class="device-card-actions">'
+          + '<button class="device-btn primary" data-action="simulateScan">扫码巡检</button>'
+          + '<button class="device-btn outline" data-action="showDeviceDetail">详情</button>'
+          + '</div></div>';
+      });
+      el.innerHTML = html;
+    }
+
+    function simulateScan() {
+      showToast('已识别设备：门机MH-01 (EQ-001)', 'success');
+      document.getElementById('checklistSection').style.display = 'block';
+      renderChecklist();
+    }
+
+    function renderChecklist() {
+      var el = document.getElementById('checklistBody');
+      var done = checkItems.filter(function(c) { return c.result !== 'skip'; }).length;
+      document.getElementById('checkProgress').textContent = done + '/' + checkItems.length;
+      var html = '';
+      checkItems.forEach(function(item, idx) {
+        var isPending = item.result === 'skip';
+        html += '<div class="insp-check-item' + (isPending ? ' pending' : '') + '">'
+          + '<div class="insp-check-icon ' + item.result + '">' + (item.result === 'ok' ? '✓' : item.result === 'warn' ? '!' : item.result === 'fail' ? '✗' : '…') + '</div>'
+          + '<span class="insp-check-name">' + item.name + '</span>'
+          + (isPending
+            ? '<div class="insp-check-actions">'
+              + '<button class="insp-act-btn ok-btn" data-action="setCheckResult" data-idx="' + idx + '" data-level="ok" data-label="正常">✓</button>'
+              + '<button class="insp-act-btn warn-btn" data-action="setCheckResult" data-idx="' + idx + '" data-level="warn" data-label="需关注">!</button>'
+              + '<button class="insp-act-btn fail-btn" data-action="setCheckResult" data-idx="' + idx + '" data-level="fail" data-label="异常">✗</button>'
+              + '</div>'
+            : '<span class="insp-check-result ' + item.result + '">' + item.label + '</span>')
+          + '</div>';
+      });
+      el.innerHTML = html;
+    }
+
+    function setCheckResult(idx, result, label) {
+      checkItems[idx].result = result;
+      checkItems[idx].label = label;
+      renderChecklist();
+    }
+
+    function submitInspection() {
+      var skipped = checkItems.filter(function(c) { return c.result === 'skip'; }).length;
+      if (skipped > 0) {
+        showToast('还有 ' + skipped + ' 项未检查', 'warning');
+        return;
+      }
+      var hasFail = checkItems.some(function(c) { return c.result === 'fail'; });
+      if (hasFail) {
+        showToast('巡检已提交，存在异常项将自动生成整改单', 'warning');
+      } else {
+        showToast('巡检结果已提交', 'success');
+      }
+      document.getElementById('checklistSection').style.display = 'none';
+    }
+
+    renderDeviceList();
+
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'simulateScan': simulateScan(); break;
+          case 'submitInspection': submitInspection(); break;
+          case 'showDeviceDetail': showToast('查看设备详情', 'info'); break;
+          case 'setCheckResult':
+            var idx = parseInt(btn.getAttribute('data-idx'), 10);
+            var level = btn.getAttribute('data-level');
+            var label = btn.getAttribute('data-label');
+            setCheckResult(idx, level, label);
+            break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -6,14 +6,14 @@
   <title>深圳港集团安全综合管理系统 V2.0</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/framework.css">
+  <link rel="stylesheet" href="css/variables.css?v=2.0">
+  <link rel="stylesheet" href="css/framework.css?v=2.0">
 
   <!-- 配置 -->
-  <script src="config/menus.js"></script>
+  <script src="config/menus.js?v=2.0"></script>
 
   <!-- 核心 -->
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=2.0"></script>
 
   <style>
     body { opacity: 0; transition: opacity 0.3s; }
@@ -44,7 +44,7 @@
           <div class="header-user-avatar">管</div>
           <span>管理员</span>
         </div>
-        <button class="header-btn" onclick="alert('退出功能开发中')">退出</button>
+        <button class="header-btn" onclick="if(confirm('确认退出系统？')){console.log('退出登录')}">退出</button>
       </div>
     </header>
 

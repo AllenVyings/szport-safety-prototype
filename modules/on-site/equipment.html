@@ -3,28 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>特种设备管理 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <title>设备设施管理 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>
-    /* 统计卡片 */
-    .stat-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
-    .stat-card { background:var(--bg-card); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm); text-align:center; }
-    .stat-card-label { font-size:13px; color:var(--text-secondary); margin-bottom:8px; }
-    .stat-card-value { font-size:32px; font-weight:700; line-height:1.2; }
-    .stat-card-sub { font-size:12px; color:var(--text-description); margin-top:4px; }
-    .stat-card.highlight .stat-card-value { color:var(--primary); }
-    .stat-card.success .stat-card-value { color:var(--success); }
-    .stat-card.warning .stat-card-value { color:var(--warning); }
-    .tag-info { background:rgba(144,164,174,0.1); color:#607D8B; }
+    /* 统计卡片（模块特有覆盖） */
+    .stat-cards { grid-template-columns:repeat(4,1fr); }
+    .stat-card { text-align:center; }
+    .stat-card-value { font-size:var(--font-size-32); line-height:1.2; }
+    .tag-info { background:rgba(144,164,174,0.1); color:var(--chart-blue-gray); }
     .stat-card.error .stat-card-value { color:var(--error); }
 
     /* 设备类别标签 */
-    .category-tag { display:inline-flex; align-items:center; padding:2px 10px; border-radius:var(--radius-sm); font-size:12px; font-weight:500; }
+    .category-tag { display:inline-flex; align-items:center; padding:2px 10px; border-radius:var(--radius-sm); font-size:var(--font-size-12); font-weight:500; }
     .category-tag-crane { background:rgba(35,102,236,0.1); color:var(--primary); }
     .category-tag-vehicle { background:rgba(0,177,94,0.1); color:var(--success); }
     .category-tag-vessel { background:rgba(233,124,0,0.1); color:var(--warning); }
     .category-tag-elevator { background:rgba(156,39,176,0.1); color:var(--color-elevator); }
+    .category-tag-fire { background:rgba(244,67,54,0.1); color:var(--color-red-material); }
+    .category-tag-security { background:rgba(0,150,136,0.1); color:var(--chart-teal); }
 
     /* 使用年限预警 */
     .life-warn { color:var(--warning); font-weight:600; }
@@ -35,11 +33,11 @@
     .page-view.active { display:block; }
 
     /* 页面标题 */
-    .page-heading { font-size:18px; font-weight:600; color:var(--text-primary); margin-bottom:20px; }
+    .page-heading { font-size:var(--font-size-18); font-weight:600; color:var(--text-primary); margin-bottom:20px; }
 
     /* 查看页Tab */
     .view-tab-bar { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:20px; }
-    .view-tab-item { padding:10px 24px; font-size:14px; color:var(--text-secondary); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
+    .view-tab-item { padding:10px 24px; font-size:var(--font-size-14); color:var(--text-secondary); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
     .view-tab-item:hover { color:var(--primary); }
     .view-tab-item.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:500; }
     .view-tab-content { display:none; }
@@ -48,9 +46,9 @@
     /* 详情区块（无独立卡片，靠border-top分隔） */
     .detail-section { padding:20px 0 0; margin-top:20px; border-top:1px solid var(--border-light); }
     .detail-section:first-child { border-top:none; margin-top:0; padding-top:0; }
-    .detail-section-title { font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary); }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary); }
     .detail-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px 24px; }
-    .detail-field { font-size:13px; }
+    .detail-field { font-size:var(--font-size-13); }
     .detail-field .label { color:var(--text-secondary); margin-bottom:2px; }
     .detail-field .value { color:var(--text-primary); font-weight:500; }
     .detail-grid.cols-2 { grid-template-columns:repeat(2,1fr); }
@@ -60,8 +58,8 @@
     .qr-left { flex:1; }
     .qr-right { flex-shrink:0; width:180px; min-height:300px; padding:20px 12px; background:var(--bg-table-stripe); border:1px solid var(--border-light); border-radius:var(--radius-lg); text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; }
     .qr-right-qrbox { width:120px; height:120px; margin-bottom:12px; background:var(--bg-card); border-radius:var(--radius-sm); padding:6px; display:flex; align-items:center; justify-content:center; }
-    .qr-right-label { font-size:12px; font-weight:600; color:var(--text-primary); margin-bottom:8px; }
-    .qr-right-name { font-size:13px; color:var(--text-secondary); margin-bottom:12px; word-break:break-all; }
+    .qr-right-label { font-size:var(--font-size-12); font-weight:600; color:var(--text-primary); margin-bottom:8px; }
+    .qr-right-name { font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:12px; word-break:break-all; }
     .qr-right-actions { display:flex; gap:4px; justify-content:center; }
 
     /* 表单双列布局 */
@@ -71,12 +69,12 @@
 
     /* 配置/新增页面卡片 */
     .config-card { background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); padding:24px; margin-bottom:16px; }
-    .config-card-title { font-size:15px; font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--border-light); }
+    .config-card-title { font-size:var(--font-size-15); font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--border-light); }
 
     /* 维保到期提醒 */
     .alert-panel { background:rgba(233,124,0,0.06); border:1px solid rgba(233,124,0,0.25); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; }
-    .alert-panel h4 { color:var(--warning); font-size:14px; margin-bottom:8px; }
-    .alert-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:13px; border-bottom:1px dashed rgba(233,124,0,0.15); }
+    .alert-panel h4 { color:var(--warning); font-size:var(--font-size-14); margin-bottom:8px; }
+    .alert-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:var(--font-size-13); border-bottom:1px dashed rgba(233,124,0,0.15); }
     .alert-item:last-child { border:none; }
 
     /* 时间线 */
@@ -86,169 +84,211 @@
     .timeline-item::before { content:''; position:absolute; left:-20px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--primary); border:2px solid var(--bg-card); box-shadow:0 0 0 2px var(--primary); }
     .timeline-item.warning::before { background:var(--warning); box-shadow:0 0 0 2px var(--warning); }
     .timeline-item.error::before { background:var(--error); box-shadow:0 0 0 2px var(--error); }
-    .timeline-date { font-size:12px; color:var(--text-description); margin-bottom:4px; }
-    .timeline-title { font-size:14px; color:var(--text-primary); font-weight:500; }
-    .timeline-desc { font-size:13px; color:var(--text-secondary); margin-top:4px; }
+    .timeline-date { font-size:var(--font-size-12); color:var(--text-description); margin-bottom:4px; }
+    .timeline-title { font-size:var(--font-size-14); color:var(--text-primary); font-weight:500; }
+    .timeline-desc { font-size:var(--font-size-13); color:var(--text-secondary); margin-top:4px; }
 
     /* 日历视图 */
     .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-    .calendar-cell { min-height:56px; border:1px solid var(--border-light); border-radius:4px; padding:4px; font-size:12px; position:relative; }
+    .calendar-cell { min-height:56px; border:1px solid var(--border-light); border-radius:4px; padding:4px; font-size:var(--font-size-12); position:relative; }
     .calendar-cell.header { background:var(--bg-table-header); font-weight:600; text-align:center; min-height:auto; padding:8px 4px; color:var(--text-secondary); }
     .calendar-cell.today { border-color:var(--primary); background:var(--primary-5); }
     .calendar-cell .task-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:2px; vertical-align:middle; }
     .calendar-cell .task-dot.overdue { background:var(--error); }
-    .calendar-cell .task-dot.pending { background:var(--warning); }
+    .calendar-cell .task-dot.abnormal { background:var(--warning); }
+    .calendar-cell .task-dot.pending { background:var(--chart-blue-gray); }
     .calendar-cell .task-dot.done { background:var(--success); }
-    .calendar-cell .task-count { font-size:10px; color:var(--text-description); }
+    .calendar-cell .task-count { font-size:var(--font-size-10); color:var(--text-description); }
 
     /* 扫码巡检面板 */
     .scan-panel { border:1px solid var(--border-light); border-radius:var(--radius-md); padding:16px; background:var(--bg-table-stripe); }
     .scan-panel-header { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
-    .scan-qr-box { width:100px; height:100px; border:2px dashed var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--primary); cursor:pointer; background:var(--primary-5); transition:all 0.15s; flex-shrink:0; }
+    .scan-qr-box { width:100px; height:100px; border:2px dashed var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:var(--font-size-12); color:var(--primary); cursor:pointer; background:var(--primary-5); transition:all 0.15s; flex-shrink:0; }
     .scan-qr-box:hover { background:var(--primary-10); }
-    .scan-info { font-size:13px; color:var(--text-secondary); line-height:1.8; }
-    .check-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 0; border-bottom:1px solid var(--border-light); }
+    .scan-info { font-size:var(--font-size-13); color:var(--text-secondary); line-height:1.8; }
+    .check-item { display:flex; align-items:center; gap:8px; font-size:var(--font-size-13); padding:6px 0; border-bottom:1px solid var(--border-light); }
     .check-item:last-child { border:none; }
-    .check-icon { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+    .check-icon { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:var(--font-size-11); flex-shrink:0; }
     .check-icon.ok { background:var(--success-light); color:var(--success); }
     .check-icon.warn { background:var(--warning-light); color:var(--warning); }
     .check-icon.wait { background:var(--bg-table-header); color:var(--text-description); }
     .check-result { margin-left:auto; }
 
     /* 计划配置行 */
-    .plan-row { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--border-light); font-size:13px; }
+    .plan-row { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--border-light); font-size:var(--font-size-13); }
     .plan-row:last-child { border:none; }
     .plan-label { width:120px; color:var(--text-secondary); flex-shrink:0; line-height:1.5; }
     .plan-value { color:var(--text-primary); font-weight:500; line-height:1.5; }
 
     /* 筛选标签 */
-    .filter-label { font-size:13px; color:var(--text-secondary); white-space:nowrap; flex-shrink:0; line-height:32px; }
-    .filter-bar .form-input { height:32px; font-size:13px; }
+    .filter-label { font-size:var(--font-size-13); color:var(--text-secondary); white-space:nowrap; flex-shrink:0; line-height:32px; }
+    .filter-bar .form-input { height:32px; font-size:var(--font-size-13); }
 
     /* 底部操作栏 */
     .form-footer { display:flex; justify-content:flex-end; gap:8px; padding-top:16px; border-top:1px solid var(--border-light); margin-top:24px; }
 
-    /* 操作列排版 */\n    .cell-actions { display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; }\n\n    /* 自定义语义色 */
-    :root { --color-elevator: #9C27B0; }
+    /* 按钮角标 */
+    .badge-dot { position:absolute; top:-6px; right:-8px; min-width:16px; height:16px; line-height:16px; padding:0 4px; border-radius:8px; background:var(--error); color:var(--text-inverse); font-size:var(--font-size-10); font-weight:600; text-align:center; pointer-events:none; }
+
+    /* 到期提醒Tab */
+    .expiry-tab { flex:1; text-align:center; padding:10px 0; font-size:var(--font-size-14); color:var(--text-secondary); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
+    .expiry-tab:hover { color:var(--primary); }
+    .expiry-tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:500; }
+    .expiry-content { display:none; }
+    .expiry-content.active { display:block; }
+
+    /* 关闭按钮 */
+    .modal-close { background:none; border:none; font-size:var(--font-size-18); cursor:pointer; color:var(--text-secondary); }
+
+    /* 列表：复选框/序号 + 操作列固定 + 单元格不换行 */
+    .table-wrap .data-table.eq-list-table { min-width: 1520px; table-layout: auto; }
+    .table-wrap .data-table.eq-list-table th,
+    .table-wrap .data-table.eq-list-table td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .table-wrap .data-table.eq-list-table .col-check {
+      width: 48px;
+      text-align: center;
+      overflow: visible;
+    }
+    .table-wrap .data-table.eq-list-table .col-index {
+      width: 56px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    .table-wrap .data-table.eq-list-table .col-actions {
+      min-width: 220px;
+      padding-left: 16px;
+      padding-right: 16px;
+      overflow: visible;
+      text-align: center;
+    }
+    .table-wrap .data-table.eq-list-table tbody td.col-actions > .cell-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+      justify-content: center;
+      padding: 2px 0;
+    }
+    .table-wrap .data-table.eq-list-table tbody td.col-actions .btn-text {
+      padding-left: 4px;
+      padding-right: 4px;
+      flex-shrink: 0;
+    }
+    .table-wrap .data-table.eq-list-table tbody td[title] {
+      cursor: help;
+    }
+
+    /* 自定义语义色 */
+    :root { --color-elevator: var(--color-purple-material); }
+
+    /* 文件上传区域 */
+    .file-upload-area { border:1px dashed var(--border); border-radius:var(--radius-md); padding:24px; text-align:center; cursor:pointer; transition:all 0.15s; }
+    .file-upload-area:hover { border-color:var(--primary); }
   </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+
+  <div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;"></div>
 
   <!-- ==================== 视图1：设备列表 ==================== -->
   <div id="view-list" class="page-view active">
-    <div class="stat-cards">
-      <div class="stat-card highlight">
-        <div class="stat-card-label">特种设备总数</div>
-        <div class="stat-card-value">11</div>
-        <div class="stat-card-sub">起重机械 5 / 场内车辆 3 / 压力容器 1 / 电梯 2</div>
-      </div>
-      <div class="stat-card success">
-        <div class="stat-card-label">正常使用</div>
-        <div class="stat-card-value">8</div>
-        <div class="stat-card-sub">占比 72.7%</div>
-      </div>
-      <div class="stat-card warning">
-        <div class="stat-card-label">维修中 / 停用</div>
-        <div class="stat-card-value">2</div>
-        <div class="stat-card-sub">维修中 1 / 停用 1</div>
-      </div>
-      <div class="stat-card error">
-        <div class="stat-card-label">即将到期 / 报废</div>
-        <div class="stat-card-value">1</div>
-        <div class="stat-card-sub">维保即将到期 1 / 拆除报废 0</div>
-      </div>
-    </div>
-    <div class="alert-panel" style="margin-bottom:16px;">
-      <h4>巡检到期提醒</h4>
-      <div class="alert-item"><div><span style="color:var(--text-primary);">岸桥QC-01</span><span style="color:var(--text-secondary);margin-left:12px;">每日巡检 — 今日待执行</span></div><span class="tag tag-warning">待执行</span></div>
-      <div class="alert-item"><div><span style="color:var(--text-primary);">门机MH-03</span><span style="color:var(--text-secondary);margin-left:12px;">每日巡检 — 今日待执行</span></div><span class="tag tag-warning">待执行</span></div>
-      <div class="alert-item"><div><span style="color:var(--text-primary);">门机MH-01</span><span style="color:var(--text-secondary);margin-left:12px;">每月维保 — 明日到期</span></div><span class="tag tag-error">即将到期</span></div>
-    </div>
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
+    <div class="stat-cards" id="eq-stat-cards"></div>
+    <div class="card u-content-section">
       <div class="filter-bar" style="margin-bottom:0; align-items:center;">
-        <span class="filter-label">设备名称</span><input class="form-input" id="eq-query-name" placeholder="请输入" style="width:160px">
-        <span class="filter-label">设备类别</span><select class="form-input form-select" id="eq-query-category" style="width:140px">
+        <div class="filter-field"><span class="filter-label">设备名称</span><input class="form-input" id="eq-query-name" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">设备类别</span><select class="form-input form-select" id="eq-query-category" >
           <option>全部</option>
           <option>起重机械</option>
           <option>场内机动车辆</option>
           <option>压力容器</option>
           <option>电梯</option>
-        </select>
-        <span class="filter-label">使用单位</span><select class="form-input form-select" id="eq-query-unit" style="width:140px">
+          <option>消防设施</option>
+          <option>安防设备</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">所属单位</span><select class="form-input form-select" id="eq-query-unit-parent" onchange="onUnitParentChange(this,'eq-query-unit-dept')">
           <option>全部</option>
-          <option>集装箱码头公司</option>
-          <option>散货码头公司</option>
-          <option>物流运输公司</option>
-          <option>港航建设公司</option>
-          <option>物业运营公司</option>
-        </select>
-        <span class="filter-label">状态</span><select class="form-input form-select" id="eq-query-status" style="width:120px">
+        </select></div>
+        <div class="filter-field"><span class="filter-label">下属部门</span><select class="form-input form-select" id="eq-query-unit-dept" disabled>
+          <option>全部</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">所属项目</span><select class="form-input form-select" id="eq-query-project" disabled>
+          <option value="">全部</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" id="eq-query-status" >
           <option>全部</option>
           <option>正常使用</option>
           <option>维修中</option>
           <option>停用</option>
           <option>拆除报废</option>
-        </select>
-        <button class="btn btn-primary btn-sm" onclick="queryEquipment()">查询</button>
-        <button class="btn btn-default btn-sm" onclick="resetEquipmentQuery()">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="queryEquipment">查询</button>
+        <button class="btn btn-default btn-sm" data-action="resetEquipmentQuery">重置</button></div>
       </div>
     </div>
 
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" onclick="showForm('add')">+ 新增设备</button>
-        <button class="btn btn-default btn-sm">导入</button>
-        <button class="btn btn-default btn-sm">导出</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary btn-sm" data-action="showForm" data-param="'add'">+ 新增设备</button>
+        <button class="btn btn-sm" style="position:relative;background:rgba(233,124,0,0.1);color:var(--warning);border-color:rgba(233,124,0,0.3);" data-action="showModal" data-param="modal-expiry-alert">到期提醒<span class="badge-dot">5</span></button>
+        <div style="position:relative; display:inline-block;">
+          <button class="btn btn-default btn-sm" data-action="toggleBatchMenu">批量操作 ▾</button>
+          <div id="batch-menu" style="display:none;position:absolute;top:100%;left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:100;min-width:120px;">
+            <div style="padding:8px 12px;font-size:var(--font-size-13);cursor:pointer;border-bottom:1px solid var(--border-light);" data-action="showToast" data-param="已导出选中设备">批量导出</div>
+            <div style="padding:8px 12px;font-size:var(--font-size-13);cursor:pointer;border-bottom:1px solid var(--border-light);" data-action="showToast" data-param="已生成巡检计划">生成巡检计划</div>
+            <div style="padding:8px 12px;font-size:var(--font-size-13);cursor:pointer;color:var(--error);" data-action="showToast" data-param="已标记报废">批量报废</div>
+          </div>
+        </div>
+        <button class="btn btn-default btn-sm" data-action="showToast" data-param="模板下载中...">导入</button>
+        <button class="btn btn-default btn-sm" data-action="showToast" data-param="数据导出中...">导出</button>
       </div>
-      <table class="data-table">
+      <div class="table-wrap">
+      <table class="data-table eq-list-table">
         <thead>
           <tr>
-            <th style="width:40px"><input type="checkbox" id="checkAll" onclick="toggleCheckAll()"></th>
-            <th style="width:50px">序号</th>
+            <th class="col-check"><input type="checkbox" id="checkAll" data-action="toggleCheckAll"></th>
+            <th class="col-index">序号</th>
             <th>设备名称</th>
             <th>设备型号</th>
             <th>设备类别</th>
+            <th>所属单位</th>
+            <th>所属项目</th>
+            <th>状态</th>
+            <th>责任人</th>
             <th>使用年限</th>
             <th>投入使用日期</th>
-            <th>使用单位</th>
-            <th>责任人</th>
             <th>最近巡检</th>
             <th>下次维保</th>
-            <th>状态</th>
-            <th>操作</th>
+            <th class="col-actions">操作</th>
           </tr>
         </thead>
         <tbody id="equipmentTableBody"></tbody>
       </table>
+      </div>
       <div class="pagination-bar">
-          <div class="pagination-info">共 11 条</div>
-          <div class="pagination-size">
-            <select class="form-input form-select" style="width:80px;height:28px;font-size:12px;" onchange="changeEqPageSize()" id="eq-page-size">
-              <option>10</option>
-              <option>20</option>
-              <option>50</option>
-            </select>
-          </div>
-          <div class="pagination">
-            <div class="pagination-page active">1</div>
-            <div class="pagination-page">2</div>
-          </div>
-          <div class="pagination-jump">前往 <input type="number" min="1" value="1" style="width:48px;height:28px;text-align:center;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;" onkeydown="if(event.key==='Enter')goEqPage()"> 页</div>
-        </div>
+  <span class="pagination-info">共 1 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- ==================== 视图2：查看详情 ==================== -->
   <div id="view-detail" class="page-view">
-    <div class="card" style="padding:0;">
+    <div class="card u-p-0">
       <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px 0;">
-        <div class="page-heading" style="margin-bottom:0;">设备详情</div>
-        <button style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:13px;border:none;cursor:pointer;" onclick="showView('list')">&larr; 返回设备列表</button>
+        <div class="page-heading u-mb-0">设备详情</div>
+        <button style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showView" data-param="'list'">&larr; 返回设备列表</button>
       </div>
       <div class="view-tab-bar" style="margin:0 24px;">
-        <div class="view-tab-item active" onclick="switchViewTab(this,'basic')">基础信息</div>
-        <div class="view-tab-item" onclick="switchViewTab(this,'insp')">巡检记录</div>
-        <div class="view-tab-item" onclick="switchViewTab(this,'maint')">维保记录</div>
+        <div class="view-tab-item active" data-action="switchViewTab" data-param="'basic'">基础信息</div>
+        <div class="view-tab-item" data-action="switchViewTab" data-param="'insp'">巡检记录</div>
+        <div class="view-tab-item" data-action="switchViewTab" data-param="'maint'">维保记录</div>
       </div>
       <div style="padding:20px 24px 24px;">
 
@@ -278,19 +318,22 @@
           <div class="stat-cards" id="inspStats"></div>
           <div class="detail-section">
             <div class="detail-section-title">巡检日历</div>
-            <div style="display:flex; justify-content:flex-end; gap:12px; font-size:12px; color:var(--text-secondary); margin:-10px 0 12px;">
+            <div style="display:flex; justify-content:flex-end; gap:12px; font-size:var(--font-size-12); color:var(--text-secondary); margin:-10px 0 12px;">
               <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);vertical-align:middle;margin-right:4px;"></span>已完成</span>
-              <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);vertical-align:middle;margin-right:4px;"></span>待执行</span>
-              <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--error);vertical-align:middle;margin-right:4px;"></span>逾期</span>
+              <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--chart-blue-gray);vertical-align:middle;margin-right:4px;"></span>待执行</span>
+              <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--error);vertical-align:middle;margin-right:4px;"></span>已逾期</span>
+              <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);vertical-align:middle;margin-right:4px;"></span>异常</span>
             </div>
             <div class="calendar-grid" id="inspCalendar"></div>
           </div>
           <div class="detail-section">
-            <div style="display:flex;justify-content:space-between;align-items:center;"><div class="detail-section-title" style="margin-bottom:0;">巡检记录</div><button class="btn btn-primary btn-sm" onclick="openAddInspRecord()">+ 新增巡检记录</button></div>
-            <table class="data-table" style="font-size:13px;">
-            <thead><tr><th style="width:40px"><input type="checkbox" onclick="toggleInspCheckAll()"></th><th style="width:50px">序号</th><th>巡检日期</th><th>巡检类型</th><th>巡检人员</th><th>检查项数</th><th>异常项</th><th>结果</th><th>操作</th></tr></thead>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><div class="detail-section-title u-mb-0">巡检记录</div><button class="btn btn-primary btn-sm" data-action="openAddInspRecord">+ 新增巡检记录</button></div>
+            <div class="table-wrap">
+            <table class="data-table u-fs-13">
+            <thead><tr><th style="width:40px"><input type="checkbox" data-action="toggleInspCheckAll"></th><th style="width:50px">序号</th><th>巡检日期</th><th>巡检类型</th><th>巡检人员</th><th>检查项数</th><th>异常项</th><th>结果</th><th>操作</th></tr></thead>
               <tbody id="inspRecordBody"></tbody>
             </table>
+            </div>
           </div>
           <div class="detail-section">
             <div class="detail-section-title">扫码巡检</div>
@@ -307,11 +350,13 @@
             <div class="timeline" id="maintTimeline"></div>
           </div>
           <div class="detail-section">
-            <div style="display:flex;justify-content:space-between;align-items:center;"><div class="detail-section-title" style="margin-bottom:0;">维保记录</div><button class="btn btn-primary btn-sm" onclick="openAddMaintRecord()">+ 新增维保记录</button></div>
-            <table class="data-table" style="font-size:13px;">
-            <thead><tr><th style="width:40px"><input type="checkbox" onclick="toggleMaintCheckAll()"></th><th style="width:50px">序号</th><th>维保日期</th><th>维保类型</th><th>维保人员</th><th>维保内容</th><th>费用(元)</th><th>操作</th></tr></thead>
+            <div style="display:flex;justify-content:space-between;align-items:center;"><div class="detail-section-title u-mb-0">维保记录</div><button class="btn btn-primary btn-sm" data-action="openAddMaintRecord">+ 新增维保记录</button></div>
+            <div class="table-wrap">
+            <table class="data-table u-fs-13">
+            <thead><tr><th style="width:40px"><input type="checkbox" data-action="toggleMaintCheckAll"></th><th style="width:50px">序号</th><th>维保日期</th><th>维保类型</th><th>维保人员</th><th>维保内容</th><th>费用(元)</th><th>操作</th></tr></thead>
               <tbody id="maintRecordBody"></tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -321,27 +366,31 @@
 
   <!-- ==================== 视图3：配置/新增（共用） ==================== -->
   <div id="view-form" class="page-view">
-    <div class="card" style="padding:0;">
+    <div class="card u-p-0">
       <!-- Top title bar -->
       <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px 0;">
-        <div class="page-heading" id="formHeading" style="margin-bottom:0;">新增设备</div>
-        <button style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:13px;border:none;cursor:pointer;" onclick="showView('list')">&larr; 返回设备列表</button>
+        <div class="page-heading" id="formHeading" class="u-mb-0">新增设备</div>
+        <button style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showView" data-param="'list'">&larr; 返回设备列表</button>
       </div>
 
       <!-- 基础信息 -->
       <div style="padding:20px 24px 0;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary);">基础信息</div>
+        <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary);">基础信息</div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>设备名称</label>
             <div class="form-content"><input class="form-input" id="cfgName" placeholder="请输入设备名称"></div>
           </div>
           <div class="form-group">
-            <label class="form-label"><span class="required">*</span>设备型号</label>
-            <div class="form-content"><input class="form-input" id="cfgModel" placeholder="请输入设备型号"></div>
+            <label class="form-label">设备安装位置</label>
+            <div class="form-content"><input class="form-input" id="cfgLocation" placeholder="请输入设备安装位置"></div>
           </div>
         </div>
         <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>设备型号</label>
+            <div class="form-content"><input class="form-input" id="cfgModel" placeholder="请输入设备型号"></div>
+          </div>
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>设备类别</label>
             <div class="form-content">
@@ -351,32 +400,57 @@
                 <option>场内机动车辆</option>
                 <option>压力容器</option>
                 <option>电梯</option>
+                <option>消防设施</option>
+                <option>安防设备</option>
               </select>
             </div>
           </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">是否特种设备</label>
+            <div class="form-content"><label style="display:inline-flex;align-items:center;gap:6px;font-size:var(--font-size-13);cursor:pointer;"><input type="checkbox" id="cfgIsSpecial" style="width:16px;height:16px;"> 属于特种设备目录</label></div>
+          </div>
+          <div class="form-group"></div>
+        </div>
+        </div>
+        <div class="form-row">
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>使用年限</label>
             <div class="form-content"><input class="form-input" id="cfgServiceLife" type="number" placeholder="设备设计使用年限（年）"></div>
           </div>
-        </div>
-        <div class="form-row">
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>投入使用日期</label>
             <div class="form-content"><input class="form-input" id="cfgInstallDate" type="date"></div>
           </div>
+        </div>
+        <div class="form-row">
           <div class="form-group">
-            <label class="form-label"><span class="required">*</span>使用单位</label>
+            <label class="form-label"><span class="required">*</span>所属单位</label>
             <div class="form-content">
-              <select class="form-input form-select" id="cfgUnit">
+              <select class="form-input form-select" id="cfgUnitParent" onchange="onUnitParentChange(this,'cfgUnitDept')">
                 <option value="">请选择</option>
-                <option>集装箱码头公司</option>
-                <option>散货码头公司</option>
-                <option>物流运输公司</option>
-                <option>港航建设公司</option>
-                <option>物业运营公司</option>
               </select>
             </div>
           </div>
+          <div class="form-group">
+            <label class="form-label">下属部门</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="cfgUnitDept" disabled>
+                <option value="">请选择</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">所属项目</label>
+            <div class="form-content">
+              <select class="form-input form-select" id="cfgProject" disabled>
+                <option value="">请选择</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"></div>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -389,13 +463,13 @@
           <div class="form-group form-full">
             <label class="form-label">附件上传</label>
             <div class="form-content">
-              <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:24px;text-align:center;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'" onclick="document.getElementById('cfgFileInput').click()">
-                <div style="font-size:24px;color:var(--text-description);margin-bottom:8px;">+</div>
-                <div style="font-size:13px;color:var(--text-secondary);">点击或拖拽上传</div>
-                <div style="font-size:12px;color:var(--text-description);margin-top:4px;">支持 PDF、Word、图片格式，单文件不超过 20MB</div>
-                <input type="file" id="cfgFileInput" style="display:none" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+              <div class="file-upload-area" data-action="triggerFileUpload">
+                <div style="font-size:var(--font-size-24);color:var(--text-description);margin-bottom:8px;">+</div>
+                <div style="font-size:var(--font-size-13);color:var(--text-secondary);">点击或拖拽上传</div>
+                <div style="font-size:var(--font-size-12);color:var(--text-description);margin-top:4px;">支持 PDF、Word、图片格式，单文件不超过 20MB</div>
+                <input type="file" id="cfgFileInput" class="u-none" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
               </div>
-              <div id="cfgFileList" style="margin-top:8px;font-size:13px;color:var(--text-secondary);"></div>
+              <div id="cfgFileList" style="margin-top:8px;font-size:var(--font-size-13);color:var(--text-secondary);"></div>
             </div>
           </div>
         </div>
@@ -409,7 +483,7 @@
 
       <!-- 巡检计划 -->
       <div style="padding:20px 24px 0; border-top:1px solid var(--border-light); margin-top:20px;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary);">巡检计划</div>
+        <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary);">巡检计划</div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>巡检频次</label>
@@ -444,7 +518,7 @@
 
       <!-- 维保计划 -->
       <div style="padding:20px 24px 0; border-top:1px solid var(--border-light); margin-top:20px;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary);">维保计划</div>
+        <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:16px; padding-left:10px; border-left:3px solid var(--primary);">维保计划</div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label"><span class="required">*</span>维保周期</label>
@@ -479,789 +553,51 @@
 
       <!-- Bottom actions -->
       <div style="display:flex; justify-content:center; gap:8px; padding:20px 24px 24px; border-top:1px solid var(--border-light); margin-top:20px;">
-        <button class="btn btn-default btn-sm" onclick="showView('list')">取消</button>
-        <button class="btn btn-primary btn-sm" id="formSaveBtn" onclick="submitEquipmentForm()">保存</button>
+        <button class="btn btn-default btn-sm" data-action="showView" data-param="'list'">取消</button>
+        <button class="btn btn-primary btn-sm" id="formSaveBtn" data-action="submitEquipmentForm">保存</button>
       </div>
     </div>
   </div>
 
 
-  <!-- ==================== 状态变更弹窗 ==================== -->
-  <div id="modal-status" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:480px;box-shadow:var(--shadow-lg);">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:16px;font-weight:600;">变更设备状态</div>
-        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-status')">&times;</button>
-      </div>
-      <div style="padding:20px 24px;">
-        <div style="margin-bottom:16px;"><span style="color:var(--text-secondary);font-size:13px;">当前设备：</span><span id="status-eq-name" style="font-weight:600;"></span></div>
-        <div class="form-group">
-          <label class="form-label"><span class="required">*</span>变更后状态</label>
-          <div class="form-content">
-            <select class="form-input form-select" id="status-new">
-              <option value="">请选择</option>
-              <option>正常使用</option>
-              <option>维修中</option>
-              <option>停用</option>
-              <option>拆除报废</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label"><span class="required">*</span>变更原因</label>
-          <div class="form-content"><textarea class="form-input" id="status-reason" style="height:80px;padding:8px 12px;resize:vertical;" placeholder="请输入状态变更原因"></textarea></div>
-        </div>
-      </div>
-      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
-        <button class="btn btn-default btn-sm" onclick="closeModal('modal-status')">取消</button>
-        <button class="btn btn-primary btn-sm" onclick="submitStatusChange()">确认变更</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== 新增维保记录弹窗 ==================== -->
-  <div id="modal-maint" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:560px;box-shadow:var(--shadow-lg);">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:16px;font-weight:600;">新增维保记录</div>
-        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-maint')">&times;</button>
-      </div>
-      <div style="padding:20px 24px;">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span>维保日期</label>
-            <div class="form-content"><input class="form-input" id="maint-date" type="date"></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span>维保类型</label>
-            <div class="form-content">
-              <select class="form-input form-select" id="maint-type">
-                <option value="">请选择</option>
-                <option>常规保养</option>
-                <option>故障维修</option>
-                <option>年度大修</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span>维保人员</label>
-            <div class="form-content"><input class="form-input" id="maint-person" placeholder="维保人员姓名"></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">费用(元)</label>
-            <div class="form-content"><input class="form-input" id="maint-cost" type="number" placeholder="0"></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label"><span class="required">*</span>维保内容</label>
-          <div class="form-content"><textarea class="form-input" id="maint-content" style="height:80px;padding:8px 12px;resize:vertical;" placeholder="维保项目说明"></textarea></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">附件上传</label>
-          <div class="form-content">
-            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:16px;text-align:center;cursor:pointer;" onclick="document.getElementById('maint-file').click()">
-              <div style="font-size:13px;color:var(--text-secondary);">点击上传维保报告</div>
-              <input type="file" id="maint-file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.png">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
-        <button class="btn btn-default btn-sm" onclick="closeModal('modal-maint')">取消</button>
-        <button class="btn btn-primary btn-sm" onclick="submitMaintRecord()">保存</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==================== 新增巡检记录弹窗 ==================== -->
-  <div id="modal-insp" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-lg);width:560px;box-shadow:var(--shadow-lg);">
-      <div style="padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
-        <div style="font-size:16px;font-weight:600;">新增巡检记录</div>
-        <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-secondary);" onclick="closeModal('modal-insp')">&times;</button>
-      </div>
-      <div style="padding:20px 24px;">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span>巡检日期</label>
-            <div class="form-content"><input class="form-input" id="insp-date" type="date"></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span>巡检类型</label>
-            <div class="form-content">
-              <select class="form-input form-select" id="insp-type">
-                <option value="">请选择</option>
-                <option>日常巡检</option>
-                <option>专项巡检</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label"><span class="required">*</span>巡检人员</label>
-            <div class="form-content"><input class="form-input" id="insp-person" placeholder="巡检人员姓名"></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">异常项数</label>
-            <div class="form-content"><input class="form-input" id="insp-abnormal" type="number" value="0" placeholder="0"></div>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">巡检说明</label>
-          <div class="form-content"><textarea class="form-input" id="insp-note" style="height:60px;padding:8px 12px;resize:vertical;" placeholder="巡检情况说明"></textarea></div>
-        </div>
-      </div>
-      <div style="padding:12px 24px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-light);">
-        <button class="btn btn-default btn-sm" onclick="closeModal('modal-insp')">取消</button>
-        <button class="btn btn-primary btn-sm" onclick="submitInspRecord()">保存</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- 弹窗模板已提取至 equipment-modals.js -->
+  <script src="equipment-data.js"></script>
+  <script src="equipment-modals.js"></script>
+  <script src="equipment-logic.js"></script>
   <script>
-    var currentDetailIndex = -1;
-
-    var equipmentData = [
-      { name:'岸桥QC-01', model:'ZPMC-65T', category:'起重机械', categoryClass:'category-tag-crane', serviceLife:30, usedYears:6, installDate:'2020-03-15', unit:'集装箱码头公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'王建国', lastInspection:'2026-05-18', nextMaintenance:'2026-07-15', remark:'主力岸桥设备',
-        inspPlan:{freq:'每日',items:12,person:'王建国',content:'外观检查、安全装置、润滑系统、钢丝绳、制动系统、电气系统、液压系统、吊具、限位装置、报警装置、防风装置、接地保护'},
-        maintPlan:{cycle:'每季度',nextDate:'2026-07-15',org:'振华重工维保部',content:'润滑系统维护、安全装置检测、制动系统校验、钢结构检查'},
-        inspRecords:[
-          {date:'2026-05-18',type:'日常巡检',person:'王建国',items:12,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-17',type:'日常巡检',person:'王建国',items:12,abnormal:1,result:'异常',resultTag:'tag-warning'},
-          {date:'2026-05-16',type:'日常巡检',person:'王建国',items:12,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-15',type:'专项巡检',person:'李明/王建国',items:16,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-14',type:'日常巡检',person:'王建国',items:12,abnormal:0,result:'正常',resultTag:'tag-success'}
-        ],
-        maintHistory:[
-          {date:'2026-05-12',type:'常规保养',person:'张工',content:'润滑系统维护、安全装置检测',cost:3200,typeTag:'tag-success'},
-          {date:'2026-03-20',type:'年度大修',person:'外委单位',content:'整机检修、钢结构探伤',cost:86000,typeTag:'tag-warning'},
-          {date:'2026-01-15',type:'常规保养',person:'张工',content:'制动系统检测、钢丝绳润滑',cost:3800,typeTag:'tag-success'}
-        ]},
-      { name:'门机MH-03', model:'DQK-25T', category:'起重机械', categoryClass:'category-tag-crane', serviceLife:25, usedYears:7, installDate:'2019-06-20', unit:'散货码头公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'陈伟', lastInspection:'2026-05-18', nextMaintenance:'2026-06-30', remark:'',
-        inspPlan:{freq:'每日',items:10,person:'陈伟',content:'外观检查、安全装置、润滑系统、钢丝绳、制动系统、电气系统、回转机构、变幅机构、防风装置、接地保护'},
-        maintPlan:{cycle:'每季度',nextDate:'2026-06-30',org:'大连重工维保部',content:'润滑系统维护、回转机构检测、制动系统校验'},
-        inspRecords:[
-          {date:'2026-05-18',type:'日常巡检',person:'陈伟',items:10,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-17',type:'日常巡检',person:'陈伟',items:10,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-16',type:'日常巡检',person:'陈伟',items:10,abnormal:1,result:'异常',resultTag:'tag-warning'},
-          {date:'2026-05-15',type:'日常巡检',person:'陈伟',items:10,abnormal:0,result:'正常',resultTag:'tag-success'}
-        ],
-        maintHistory:[
-          {date:'2026-04-28',type:'故障维修',person:'李工',content:'回转机构异常修复',cost:18500,typeTag:'tag-error'},
-          {date:'2026-02-15',type:'常规保养',person:'李工',content:'润滑系统维护、电气检测',cost:4200,typeTag:'tag-success'},
-          {date:'2025-12-10',type:'常规保养',person:'李工',content:'钢丝绳检测、制动器调整',cost:3600,typeTag:'tag-success'}
-        ]},
-      { name:'轮胎吊RT-02', model:'RTG-60T', category:'起重机械', categoryClass:'category-tag-crane', serviceLife:20, usedYears:4, installDate:'2022-01-18', unit:'集装箱码头公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'刘强', lastInspection:'2026-05-18', nextMaintenance:'2026-08-18', remark:'',
-        inspPlan:{freq:'每日',items:10,person:'刘强',content:'外观检查、安全装置、液压系统、吊具、轮胎、制动系统、转向系统、报警装置、防风装置、接地保护'},
-        maintPlan:{cycle:'每季度',nextDate:'2026-08-18',org:'振华重工维保部',content:'液压系统检查、吊具检测、轮胎检查'},
-        inspRecords:[
-          {date:'2026-05-18',type:'日常巡检',person:'刘强',items:10,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-17',type:'日常巡检',person:'刘强',items:10,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-16',type:'日常巡检',person:'刘强',items:10,abnormal:0,result:'正常',resultTag:'tag-success'}
-        ],
-        maintHistory:[
-          {date:'2026-03-08',type:'常规保养',person:'张工',content:'液压系统检查、吊具检测',cost:5600,typeTag:'tag-success'},
-          {date:'2025-12-12',type:'常规保养',person:'张工',content:'润滑系统维护、轮胎检查',cost:4800,typeTag:'tag-success'}
-        ]},
-      { name:'门机MH-01', model:'MH-16T', category:'起重机械', categoryClass:'category-tag-crane', serviceLife:25, usedYears:23, installDate:'2003-08-10', unit:'散货码头公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'陈伟', lastInspection:'2026-05-18', nextMaintenance:'2026-05-20', remark:'临近使用年限，加强监控',
-        inspPlan:{freq:'每日',items:10,person:'陈伟',content:'外观检查、安全装置、润滑系统、钢丝绳、制动系统、电气系统、回转机构、变幅机构、防风装置、接地保护'},
-        maintPlan:{cycle:'每月',nextDate:'2026-05-20',org:'大连重工维保部',content:'润滑系统维护、钢结构探伤、制动系统校验、安全装置检测'},
-        inspRecords:[
-          {date:'2026-05-18',type:'日常巡检',person:'陈伟',items:10,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-17',type:'日常巡检',person:'陈伟',items:10,abnormal:1,result:'异常',resultTag:'tag-warning'},
-          {date:'2026-05-16',type:'专项巡检',person:'陈伟/李工',items:14,abnormal:0,result:'正常',resultTag:'tag-success'}
-        ],
-        maintHistory:[
-          {date:'2026-04-05',type:'常规保养',person:'李工',content:'润滑系统维护、安全装置检测',cost:4500,typeTag:'tag-success'},
-          {date:'2026-01-10',type:'年度大修',person:'外委单位',content:'整机检修、钢结构探伤',cost:92000,typeTag:'tag-warning'}
-        ]},
-      { name:'叉车FC-07', model:'CPD-30', category:'场内机动车辆', categoryClass:'category-tag-vehicle', serviceLife:12, usedYears:8, installDate:'2018-11-05', unit:'物流运输公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'赵刚', lastInspection:'2026-05-18', nextMaintenance:'2026-07-22', remark:'',
-        inspPlan:{freq:'每日',items:5,person:'赵刚',content:'外观检查、制动系统、转向系统、液压系统、灯光喇叭'},
-        maintPlan:{cycle:'每季度',nextDate:'2026-07-22',org:'合力叉车维保部',content:'液压系统检查、制动系统维护、电瓶检测'},
-        inspRecords:[
-          {date:'2026-05-18',type:'日常巡检',person:'赵刚',items:5,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-17',type:'日常巡检',person:'赵刚',items:5,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-16',type:'日常巡检',person:'赵刚',items:5,abnormal:0,result:'正常',resultTag:'tag-success'}
-        ],
-        maintHistory:[
-          {date:'2026-02-10',type:'常规保养',person:'赵工',content:'液压系统检查、轮胎更换',cost:4500,typeTag:'tag-success'},
-          {date:'2025-11-08',type:'故障维修',person:'赵工',content:'转向机构维修',cost:6200,typeTag:'tag-error'},
-          {date:'2025-08-15',type:'常规保养',person:'赵工',content:'电瓶检测、制动调整',cost:2800,typeTag:'tag-success'}
-        ]},
-      { name:'叉车FC-12', model:'CPCD-50', category:'场内机动车辆', categoryClass:'category-tag-vehicle', serviceLife:12, usedYears:5, installDate:'2021-04-22', unit:'港航建设公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'周磊', lastInspection:'2026-05-18', nextMaintenance:'2026-08-22', remark:'',
-        inspPlan:{freq:'每日',items:5,person:'周磊',content:'外观检查、制动系统、转向系统、液压系统、灯光喇叭'},
-        maintPlan:{cycle:'每季度',nextDate:'2026-08-22',org:'合力叉车维保部',content:'液压系统检测、制动系统维护'},
-        inspRecords:[
-          {date:'2026-05-18',type:'日常巡检',person:'周磊',items:5,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-17',type:'日常巡检',person:'周磊',items:5,abnormal:0,result:'正常',resultTag:'tag-success'}
-        ],
-        maintHistory:[
-          {date:'2026-03-25',type:'常规保养',person:'赵工',content:'液压系统检测、制动系统维护',cost:3200,typeTag:'tag-success'}
-        ]},
-      { name:'液化气储罐PV-01', model:'100m³/1.6MPa', category:'压力容器', categoryClass:'category-tag-vessel', serviceLife:20, usedYears:9, installDate:'2017-05-08', unit:'散货码头公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'李军', lastInspection:'2026-05-08', nextMaintenance:'2026-10-08', remark:'特种设备强制检验',
-        inspPlan:{freq:'每月',items:8,person:'李军',content:'外观检查、安全阀、压力表、液位计、温度计、法兰密封、接地装置、应急切断阀'},
-        maintPlan:{cycle:'每半年',nextDate:'2026-10-08',org:'特检院',content:'壁厚检测、安全阀校验、内外部检验、压力试验'},
-        inspRecords:[
-          {date:'2026-05-08',type:'月度巡检',person:'李军',items:8,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-04-08',type:'月度巡检',person:'李军',items:8,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-03-08',type:'月度巡检',person:'李军',items:8,abnormal:1,result:'异常',resultTag:'tag-warning'}
-        ],
-        maintHistory:[
-          {date:'2026-04-15',type:'常规保养',person:'特检院',content:'壁厚检测、安全阀校验',cost:4200,typeTag:'tag-success'},
-          {date:'2025-10-20',type:'常规保养',person:'特检院',content:'内外部检验、压力试验',cost:5800,typeTag:'tag-success'}
-        ]},
-      { name:'货梯EL-03', model:'TKJ-2000', category:'电梯', categoryClass:'category-tag-elevator', serviceLife:15, usedYears:6, installDate:'2020-09-12', unit:'物业运营公司', status:'正常使用', statusTag:'tag-success', responsiblePerson:'孙鹏', lastInspection:'2026-05-15', nextMaintenance:'2026-09-12', remark:'',
-        inspPlan:{freq:'每周',items:6,person:'孙鹏',content:'外观检查、限速器、制动器、钢丝绳、导轨、门锁装置'},
-        maintPlan:{cycle:'每季度',nextDate:'2026-09-12',org:'电梯维保公司',content:'限速器校验、制动器检测、钢丝绳检测、导轨润滑'},
-        inspRecords:[
-          {date:'2026-05-15',type:'周度巡检',person:'孙鹏',items:6,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-08',type:'周度巡检',person:'孙鹏',items:6,abnormal:0,result:'正常',resultTag:'tag-success'},
-          {date:'2026-05-01',type:'周度巡检',person:'孙鹏',items:6,abnormal:1,result:'异常',resultTag:'tag-warning'}
-        ],
-        maintHistory:[
-          {date:'2026-04-20',type:'常规保养',person:'电梯维保公司',content:'限速器校验、制动器检测',cost:2800,typeTag:'tag-success'},
-          {date:'2026-01-15',type:'常规保养',person:'电梯维保公司',content:'钢丝绳检测、导轨润滑',cost:2200,typeTag:'tag-success'}
-        ]},
-      { name:'旧型岸桥QC-03', model:'ZPMC-50T', category:'起重机械', categoryClass:'category-tag-crane', serviceLife:30, usedYears:32, installDate:'1994-06-01', unit:'集装箱码头公司', status:'拆除报废', statusTag:'tag-error', responsiblePerson:'-', lastInspection:'2025-06-15', nextMaintenance:'-', remark:'主体结构锈蚀严重，已评估报废',
-        inspPlan:{freq:'-',items:0,person:'-',content:'已报废，停止巡检'},
-        maintPlan:{cycle:'-',nextDate:'-',org:'-',content:'已报废，停止维保'},
-        inspRecords:[
-          {date:'2025-06-15',type:'报废前终检',person:'王建国',items:12,abnormal:5,result:'异常',resultTag:'tag-error'}
-        ],
-        maintHistory:[
-          {date:'2024-12-20',type:'故障维修',person:'-',content:'主体结构锈蚀严重，评估报废',cost:0,typeTag:'tag-error'}
-        ]},
-      { name:'叉车FC-15', model:'CPCD-30', category:'场内机动车辆', categoryClass:'category-tag-vehicle', serviceLife:12, usedYears:3, installDate:'2023-02-10', unit:'物流运输公司', status:'维修中', statusTag:'tag-warning', responsiblePerson:'赵刚', lastInspection:'2026-05-10', nextMaintenance:'-', remark:'液压系统故障，已报修',
-        inspPlan:{freq:'每日',items:5,person:'赵刚',content:'外观检查、制动系统、转向系统、液压系统、灯光喇叭'},
-        maintPlan:{cycle:'-',nextDate:'-',org:'-',content:'维修中，暂停维保计划'},
-        inspRecords:[
-          {date:'2026-05-10',type:'日常巡检',person:'赵刚',items:5,abnormal:2,result:'异常',resultTag:'tag-warning'}
-        ],
-        maintHistory:[
-          {date:'2026-05-12',type:'故障维修',person:'赵工',content:'液压系统维修中',cost:8500,typeTag:'tag-error'}
-        ]},
-      { name:'货梯EL-01', model:'TKJ-1000', category:'电梯', categoryClass:'category-tag-elevator', serviceLife:15, usedYears:14, installDate:'2012-06-20', unit:'物业运营公司', status:'停用', statusTag:'tag-info', responsiblePerson:'孙鹏', lastInspection:'2026-03-20', nextMaintenance:'-', remark:'安全评估不合格，已停用待报废',
-        inspPlan:{freq:'-',items:0,person:'-',content:'已停用，暂停巡检'},
-        maintPlan:{cycle:'-',nextDate:'-',org:'-',content:'已停用，暂停维保'},
-        inspRecords:[
-          {date:'2026-03-20',type:'专项巡检',person:'孙鹏',items:6,abnormal:3,result:'异常',resultTag:'tag-error'}
-        ],
-        maintHistory:[
-          {date:'2026-03-25',type:'故障维修',person:'电梯维保公司',content:'安全评估不合格，建议报废',cost:0,typeTag:'tag-error'}
-        ]}
-    ];
-
-    // 全选/取消全选
-    function toggleCheckAll() {
-      var checked = document.getElementById('checkAll').checked;
-      document.querySelectorAll('.row-check').forEach(function(cb) { cb.checked = checked; });
-    }
-
-    // 巡检记录全选
-    function toggleInspCheckAll() {
-      var el = event.target;
-      document.querySelectorAll('.insp-row-check').forEach(function(cb) { cb.checked = el.checked; });
-    }
-
-    // 维保记录全选
-    function toggleMaintCheckAll() {
-      var el = event.target;
-      document.querySelectorAll('.maint-row-check').forEach(function(cb) { cb.checked = el.checked; });
-    }
-
-    // 渲染列表表格
-    function renderTable() {
-      var html = '';
-      for (var i = 0; i < equipmentData.length; i++) {
-        var d = equipmentData[i];
-        var remaining = d.serviceLife - d.usedYears;
-        var lifeClass = remaining <= 0 ? 'life-danger' : (remaining <= 2 ? 'life-warn' : '');
-        var lifeText = d.serviceLife + '年（已用' + d.usedYears + '年）';
-        var configBtn = d.status === '拆除报废' ? '' : '<button class="btn btn-text btn-sm" onclick="showForm(\'config\',' + i + ')">配置</button>';
-        html += '<tr>';
-        html += '<td><input type="checkbox" class="row-check"></td>';
-        html += '<td>' + (i + 1) + '</td>';
-        html += '<td>' + d.name + '</td>';
-        html += '<td>' + d.model + '</td>';
-        html += '<td><span class="category-tag ' + d.categoryClass + '">' + d.category + '</span></td>';
-        html += '<td class="' + lifeClass + '">' + lifeText + '</td>';
-        html += '<td>' + d.installDate + '</td>';
-        html += '<td>' + d.unit + '</td>';
-        html += '<td><span class="tag ' + d.statusTag + '">' + d.status + '</span></td>';
-        html += '<td><button class="btn btn-text btn-sm" onclick="showView(\'detail\',' + i + ')">查看</button>' + configBtn + '</td>';
-        html += '</tr>';
+  // ── Event-delegation IIFE ──
+  (function(){
+    document.addEventListener('click', function(e){
+      var el = e.target.closest('[data-action]');
+      if(!el) return;
+      var action = el.getAttribute('data-action');
+      var param  = el.getAttribute('data-param');
+      switch(action){
+        case 'toggleBatchMenu':
+          var m=document.getElementById('batch-menu'); if(m) m.style.display=m.style.display==='none'?'block':'none';
+          break;
+        case 'toggleCheckAll':
+          if(typeof toggleCheckAll==='function') toggleCheckAll();
+          break;
+        case 'toggleInspCheckAll':
+          if(typeof toggleInspCheckAll==='function') toggleInspCheckAll();
+          break;
+        case 'toggleMaintCheckAll':
+          if(typeof toggleMaintCheckAll==='function') toggleMaintCheckAll();
+          break;
+        case 'triggerFileUpload':
+          var f=document.getElementById('cfgFileInput'); if(f) f.click();
+          break;
+        case 'hideModal':
+          if(param) hideModal(param);
+          break;
       }
-      document.getElementById('equipmentTableBody').innerHTML = html;
-    }
-
-    // 视图切换
-    function showView(viewName, index) {
-      document.querySelectorAll('.page-view').forEach(function(v) { v.classList.remove('active'); });
-      document.getElementById('view-' + viewName).classList.add('active');
-      window.scrollTo(0, 0);
-      if (viewName === 'detail' && index !== undefined) {
-        renderDetail(index);
-      }
-    }
-
-    // 配置/新增共用入口
-    function showForm(mode, index) {
-      document.querySelectorAll('.page-view').forEach(function(v) { v.classList.remove('active'); });
-      document.getElementById('view-form').classList.add('active');
-      window.scrollTo(0, 0);
-
-      var formIds = ['cfgName','cfgModel','cfgCategory','cfgServiceLife','cfgInstallDate','cfgUnit','cfgResponsible','cfgRemark','cfgInspFreq','cfgInspItems','cfgInspPerson','cfgInspContent','cfgMaintCycle','cfgMaintNextDate','cfgMaintOrg','cfgMaintContent'];
-
-      if (mode === 'add') {
-        document.getElementById('formHeading').textContent = '新增设备';
-        document.getElementById('formSaveBtn').textContent = '保存';
-        formIds.forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el.tagName === 'SELECT') el.selectedIndex = 0;
-          else el.value = '';
-        });
-      } else if (mode === 'config' && index !== undefined) {
-        if (equipmentData[index].status === '拆除报废') { showView('list'); return; }
-        var d = equipmentData[index];
-        document.getElementById('formHeading').textContent = d.name + ' - 设备配置';
-        document.getElementById('formSaveBtn').textContent = '保存配置';
-        document.getElementById('cfgName').value = d.name;
-        document.getElementById('cfgModel').value = d.model;
-        document.getElementById('cfgCategory').value = d.category;
-        document.getElementById('cfgServiceLife').value = d.serviceLife;
-        document.getElementById('cfgInstallDate').value = d.installDate;
-        document.getElementById('cfgUnit').value = d.unit;
-        document.getElementById('cfgResponsible').value = d.responsiblePerson || '';
-        document.getElementById('cfgRemark').value = d.remark || '';
-        document.getElementById('cfgInspFreq').value = d.inspPlan.freq;
-        document.getElementById('cfgInspItems').value = d.inspPlan.items;
-        document.getElementById('cfgInspPerson').value = d.inspPlan.person;
-        document.getElementById('cfgInspContent').value = d.inspPlan.content;
-        document.getElementById('cfgMaintCycle').value = d.maintPlan.cycle;
-        document.getElementById('cfgMaintNextDate').value = d.maintPlan.nextDate !== '-' ? d.maintPlan.nextDate : '';
-        document.getElementById('cfgMaintOrg').value = d.maintPlan.org !== '-' ? d.maintPlan.org : '';
-        document.getElementById('cfgMaintContent').value = d.maintPlan.content;
-      }
-    }
-
-    // 查看页Tab切换
-    function switchViewTab(el, name) {
-      var detail = document.getElementById('view-detail');
-      detail.querySelectorAll('.view-tab-item').forEach(function(t) { t.classList.remove('active'); });
-      detail.querySelectorAll('.view-tab-content').forEach(function(t) { t.classList.remove('active'); });
-      el.classList.add('active');
-      document.getElementById('vtab-' + name).classList.add('active');
-    }
-
-    // 渲染查看详情
-    function renderDetail(index) {
-      currentDetailIndex = index;
-      var d = equipmentData[index];
-      var remaining = d.serviceLife - d.usedYears;
-      var lifeClass = remaining <= 0 ? 'life-danger' : (remaining <= 2 ? 'life-warn' : '');
-      var lifeText = remaining <= 0 ? '已超使用年限' : ('剩余' + remaining + '年');
-
-      // 基本信息（含备注，2列布局，备注独占一行）
-      var basicHtml = '';
-      basicHtml += '<div class="detail-field"><div class="label">设备名称</div><div class="value">' + d.name + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">设备型号</div><div class="value">' + d.model + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">设备类别</div><div class="value"><span class="category-tag ' + d.categoryClass + '">' + d.category + '</span></div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">使用年限</div><div class="value ' + lifeClass + '">' + d.serviceLife + '年（已用' + d.usedYears + '年，' + lifeText + '）</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">投入使用日期</div><div class="value">' + d.installDate + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">使用单位</div><div class="value">' + d.unit + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">责任人</div><div class="value">' + (d.responsiblePerson || '-') + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">最近巡检</div><div class="value">' + (d.lastInspection || '-') + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">下次维保</div><div class="value">' + (d.nextMaintenance || '-') + '</div></div>';
-      basicHtml += '<div class="detail-field"><div class="label">状态</div><div class="value"><span class="tag ' + d.statusTag + '">' + d.status + '</span>' + (d.status !== '拆除报废' ? ' <button class="btn btn-text btn-sm" onclick="changeEquipmentStatus(' + currentDetailIndex + ')" style="margin-left:8px;">变更状态</button>' : '') + '</div></div>';
-      if (d.remark) {
-        basicHtml += '<div class="detail-field form-full"><div class="label">备注</div><div class="value">' + d.remark + '</div></div>';
-      }
-      document.getElementById('detailBasicInfo').innerHTML = basicHtml;
-
-      // 二维码（右侧侧边栏：4行布局）
-      var qrHtml = '';
-      // 第一行：二维码
-      qrHtml += '<div class="qr-right-qrbox">';
-      qrHtml += '  <svg viewBox="0 0 100 100" width="108" height="108"><rect width="100" height="100" fill="#fff"/><rect x="2" y="2" width="26" height="26" fill="var(--primary)" rx="3"/><rect x="6" y="6" width="18" height="18" fill="#fff" rx="2"/><rect x="10" y="10" width="10" height="10" fill="var(--primary)" rx="1"/><rect x="72" y="2" width="26" height="26" fill="var(--primary)" rx="3"/><rect x="76" y="6" width="18" height="18" fill="#fff" rx="2"/><rect x="80" y="10" width="10" height="10" fill="var(--primary)" rx="1"/><rect x="2" y="72" width="26" height="26" fill="var(--primary)" rx="3"/><rect x="6" y="76" width="18" height="18" fill="#fff" rx="2"/><rect x="10" y="80" width="10" height="10" fill="var(--primary)" rx="1"/><rect x="35" y="5" width="5" height="5" fill="var(--primary)"/><rect x="45" y="8" width="5" height="5" fill="var(--primary)"/><rect x="55" y="5" width="5" height="5" fill="var(--primary)"/><rect x="35" y="18" width="5" height="5" fill="var(--primary)"/><rect x="50" y="15" width="5" height="5" fill="var(--primary)"/><rect x="60" y="18" width="5" height="5" fill="var(--primary)"/><rect x="8" y="35" width="5" height="5" fill="var(--primary)"/><rect x="18" y="38" width="5" height="5" fill="var(--primary)"/><rect x="28" y="35" width="5" height="5" fill="var(--primary)"/><rect x="38" y="42" width="5" height="5" fill="var(--primary)"/><rect x="48" y="35" width="5" height="5" fill="var(--primary)"/><rect x="58" y="38" width="5" height="5" fill="var(--primary)"/><rect x="68" y="35" width="5" height="5" fill="var(--primary)"/><rect x="78" y="42" width="5" height="5" fill="var(--primary)"/><rect x="88" y="35" width="5" height="5" fill="var(--primary)"/><rect x="8" y="48" width="5" height="5" fill="var(--primary)"/><rect x="22" y="45" width="5" height="5" fill="var(--primary)"/><rect x="38" y="52" width="5" height="5" fill="var(--primary)"/><rect x="52" y="48" width="5" height="5" fill="var(--primary)"/><rect x="65" y="52" width="5" height="5" fill="var(--primary)"/><rect x="75" y="45" width="5" height="5" fill="var(--primary)"/><rect x="85" y="48" width="5" height="5" fill="var(--primary)"/><rect x="8" y="58" width="5" height="5" fill="var(--primary)"/><rect x="18" y="55" width="5" height="5" fill="var(--primary)"/><rect x="32" y="58" width="5" height="5" fill="var(--primary)"/><rect x="42" y="55" width="5" height="5" fill="var(--primary)"/><rect x="55" y="58" width="5" height="5" fill="var(--primary)"/><rect x="68" y="55" width="5" height="5" fill="var(--primary)"/><rect x="78" y="58" width="5" height="5" fill="var(--primary)"/><rect x="88" y="55" width="5" height="5" fill="var(--primary)"/><rect x="35" y="72" width="5" height="5" fill="var(--primary)"/><rect x="45" y="78" width="5" height="5" fill="var(--primary)"/><rect x="55" y="72" width="5" height="5" fill="var(--primary)"/><rect x="65" y="78" width="5" height="5" fill="var(--primary)"/><rect x="75" y="72" width="5" height="5" fill="var(--primary)"/><rect x="85" y="78" width="5" height="5" fill="var(--primary)"/><rect x="35" y="88" width="5" height="5" fill="var(--primary)"/><rect x="48" y="85" width="5" height="5" fill="var(--primary)"/><rect x="60" y="90" width="5" height="5" fill="var(--primary)"/><rect x="72" y="88" width="5" height="5" fill="var(--primary)"/><rect x="82" y="90" width="5" height="5" fill="var(--primary)"/><rect x="92" y="85" width="5" height="5" fill="var(--primary)"/></svg>';
-      qrHtml += '</div>';
-      // 第二行：设备二维码标签
-      qrHtml += '<div class="qr-right-label">设备二维码</div>';
-      // 第三行：设备名称
-      qrHtml += '<div class="qr-right-name">' + d.name + '</div>';
-      // 第四行：操作按钮
-      qrHtml += '<div class="qr-right-actions"><button class="btn btn-primary btn-sm" style="font-size:11px">下载</button><button class="btn btn-default btn-sm" style="font-size:11px">打印</button></div>';
-      document.getElementById('detailQrArea').innerHTML = qrHtml;
-
-      // 巡检计划（2列布局）
-      var inspPlanHtml = '';
-      inspPlanHtml += '<div class="detail-grid">';
-      inspPlanHtml += '<div class="detail-field"><div class="label">巡检频次</div><div class="value">' + d.inspPlan.freq + '</div></div>';
-      inspPlanHtml += '<div class="detail-field"><div class="label">巡检项数</div><div class="value">' + d.inspPlan.items + '项</div></div>';
-      inspPlanHtml += '<div class="detail-field"><div class="label">巡检责任人</div><div class="value">' + d.inspPlan.person + '</div></div>';
-      inspPlanHtml += '<div class="detail-field form-full"><div class="label">巡检内容</div><div class="value">' + d.inspPlan.content + '</div></div>';
-      inspPlanHtml += '</div>';
-      document.getElementById('detailInspPlan').innerHTML = inspPlanHtml;
-
-      // 维保计划（2列布局）
-      var maintPlanHtml = '';
-      maintPlanHtml += '<div class="detail-grid">';
-      maintPlanHtml += '<div class="detail-field"><div class="label">维保周期</div><div class="value">' + d.maintPlan.cycle + '</div></div>';
-      maintPlanHtml += '<div class="detail-field"><div class="label">下次维保日期</div><div class="value">' + d.maintPlan.nextDate + '</div></div>';
-      maintPlanHtml += '<div class="detail-field"><div class="label">维保单位</div><div class="value">' + d.maintPlan.org + '</div></div>';
-      maintPlanHtml += '<div class="detail-field form-full"><div class="label">维保内容</div><div class="value">' + d.maintPlan.content + '</div></div>';
-      maintPlanHtml += '</div>';
-      document.getElementById('detailMaintPlan').innerHTML = maintPlanHtml;
-
-      // 巡检统计（动态计算）
-      var totalInsp = d.inspRecords ? d.inspRecords.length : 0;
-      var normalInsp = 0, abnormalInsp = 0;
-      if (d.inspRecords) {
-        for (var i = 0; i < d.inspRecords.length; i++) {
-          if (d.inspRecords[i].abnormal > 0) abnormalInsp++;
-          else normalInsp++;
-        }
-      }
-      var inspStatsHtml = '';
-      inspStatsHtml += '<div class="stat-card highlight"><div class="stat-card-label">巡检次数</div><div class="stat-card-value">' + totalInsp + '</div><div class="stat-card-sub">本年度累计</div></div>';
-      inspStatsHtml += '<div class="stat-card success"><div class="stat-card-label">正常</div><div class="stat-card-value">' + normalInsp + '</div><div class="stat-card-sub">占比 ' + (totalInsp > 0 ? Math.round(normalInsp / totalInsp * 100) : 0) + '%</div></div>';
-      inspStatsHtml += '<div class="stat-card warning"><div class="stat-card-label">异常</div><div class="stat-card-value">' + abnormalInsp + '</div><div class="stat-card-sub">已生成隐患工单</div></div>';
-      inspStatsHtml += '<div class="stat-card error"><div class="stat-card-label">逾期未检</div><div class="stat-card-value">0</div><div class="stat-card-sub">需立即处理</div></div>';
-      document.getElementById('inspStats').innerHTML = inspStatsHtml;
-
-      // 巡检日历（动态生成）
-      renderCalendar(d);
-
-      // 巡检记录
-      var inspBodyHtml = '';
-      if (d.inspRecords && d.inspRecords.length > 0) {
-        for (var i = 0; i < d.inspRecords.length; i++) {
-          var r = d.inspRecords[i];
-          inspBodyHtml += '<tr>';
-          inspBodyHtml += '<td><input type="checkbox" class="insp-row-check"></td>';
-          inspBodyHtml += '<td>' + (i + 1) + '</td>';
-          inspBodyHtml += '<td>' + r.date + '</td>';
-          inspBodyHtml += '<td>' + r.type + '</td>';
-          inspBodyHtml += '<td>' + r.person + '</td>';
-          inspBodyHtml += '<td>' + r.items + '</td>';
-          inspBodyHtml += '<td>' + (r.abnormal > 0 ? '<span style="color:var(--warning);font-weight:600;">' + r.abnormal + '</span>' : '0') + '</td>';
-          inspBodyHtml += '<td><span class="tag ' + r.resultTag + '">' + r.result + '</span></td>';
-          inspBodyHtml += '<td><button class="btn btn-text btn-sm">查看详情</button></td>';
-          inspBodyHtml += '</tr>';
-        }
-      } else {
-        inspBodyHtml = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-description);">暂无巡检记录</td></tr>';
-      }
-      document.getElementById('inspRecordBody').innerHTML = inspBodyHtml;
-
-      // 扫码巡检（跟随设备）
-      var scanHtml = '<div class="scan-panel-header">';
-      scanHtml += '  <div class="scan-qr-box"><div style="text-align:center;">扫码进入<br>巡检界面</div></div>';
-      scanHtml += '  <div class="scan-info">';
-      scanHtml += '    <div><strong style="color:var(--text-primary);">移动端扫码巡检流程</strong></div>';
-      scanHtml += '    <div>1. 扫描设备二维码进入巡检界面</div>';
-      scanHtml += '    <div>2. 逐项完成检查，拍照上传异常</div>';
-      scanHtml += '    <div>3. 提交巡检结果，异常项自动生成隐患工单</div>';
-      scanHtml += '  </div>';
-      scanHtml += '</div>';
-      scanHtml += '<div style="border-top:1px solid var(--border-light); padding-top:12px;">';
-      scanHtml += '  <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">当前任务：' + d.name + ' ' + d.inspPlan.freq + '巡检（共' + d.inspPlan.items + '项）</div>';
-      scanHtml += '  <div class="check-item"><span class="check-icon ok">&#10003;</span><span>设备外观完好</span><span class="tag tag-success check-result">正常</span></div>';
-      scanHtml += '  <div class="check-item"><span class="check-icon ok">&#10003;</span><span>安全防护装置有效</span><span class="tag tag-success check-result">正常</span></div>';
-      scanHtml += '  <div class="check-item"><span class="check-icon warn">!</span><span>润滑油液位</span><span class="tag tag-warning check-result">偏低</span></div>';
-      scanHtml += '  <div class="check-item"><span class="check-icon wait">&#9675;</span><span>运行声音/振动检测</span><span class="tag tag-info check-result">待检查</span></div>';
-      scanHtml += '  <div style="margin-top:12px; display:flex; gap:8px;">';
-      scanHtml += '    <button class="btn btn-primary btn-sm">提交巡检结果</button>';
-      scanHtml += '    <button class="btn btn-ghost btn-sm">上报隐患</button>';
-      scanHtml += '  </div>';
-      scanHtml += '</div>';
-      document.getElementById('inspScanPanel').innerHTML = scanHtml;
-
-      // 维保统计（动态计算）
-      var totalMaint = d.maintHistory ? d.maintHistory.length : 0;
-      var routineMaint = 0, repairMaint = 0, overhaulMaint = 0;
-      if (d.maintHistory) {
-        for (var i = 0; i < d.maintHistory.length; i++) {
-          if (d.maintHistory[i].type === '常规保养') routineMaint++;
-          else if (d.maintHistory[i].type === '故障维修') repairMaint++;
-          else if (d.maintHistory[i].type === '年度大修') overhaulMaint++;
-        }
-      }
-      var maintStatsHtml = '';
-      maintStatsHtml += '<div class="stat-card highlight"><div class="stat-card-label">维保次数</div><div class="stat-card-value">' + totalMaint + '</div><div class="stat-card-sub">本年度累计</div></div>';
-      maintStatsHtml += '<div class="stat-card success"><div class="stat-card-label">常规保养</div><div class="stat-card-value">' + routineMaint + '</div><div class="stat-card-sub">占比 ' + (totalMaint > 0 ? Math.round(routineMaint / totalMaint * 100) : 0) + '%</div></div>';
-      maintStatsHtml += '<div class="stat-card error"><div class="stat-card-label">故障维修</div><div class="stat-card-value">' + repairMaint + '</div><div class="stat-card-sub">占比 ' + (totalMaint > 0 ? Math.round(repairMaint / totalMaint * 100) : 0) + '%</div></div>';
-      maintStatsHtml += '<div class="stat-card warning"><div class="stat-card-label">年度大修</div><div class="stat-card-value">' + overhaulMaint + '</div><div class="stat-card-sub">占比 ' + (totalMaint > 0 ? Math.round(overhaulMaint / totalMaint * 100) : 0) + '%</div></div>';
-      document.getElementById('maintStats').innerHTML = maintStatsHtml;
-
-      // 维保到期提醒
-      var alertHtml = '<h4>维保到期提醒</h4>';
-      if (d.maintPlan.nextDate && d.maintPlan.nextDate !== '-') {
-        var daysToNext = Math.ceil((new Date(d.maintPlan.nextDate) - new Date('2026-05-18')) / 86400000);
-        var alertTag = 'tag-success', alertLabel = '正常';
-        if (daysToNext < 0) { alertTag = 'tag-error'; alertLabel = '已逾期'; }
-        else if (daysToNext <= 7) { alertTag = 'tag-error'; alertLabel = '即将到期（' + daysToNext + '天）'; }
-        else if (daysToNext <= 30) { alertTag = 'tag-warning'; alertLabel = daysToNext + '天内到期'; }
-        alertHtml += '<div class="alert-item">';
-        alertHtml += '  <div><span style="color:var(--text-primary);">' + d.name + '</span><span style="color:var(--text-secondary);margin-left:12px;">下次维保 ' + d.maintPlan.nextDate + '</span></div>';
-        alertHtml += '  <span class="tag ' + alertTag + '">' + alertLabel + '</span>';
-        alertHtml += '</div>';
-      }
-      document.getElementById('maintAlertPanel').innerHTML = alertHtml;
-
-      // 维保时间线
-      var tlHtml = '';
-      if (d.maintHistory && d.maintHistory.length > 0) {
-        for (var i = 0; i < d.maintHistory.length; i++) {
-          var m = d.maintHistory[i];
-          var tlClass = m.typeTag === 'tag-error' ? ' error' : (m.typeTag === 'tag-warning' ? ' warning' : '');
-          tlHtml += '<div class="timeline-item' + tlClass + '">';
-          tlHtml += '  <div class="timeline-date">' + m.date + '</div>';
-          tlHtml += '  <div class="timeline-title">' + m.type + '</div>';
-          tlHtml += '  <div class="timeline-desc">维保人员：' + m.person + ' | 内容：' + m.content + ' | 费用：￥' + m.cost.toLocaleString() + '</div>';
-          tlHtml += '</div>';
-        }
-      } else {
-        tlHtml = '<div style="text-align:center;padding:24px;color:var(--text-description);font-size:13px;">暂无维保记录</div>';
-      }
-      document.getElementById('maintTimeline').innerHTML = tlHtml;
-
-      // 维保记录列表
-      var maintBodyHtml = '';
-      if (d.maintHistory && d.maintHistory.length > 0) {
-        for (var i = 0; i < d.maintHistory.length; i++) {
-          var m = d.maintHistory[i];
-          maintBodyHtml += '<tr>';
-          maintBodyHtml += '<td><input type="checkbox" class="maint-row-check"></td>';
-          maintBodyHtml += '<td>' + (i + 1) + '</td>';
-          maintBodyHtml += '<td>' + m.date + '</td>';
-          maintBodyHtml += '<td><span class="tag ' + m.typeTag + '">' + m.type + '</span></td>';
-          maintBodyHtml += '<td>' + m.person + '</td>';
-          maintBodyHtml += '<td>' + m.content + '</td>';
-          maintBodyHtml += '<td>' + m.cost.toLocaleString() + '</td>';
-          maintBodyHtml += '<td><button class="btn btn-text btn-sm">查看报告</button></td>';
-          maintBodyHtml += '</tr>';
-        }
-      } else {
-        maintBodyHtml = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-description);">暂无维保记录</td></tr>';
-      }
-      document.getElementById('maintRecordBody').innerHTML = maintBodyHtml;
-
-      // 重置查看页Tab到第一个
-      var detail = document.getElementById('view-detail');
-      detail.querySelectorAll('.view-tab-item').forEach(function(t) { t.classList.remove('active'); });
-      detail.querySelectorAll('.view-tab-content').forEach(function(t) { t.classList.remove('active'); });
-      detail.querySelector('.view-tab-item').classList.add('active');
-      document.getElementById('vtab-basic').classList.add('active');
-    }
-
-    // 动态生成巡检日历
-    function renderCalendar(d) {
-      var days = ['一','二','三','四','五','六','日'];
-      var html = '';
-      for (var i = 0; i < 7; i++) {
-        html += '<div class="calendar-cell header">' + days[i] + '</div>';
-      }
-
-      // 构建巡检日期映射
-      var inspDateMap = {};
-      if (d.inspRecords) {
-        for (var i = 0; i < d.inspRecords.length; i++) {
-          var day = parseInt(d.inspRecords[i].date.split('-')[2], 10);
-          inspDateMap[day] = d.inspRecords[i].abnormal > 0 ? 'overdue' : 'done';
-        }
-      }
-
-      // 2026年5月1日是周五（列索引4），前面补4个空格
-      var firstDayOffset = 4;
-      for (var i = 0; i < firstDayOffset; i++) {
-        html += '<div class="calendar-cell"></div>';
-      }
-
-      for (var day = 1; day <= 31; day++) {
-        var isToday = day === 18;
-        var cellClass = 'calendar-cell' + (isToday ? ' today' : '');
-        html += '<div class="' + cellClass + '">' + day;
-        if (inspDateMap[day]) {
-          html += '<br><span class="task-dot ' + inspDateMap[day] + '"></span>';
-        } else if (isToday) {
-          html += '<br><span class="task-dot pending"></span>';
-        }
-        html += '</div>';
-      }
-
-      document.getElementById('inspCalendar').innerHTML = html;
-    }
-    // ========== 查询与重置 ==========
-    function queryEquipment() {
-      var nameVal = document.getElementById('eq-query-name').value.trim().toLowerCase();
-      var categoryVal = document.getElementById('eq-query-category').value;
-      var unitVal = document.getElementById('eq-query-unit').value;
-      var statusVal = document.getElementById('eq-query-status').value;
-      var filtered = equipmentData.filter(function(d) {
-        if (nameVal && d.name.toLowerCase().indexOf(nameVal) === -1) return false;
-        if (categoryVal !== '全部' && d.category !== categoryVal) return false;
-        if (unitVal !== '全部' && d.unit !== unitVal) return false;
-        if (statusVal !== '全部' && d.status !== statusVal) return false;
-        return true;
-      });
-      renderFilteredTable(filtered);
-    }
-
-    function resetEquipmentQuery() {
-      document.getElementById('eq-query-name').value = '';
-      document.getElementById('eq-query-category').selectedIndex = 0;
-      document.getElementById('eq-query-unit').selectedIndex = 0;
-      document.getElementById('eq-query-status').selectedIndex = 0;
-      renderTable();
-    }
-
-    function renderFilteredTable(data) {
-      var tHtml = '';
-      for (var i = 0; i < data.length; i++) {
-        var d = data[i];
-        var origIdx = equipmentData.indexOf(d);
-        var remaining = d.serviceLife - d.usedYears;
-        var lifeClass = remaining <= 0 ? 'life-danger' : (remaining <= 2 ? 'life-warn' : '');
-        var lifeText = d.serviceLife + '年（已用' + d.usedYears + '年）';
-        var configBtn = d.status === '拆除报废' ? '' : '<button class="btn btn-text btn-sm" onclick="showForm(\'config\',' + origIdx + ')">配置</button>';
-        var statusBtn = (d.status !== '拆除报废') ? '<button class="btn btn-text btn-sm" onclick="changeEquipmentStatus(' + origIdx + ')">变更状态</button>' : '';
-        var nextMaintText = d.nextMaintenance && d.nextMaintenance !== '-' ? d.nextMaintenance : '-';
-        var nextMaintClass = '';
-        if (d.nextMaintenance && d.nextMaintenance !== '-') {
-          var daysToNext = Math.ceil((new Date(d.nextMaintenance) - new Date('2026-05-20')) / 86400000);
-          if (daysToNext < 0) nextMaintClass = 'life-danger';
-          else if (daysToNext <= 7) nextMaintClass = 'life-danger';
-          else if (daysToNext <= 30) nextMaintClass = 'life-warn';
-        }
-        tHtml += '<tr>';
-        tHtml += '<td><input type="checkbox" class="row-check"></td>';
-        tHtml += '<td>' + (i + 1) + '</td>';
-        tHtml += '<td>' + d.name + '</td>';
-        tHtml += '<td>' + d.model + '</td>';
-        tHtml += '<td><span class="category-tag ' + d.categoryClass + '">' + d.category + '</span></td>';
-        tHtml += '<td class="' + lifeClass + '">' + lifeText + '</td>';
-        tHtml += '<td>' + d.installDate + '</td>';
-        tHtml += '<td>' + d.unit + '</td>';
-        tHtml += '<td>' + (d.responsiblePerson || '-') + '</td>';
-        tHtml += '<td>' + (d.lastInspection || '-') + '</td>';
-        tHtml += '<td class="' + nextMaintClass + '">' + nextMaintText + '</td>';
-        tHtml += '<td><span class="tag ' + d.statusTag + '">' + d.status + '</span></td>';
-        tHtml += '<td class="cell-actions"><button class="btn btn-text btn-sm" onclick="showView(\'detail\',' + origIdx + ')">查看</button>' + configBtn + statusBtn + '</td>';
-        tHtml += '</tr>';
-      }
-      document.getElementById('equipmentTableBody').innerHTML = tHtml;
-    }
-
-    // ========== 弹窗控制 ==========
-    function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
-    }
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-
-    // ========== 变更状态 ==========
-    var statusChangeIndex = -1;
-    function changeEquipmentStatus(index) {
-      statusChangeIndex = index;
-      var d = equipmentData[index];
-      document.getElementById('status-eq-name').textContent = d.name;
-      document.getElementById('status-new').value = '';
-      document.getElementById('status-reason').value = '';
-      openModal('modal-status');
-    }
-    function submitStatusChange() {
-      var newStatus = document.getElementById('status-new').value;
-      var reason = document.getElementById('status-reason').value.trim();
-      if (!newStatus) { alert('请选择变更后状态'); return; }
-      if (!reason) { alert('请输入变更原因'); return; }
-      var d = equipmentData[statusChangeIndex];
-      d.status = newStatus;
-      var statusTagMap = {'正常使用':'tag-success','维修中':'tag-warning','停用':'tag-info','拆除报废':'tag-error'};
-      d.statusTag = statusTagMap[newStatus] || 'tag-info';
-      if (newStatus === '拆除报废' || newStatus === '停用') {
-        d.inspPlan = {freq:'-',items:0,person:'-',content:'已' + (newStatus === '拆除报废' ? '报废' : '停用') + '，暂停巡检'};
-        d.maintPlan = {cycle:'-',nextDate:'-',org:'-',content:'已' + (newStatus === '拆除报废' ? '报废' : '停用') + '，暂停维保'};
-      }
-      closeModal('modal-status');
-      renderTable();
-      if (currentDetailIndex === statusChangeIndex) renderDetail(currentDetailIndex);
-    }
-
-    // ========== 新增维保记录 ==========
-    function openAddMaintRecord() {
-      document.getElementById('maint-date').value = '';
-      document.getElementById('maint-type').value = '';
-      document.getElementById('maint-person').value = '';
-      document.getElementById('maint-cost').value = '';
-      document.getElementById('maint-content').value = '';
-      openModal('modal-maint');
-    }
-    function submitMaintRecord() {
-      var date = document.getElementById('maint-date').value;
-      var type = document.getElementById('maint-type').value;
-      var person = document.getElementById('maint-person').value.trim();
-      var content = document.getElementById('maint-content').value.trim();
-      if (!date || !type || !person || !content) { alert('请填写必填项'); return; }
-      var cost = parseInt(document.getElementById('maint-cost').value) || 0;
-      var typeTagMap = {'常规保养':'tag-success','故障维修':'tag-error','年度大修':'tag-warning'};
-      var newRecord = {date:date, type:type, person:person, content:content, cost:cost, typeTag:typeTagMap[type]||'tag-success'};
-      if (currentDetailIndex >= 0 && equipmentData[currentDetailIndex].maintHistory) {
-        equipmentData[currentDetailIndex].maintHistory.unshift(newRecord);
-      }
-      closeModal('modal-maint');
-      renderDetail(currentDetailIndex);
-    }
-
-    // ========== 新增巡检记录 ==========
-    function openAddInspRecord() {
-      document.getElementById('insp-date').value = '';
-      document.getElementById('insp-type').value = '';
-      document.getElementById('insp-person').value = '';
-      document.getElementById('insp-abnormal').value = '0';
-      document.getElementById('insp-note').value = '';
-      openModal('modal-insp');
-    }
-    function submitInspRecord() {
-      var date = document.getElementById('insp-date').value;
-      var type = document.getElementById('insp-type').value;
-      var person = document.getElementById('insp-person').value.trim();
-      if (!date || !type || !person) { alert('请填写必填项'); return; }
-      var abnormal = parseInt(document.getElementById('insp-abnormal').value) || 0;
-      var items = currentDetailIndex >= 0 ? equipmentData[currentDetailIndex].inspPlan.items : 0;
-      var result = abnormal > 0 ? '异常' : '正常';
-      var resultTag = abnormal > 0 ? 'tag-warning' : 'tag-success';
-      var newRecord = {date:date, type:type, person:person, items:items, abnormal:abnormal, result:result, resultTag:resultTag};
-      if (currentDetailIndex >= 0 && equipmentData[currentDetailIndex].inspRecords) {
-        equipmentData[currentDetailIndex].inspRecords.unshift(newRecord);
-      }
-      closeModal('modal-insp');
-      renderDetail(currentDetailIndex);
-    }
-
-    // ========== 保存设备表单 ==========
-    function submitEquipmentForm() {
-      var name = document.getElementById('cfgName').value.trim();
-      var model = document.getElementById('cfgModel').value.trim();
-      var category = document.getElementById('cfgCategory').value;
-      var serviceLife = document.getElementById('cfgServiceLife').value;
-      var installDate = document.getElementById('cfgInstallDate').value;
-      var unit = document.getElementById('cfgUnit').value;
-      if (!name || !model || !category || !serviceLife || !installDate || !unit) {
-        alert('请填写所有必填项');
-        return;
-      }
-      alert('保存成功！');
-      showView('list');
-    }
-
-
-
-    // 初始化
-    renderTable();
+    });
+    // Backdrop click to close modals
+    document.addEventListener('click', function(e){
+      if(e.target.classList.contains('modal-overlay')) hideModal(e.target.id);
+    });
+  })();
   </script>
 </body>
 </html>

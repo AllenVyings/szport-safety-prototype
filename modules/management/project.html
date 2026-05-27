@@ -1,73 +1,80 @@
 <!DOCTYPE html>
+<!-- DEPRECATED: 已拆分为 project-info.html / project-personnel.html / project-safety.html 三个独立子模块（PRD §3.11.2），本文件保留仅供历史参考，菜单不应再指向此页 -->
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>项目信息 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-prepare { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-building { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-operating { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-ended { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
+    .tag-prepare { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-building { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-operating { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-ended { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
     .project-layout { display:flex; gap:16px; }
     .project-list { width:240px; flex-shrink:0; }
     .project-list-card { background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border-light); overflow:hidden; }
-    .project-list-header { padding:12px 16px; font-size:14px; font-weight:500; border-bottom:1px solid var(--border-light); background:var(--bg-table-header); }
-    .project-list-item { padding:10px 16px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--border-light); color:var(--text-secondary); transition:all 0.15s; }
+    .project-list-header { padding:12px 16px; font-size:var(--font-size-14); font-weight:500; border-bottom:1px solid var(--border-light); background:var(--bg-table-header); }
+    .project-list-item { padding:10px 16px; font-size:var(--font-size-13); cursor:pointer; border-bottom:1px solid var(--border-light); color:var(--text-secondary); transition:all 0.15s; }
     .project-list-item:last-child { border-bottom:none; }
     .project-list-item:hover { background:var(--bg-hover); color:var(--primary); }
     .project-list-item.active { background:var(--primary-light); color:var(--primary); font-weight:500; }
     .project-detail { flex:1; }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">项目总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">5</div><div class="stat-label">在建项目</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">5</div><div class="stat-label">在营项目</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--text-description)">2</div><div class="stat-label">已结束</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">5</div><div class="stat-label">在建项目</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">5</div><div class="stat-label">在营项目</div></div>
+    <div class="stat-item"><div class="stat-num u-text-description">2</div><div class="stat-label">已结束</div></div>
   </div>
 
   <!-- 提示框 -->
   <div class="alert alert-info" style="margin-bottom:12px">&#128279; 关联模块：现场管理-作业安全、隐患排查治理（可查看项目关联安全记录）</div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('ledger')">项目台账</div>
-    <div class="tab-item" onclick="switchTab('personnel')">项目人员</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="ledger">项目台账</div>
+      <div class="tab-item" data-action="switchTab" data-param="personnel">项目人员</div>
+      <div class="tab-item" data-action="switchTab" data-param="safety">安全记录</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab1 项目台账 -->
   <div id="tab-ledger" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索项目名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部分类</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">项目名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">分类</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>在建</option>
           <option>在营</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>筹建</option>
           <option>在建</option>
           <option>运营</option>
           <option>已结束</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showModal('addProject')">+ 新增项目</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showModal" data-param="addProject">+ 新增项目</button>
         <button class="btn btn-default">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -90,7 +97,7 @@
             <td>刘工程</td>
             <td>赵安全</td>
             <td>2025-03 ~ 2027-06</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openManagementProjectDetail" data-param="'manag-1'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -100,7 +107,7 @@
             <td>孙管理</td>
             <td>钱安全</td>
             <td>2022-01 ~ 长期</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openManagementProjectDetail" data-param="'manag-2'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -110,7 +117,7 @@
             <td>周规划</td>
             <td>吴安全</td>
             <td>2026-07 ~ 2028-12</td>
-            <td><button class="btn btn-text btn-sm">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openManagementProjectDetail" data-param="'manag-3'">查看</button><button class="btn btn-text btn-sm">编辑</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -120,14 +127,17 @@
             <td>郑项目</td>
             <td>冯安全</td>
             <td>2023-06 ~ 2026-04</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openManagementProjectDetail" data-param="'manag-4'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 4 条</span>
-        <div class="pagination-page active">1</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 4 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
@@ -138,18 +148,19 @@
       <div class="project-list">
         <div class="project-list-card">
           <div class="project-list-header">项目列表</div>
-          <div class="project-list-item active" onclick="selectProject(this, 'p1')">盐田港区集装箱码头扩建工程</div>
-          <div class="project-list-item" onclick="selectProject(this, 'p2')">前海综合枢纽运营项目</div>
-          <div class="project-list-item" onclick="selectProject(this, 'p3')">大铲湾危化品仓储基地建设</div>
+          <div class="project-list-item active" data-action="selectProject" data-param="p1">盐田港区集装箱码头扩建工程</div>
+          <div class="project-list-item" data-action="selectProject" data-param="p2">前海综合枢纽运营项目</div>
+          <div class="project-list-item" data-action="selectProject" data-param="p3">大铲湾危化品仓储基地建设</div>
         </div>
       </div>
       <!-- 右侧人员台账 -->
       <div class="project-detail">
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div style="font-size:14px; font-weight:500;">盐田港区集装箱码头扩建工程 - 人员台账</div>
+            <div style="font-size:var(--font-size-14); font-weight:500;">盐田港区集装箱码头扩建工程 - 人员台账</div>
             <button class="btn btn-primary btn-sm">+ 添加人员</button>
           </div>
+          <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
@@ -167,82 +178,180 @@
                 <td>1</td>
                 <td>张建国</td>
                 <td>项目经理</td>
-                <td><span class="tag tag-success" style="font-size:11px; margin-left:4px;">注册安全工程师</span></td>
+                <td><span class="tag tag-success" style="font-size:var(--font-size-11); margin-left:4px;">注册安全工程师</span></td>
                 <td>2025-03-01</td>
                 <td>-</td>
-                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">退场</button></td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-error">退场</button></td>
               </tr>
               <tr>
                 <td>2</td>
                 <td>李施工</td>
                 <td>现场施工员</td>
-                <td><span class="tag tag-success" style="font-size:11px; margin-left:4px;">安全员证</span></td>
+                <td><span class="tag tag-success" style="font-size:var(--font-size-11); margin-left:4px;">安全员证</span></td>
                 <td>2025-04-15</td>
                 <td>-</td>
-                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" style="color:var(--error)">退场</button></td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm u-text-error">退场</button></td>
               </tr>
               <tr>
                 <td>3</td>
                 <td>王操作</td>
                 <td>塔吊操作员</td>
-                <td><span class="tag tag-error" style="font-size:11px; margin-left:4px;">资质到期</span></td>
+                <td><span class="tag tag-error" style="font-size:var(--font-size-11); margin-left:4px;">资质到期</span></td>
                 <td>2025-05-01</td>
                 <td>2026-02-28</td>
-                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">查看</button></td>
+                <td><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm" data-action="openManagementProjectDetail" data-param="'manag-5'">查看</button></td>
               </tr>
             </tbody>
           </table>
-          <div class="pagination">
-            <span>共 3 条</span>
-            <div class="pagination-page active">1</div>
+          </div>
+          <div class="pagination-bar">
+  <span class="pagination-info">共 3 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab3 安全记录 -->
+  <div id="tab-safety" class="tab-content">
+    <div class="project-layout">
+      <div class="project-list">
+        <div class="project-list-card">
+          <div class="project-list-header">项目列表</div>
+          <div class="project-list-item active" data-action="selectProject" data-param="p1">盐田港区集装箱码头扩建工程</div>
+          <div class="project-list-item" data-action="selectProject" data-param="p2">前海综合枢纽运营项目</div>
+          <div class="project-list-item" data-action="selectProject" data-param="p3">大铲湾危化品仓储基地建设</div>
+        </div>
+      </div>
+      <div class="project-detail">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-size:var(--font-size-14); font-weight:500;">盐田港区集装箱码头扩建工程 - 安全记录</div>
+            <div style="font-size:var(--font-size-12); color:var(--text-description);">关联数据来自隐患排查、危险作业、安全检查等模块</div>
+          </div>
+          <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>事件类型</th>
+                <th>发生时间</th>
+                <th>描述</th>
+                <th>处理状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><span class="tag tag-error" style="font-size:var(--font-size-11);">隐患</span></td>
+                <td>2026-05-08</td>
+                <td>2号泊位临时用电线路老化，存在漏电风险</td>
+                <td><span class="tag tag-pending">整改中</span></td>
+                <td><button class="btn btn-text btn-sm u-text-primary">跳转查看</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><span class="tag tag-warning" style="font-size:var(--font-size-11);">危险作业</span></td>
+                <td>2026-04-22</td>
+                <td>高处作业安全防护网设置不规范</td>
+                <td><span class="tag tag-success">已闭环</span></td>
+                <td><button class="btn btn-text btn-sm u-text-primary">跳转查看</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><span class="tag tag-info" style="font-size:var(--font-size-11);">安全检查</span></td>
+                <td>2026-05-15</td>
+                <td>月度安全检查发现3项一般隐患，已下达整改通知</td>
+                <td><span class="tag tag-pending">整改中</span></td>
+                <td><button class="btn btn-text btn-sm u-text-primary">跳转查看</button></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="pagination-bar">
+  <span class="pagination-info">共 3 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="manag-detail-title" style="font-size:var(--font-size-16);font-weight:600;">项目信息详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showManagementProjectList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="manag-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="manag-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="manag-detail-timeline" class="timeline"></div></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+
   <!-- 新增项目弹窗 -->
   <div id="addProjectModal" class="modal-overlay">
     <div class="modal" style="width:640px;">
       <div class="modal-header">
         <h3>新增项目</h3>
-        <button class="btn btn-text btn-sm" onclick="closeModal('addProject')" style="font-size:18px; color:var(--text-description);">&times;</button>
+        <button class="btn btn-text btn-sm u-fs18-desc" data-action="hideModal" data-param="addProject">&times;</button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目名称 <span style="color:#CF1322;">*</span></label>
-          <input class="form-input" style="width:100%;" placeholder="请输入项目名称">
+        <div class="u-mb-14">
+          <label class="u-label-sm">项目名称 <span class="u-text-error-tag">*</span></label>
+          <input class="form-input u-w-full" placeholder="请输入项目名称">
         </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目分类 <span style="color:#CF1322;">*</span></label>
-            <select class="form-input form-select" style="width:100%;">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">项目分类 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full">
               <option value="">请选择</option>
               <option>在建</option>
               <option>在营</option>
             </select>
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">工期 <span style="color:#CF1322;">*</span></label>
+          <div class="u-flex-1">
+            <label class="u-label-sm">工期 <span class="u-text-error-tag">*</span></label>
             <div style="display:flex; gap:8px; align-items:center;">
-              <input class="form-input" type="date" style="flex:1;">
+              <input class="form-input" type="date" class="u-flex-1">
               <span style="color:var(--text-description);">~</span>
-              <input class="form-input" type="date" style="flex:1;">
+              <input class="form-input" type="date" class="u-flex-1">
             </div>
           </div>
         </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目负责人 <span style="color:#CF1322;">*</span></label>
-            <input class="form-input" style="width:100%;" placeholder="请输入项目负责人">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">项目负责人 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" placeholder="请输入项目负责人">
           </div>
-          <div style="flex:1;">
-            <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">安全负责人 <span style="color:#CF1322;">*</span></label>
-            <input class="form-input" style="width:100%;" placeholder="请输入安全负责人">
+          <div class="u-flex-1">
+            <label class="u-label-sm">安全负责人 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" placeholder="请输入安全负责人">
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:500; margin-bottom:4px;">项目说明</label>
+        <div class="u-mb-14">
+          <label class="u-label-sm">项目说明</label>
           <textarea class="form-input" style="width:100%; height:80px; resize:vertical;" placeholder="请输入项目说明..."></textarea>
         </div>
         <div class="alert alert-info">
@@ -250,8 +359,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('addProject')">取消</button>
-        <button class="btn btn-primary" onclick="closeModal('addProject')">确认新增</button>
+        <button class="btn btn-default" data-action="hideModal" data-param="addProject">取消</button>
+        <button class="btn btn-primary" data-action="hideModal" data-param="addProject">确认新增</button>
       </div>
     </div>
   </div>
@@ -263,17 +372,62 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showModal(id) {
-      document.getElementById(id + 'Modal').classList.add('show');
-    }
-    function closeModal(id) {
-      document.getElementById(id + 'Modal').classList.remove('show');
-    }
     document.getElementById('addProjectModal').addEventListener('click', function(e) { if (e.target === this) closeModal('addProject'); });
     function selectProject(el, id) {
       document.querySelectorAll('.project-list-item').forEach(i => i.classList.remove('active'));
       el.classList.add('active');
     }
+    var managementProjectDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var managementProjectDetailData = {};
+    function fillManagementProjectDetail(d) {
+      document.getElementById('manag-detail-title').textContent = d.title;
+      document.getElementById('manag-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('manag-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('manag-detail-timeline', d.timeline);
+    }
+    function openManagementProjectDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = managementProjectDetailData[key] || managementProjectDetailDataFallback;
+      fillManagementProjectDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openManagementProjectDetail = openManagementProjectDetail;
+    function showManagementProjectList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showManagementProjectList = showManagementProjectList;
+
+    // Event delegation IIFE
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        if (action === 'selectProject') {
+          selectProject(btn, param);
+        }
+        // Backdrop click for modal overlays
+        if (btn.classList.contains('modal-overlay')) {
+          var modalId = btn.querySelector('.modal')
+            ? btn.id.replace('Modal', '').replace('modal', '')
+            : '';
+          if (modalId) closeModal(modalId);
+        }
+      });
+      // Backdrop click on modal-overlay itself (not via data-action)
+      document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) {
+            var modalId = overlay.id.replace('Modal', '').replace('modal', '');
+            if (modalId) closeModal(modalId);
+          }
+        });
+      });
+    })();
+
   </script>
 </body>
 </html>

@@ -1,0 +1,97 @@
+/**
+ * 工具类 - 替代高频 inline style
+ * 命名规则: .u-{property}-{value}
+ */
+
+/* display */
+.u-block { display: block; }
+.u-none { display: none; }
+.u-flex { display: flex; }
+
+/* flex */
+.u-flex-1 { flex: 1; }
+.u-items-center { align-items: center; }
+.u-justify-center { justify-content: center; }
+.u-gap-8 { gap: 8px; }
+.u-gap-12 { gap: 12px; }
+.u-gap-16 { gap: 16px; }
+
+/* width */
+.u-w-full { width: 100%; }
+.u-w-80 { width: 80px; }
+.u-w-120 { width: 120px; }
+.u-w-140 { width: 140px; }
+.u-w-160 { width: 160px; }
+
+/* margin */
+.u-mb-0 { margin-bottom: 0; }
+.u-mb-4 { margin-bottom: 4px; }
+.u-mb-6 { margin-bottom: 6px; }
+.u-mb-8 { margin-bottom: 8px; }
+.u-mb-12 { margin-bottom: 12px; }
+.u-mb-14 { margin-bottom: 14px; }
+.u-mb-16 { margin-bottom: 16px; }
+.u-ml-4 { margin-left: 4px; }
+
+/* padding */
+.u-p-0 { padding: 0; }
+.u-p-12 { padding: 12px; }
+.u-p-16 { padding: 16px; }
+.u-p-20 { padding: 20px; }
+.u-px-20-py-16 { padding: 16px 20px; }
+.u-p-12-16 { padding: 12px 16px; }
+
+/* background */
+.u-bg-page { background: var(--bg-page); }
+.u-bg-card { background: var(--bg-card); }
+.u-bg-page-px20 { padding: 20px; background: var(--bg-page); }
+
+/* color */
+.u-text-error { color: var(--error); }
+.u-text-primary { color: var(--primary); }
+.u-text-success { color: var(--success); }
+.u-text-warning { color: var(--warning); }
+.u-text-secondary { color: var(--text-secondary); }
+.u-text-description { color: var(--text-description); }
+.u-text-tertiary { color: var(--text-tertiary); }
+.u-text-inverse { color: var(--text-inverse); }
+.u-text-error-tag { color: var(--tag-error-color); }
+
+/* font */
+.u-fs-11 { font-size: var(--font-size-11); }
+.u-fs-12 { font-size: var(--font-size-12); }
+.u-fs-13 { font-size: var(--font-size-13); }
+.u-fs-14 { font-size: var(--font-size-14); }
+.u-fw-500 { font-weight: 500; }
+.u-fw-600 { font-weight: 600; }
+
+/* border-radius */
+.u-radius-sm { border-radius: var(--radius-sm); }
+.u-radius-md { border-radius: var(--radius-md); }
+
+/* cursor */
+.u-pointer { cursor: pointer; }
+
+/* line-height */
+.u-lh-16 { line-height: 1.6; }
+
+/* 组合类（高频完整组合） */
+.u-label-sm { display: block; font-size: var(--font-size-13); font-weight: 500; margin-bottom: 4px; }
+.u-label-desc { display: block; font-size: var(--font-size-13); color: var(--text-secondary); margin-bottom: 6px; }
+.u-hint-text { font-size: var(--font-size-12); color: var(--text-secondary); line-height: 1.6; }
+.u-section-card { flex: 1; padding: 12px; background: var(--bg-page); border-radius: var(--radius-md); }
+.u-content-section { margin-bottom: 16px; padding: 16px 20px; }
+.u-fs12-ml4 { font-size: var(--font-size-12); margin-left: 4px; }
+.u-fs14-fw600-title { font-size: var(--font-size-14); font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+.u-fs15-fw600-mb12 { font-size: var(--font-size-15); font-weight: 600; margin-bottom: 12px; }
+.u-fs11-flex-ac { font-size: var(--font-size-11); display: flex; align-items: center; gap: 4px; }
+.u-fs13-fw600-primary-mb6 { font-size: var(--font-size-13); font-weight: 600; color: var(--primary); margin-bottom: 6px; }
+.u-mono-fs12 { font-family: monospace; font-size: var(--font-size-12); }
+.u-fs18-desc { font-size: var(--font-size-18); color: var(--text-description); }
+.u-fs13-sec-mb8 { font-size: var(--font-size-13); color: var(--text-secondary); margin-bottom: 8px; }
+.u-mt-12 { margin-top: 12px; }
+.u-bg-error { background: var(--error); }
+.u-tertiary-fs12 { color: var(--text-tertiary); font-size: var(--font-size-12); }
+.u-mt-8 { margin-top: 8px; }
+.u-mt-2 { margin-top: 2px; }
+.u-bg-success { background: var(--success); }

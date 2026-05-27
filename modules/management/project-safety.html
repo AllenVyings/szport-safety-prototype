@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目安全记录 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .split-left-title { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--border-divider); margin-bottom:12px; font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); flex-shrink:0; }
+
+    .unit-select { width: 100%; margin-bottom: 12px; }
+    .tree-label { font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; }
+    .project-tree { overflow-y: auto; flex: 1; min-height: 0; }
+    .src-node { padding: 5px 6px; border-radius: var(--radius-sm); font-size: var(--font-size-13); cursor: pointer; color: var(--text-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+    .src-node:hover { background: var(--bg-hover); }
+    .src-node.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+    .src-node .node-icon { font-size: var(--font-size-10); width: 18px; height: 18px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .src-node .node-icon.project { background: var(--primary-light); color: var(--primary); }
+    .src-node .node-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body class="u-bg-page-px20" style="overflow:hidden;">
+
+  <!-- 统计卡片 -->
+  <div class="stat-bar" id="safety-stat-bar">
+    <div class="stat-item"><div class="stat-num" id="safety-stat-total">0</div><div class="stat-label">事件总数</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error" id="safety-stat-hazard">0</div><div class="stat-label">隐患</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning" id="safety-stat-work">0</div><div class="stat-label">危险作业</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary" id="safety-stat-check">0</div><div class="stat-label">安全检查</div></div>
+  </div>
+
+  <!-- 双卡片布局 -->
+  <div style="flex:1; display:flex; gap:16px; min-height:0;">
+    <!-- 左侧卡片：筛选面板 -->
+    <div class="card" style="width:260px; min-width:260px; display:flex; flex-direction:column; overflow:hidden; padding:20px;">
+      <div class="split-left-title">筛选项目</div>
+      <select class="form-input form-select unit-select" id="safety-unit-select" data-action="selectSafetyUnit">
+        <option value="">全部单位</option>
+      </select>
+      <div class="tree-label">项目列表</div>
+      <div class="project-tree" id="safety-project-tree">
+        <div style="font-size:var(--font-size-12); color:var(--text-description); text-align:center; padding:20px;">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 右侧卡片：数据区域 -->
+    <div class="card u-p-0" style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+      <div style="padding:20px 24px 0;">
+        <div class="alert alert-info" style="margin-bottom:12px;">数据来源：隐患排查治理、危险作业管理、安全检查等模块自动回显，仅供查看。</div>
+        <div style="font-size:var(--font-size-14); font-weight:500; margin-bottom:12px;" id="safety-title">全部项目 - 安全记录</div>
+      </div>
+      <div class="table-wrap" style="flex:1; min-height:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:50px;">序号</th>
+              <th style="width:100px;">事件类型</th>
+              <th style="width:120px;">发生时间</th>
+              <th>描述</th>
+              <th style="width:100px;">处理状态</th>
+              <th style="width:100px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="safety-tbody"></tbody>
+        </table>
+        <div class="empty-state" id="safety-empty">
+          <div class="empty-icon">&#128269;</div>
+          <div>暂无安全记录</div>
+        </div>
+      </div>
+      <div class="pagination-bar">
+        <span class="pagination-info" id="safety-pagination-info">共 0 条</span>
+        <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select>
+        <div class="pagination"><div class="pagination-page active">1</div></div>
+        <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../modules/system-admin/org-data.js"></script>
+  <script src="project-info-data.js"></script>
+  <script src="project-safety-data.js"></script>
+  <script src="project-safety-logic.js"></script>
+</body>
+</html>

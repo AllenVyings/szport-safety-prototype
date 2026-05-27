@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>风险公告 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; flex: 1; }
+
+    /* 顶部预警条 */
+    .alert-banner {
+      background: linear-gradient(135deg, var(--error) 0%, var(--warning) 100%);
+      padding: 12px 16px; color: var(--text-inverse); display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+    }
+    .alert-icon { font-size: 22px; }
+    .alert-text { flex: 1; }
+    .alert-text .at-title { font-size: 14px; font-weight: 600; }
+    .alert-text .at-sub { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+
+    /* 等级筛选 */
+    .level-tabs { display: flex; gap: 6px; padding: 10px 12px; background: var(--bg-card); border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
+    .level-tab {
+      flex: 1; text-align: center; padding: 6px 0; font-size: 12px;
+      color: var(--text-secondary); background: var(--bg-gray-lighter); border-radius: 6px; cursor: pointer;
+    }
+    .level-tab.active { color: var(--text-inverse); font-weight: 600; }
+    .level-tab.active[data-level="all"] { background: var(--primary); }
+    .level-tab.active[data-level="red"] { background: var(--error); }
+    .level-tab.active[data-level="orange"] { background: var(--warning); }
+    .level-tab.active[data-level="yellow"] { background: var(--chart-yellow); color: var(--text-primary); }
+
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 10px 12px; -webkit-overflow-scrolling: touch; }
+
+    /* 公告卡片 */
+    .notice-card {
+      background: var(--bg-card); border-radius: 12px; padding: 14px;
+      margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); cursor: pointer;
+      border-left: 4px solid transparent;
+    }
+    .notice-card.red { border-left-color: var(--error); }
+    .notice-card.orange { border-left-color: var(--warning); }
+    .notice-card.yellow { border-left-color: var(--chart-yellow); }
+    .nc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .nc-level {
+      font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+      color: var(--text-inverse);
+    }
+    .nc-level.red { background: var(--error); }
+    .nc-level.orange { background: var(--warning); }
+    .nc-level.yellow { background: var(--chart-yellow); color: var(--text-primary); }
+    .nc-time { font-size: 11px; color: var(--text-description); }
+    .nc-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.4; margin-bottom: 6px; }
+    .nc-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .nc-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-light); font-size: 11px; color: var(--text-description); }
+    .nc-foot-tags { display: flex; gap: 4px; }
+    .nc-foot-tag { padding: 1px 6px; background: var(--bg-gray-lighter); border-radius: 8px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+      <span class="mobile-nav-title">风险公告</span>
+    </div>
+
+    <div class="alert-banner">
+      <span class="alert-icon">🚨</span>
+      <div class="alert-text">
+        <div class="at-title">当前生效公告 2 条 · 含红色 1 条</div>
+        <div class="at-sub">最新更新：2026-05-26 08:30</div>
+      </div>
+    </div>
+
+    <div class="level-tabs">
+      <div class="level-tab active" data-level="all">全部 12</div>
+      <div class="level-tab" data-level="red">红色 1</div>
+      <div class="level-tab" data-level="orange">橙色 4</div>
+      <div class="level-tab" data-level="yellow">黄色 7</div>
+    </div>
+
+    <div class="mobile-content">
+      <div class="notice-card red" data-action="showToast" data-param="查看公告全文">
+        <div class="nc-head">
+          <span class="nc-level red">红色预警</span>
+          <span class="nc-time">2026-05-26 08:30</span>
+        </div>
+        <div class="nc-title">台风"杜苏芮"红色预警 · 港区作业全面停止</div>
+        <div class="nc-desc">受台风"杜苏芮"影响，预计 5/27 凌晨深圳沿海将出现 12 级阵风，所有码头作业立即停止，集装箱加固绑扎，门机降臂归位至安全锚位...</div>
+        <div class="nc-foot">
+          <div class="nc-foot-tags">
+            <span class="nc-foot-tag">气象</span>
+            <span class="nc-foot-tag">全港</span>
+          </div>
+          <span>已阅 1,234 人</span>
+        </div>
+      </div>
+
+      <div class="notice-card orange" data-action="showToast" data-param="查看公告全文">
+        <div class="nc-head">
+          <span class="nc-level orange">橙色预警</span>
+          <span class="nc-time">2026-05-25 16:20</span>
+        </div>
+        <div class="nc-title">危化品库 A 区温度异常升高</div>
+        <div class="nc-desc">大铲湾危化品库 A 区温度传感器显示 32℃，超过预警阈值 30℃，请相关人员立即检查通风系统并加强巡查频次...</div>
+        <div class="nc-foot">
+          <div class="nc-foot-tags">
+            <span class="nc-foot-tag">设备</span>
+            <span class="nc-foot-tag">大铲湾</span>
+          </div>
+          <span>已阅 89 人</span>
+        </div>
+      </div>
+
+      <div class="notice-card orange" data-action="showToast" data-param="查看公告全文">
+        <div class="nc-head">
+          <span class="nc-level orange">橙色预警</span>
+          <span class="nc-time">2026-05-25 09:15</span>
+        </div>
+        <div class="nc-title">门机MH-01钢丝绳磨损临近报废</div>
+        <div class="nc-desc">日常巡检发现 1 号泊位门机 MH-01 主起升钢丝绳出现明显磨损，断丝数达 12 处接近 GB/T 5972 报废标准，请立即停用并联系厂家更换...</div>
+        <div class="nc-foot">
+          <div class="nc-foot-tags">
+            <span class="nc-foot-tag">设备</span>
+            <span class="nc-foot-tag">盐田港</span>
+          </div>
+          <span>已阅 56 人</span>
+        </div>
+      </div>
+
+      <div class="notice-card yellow" data-action="showToast" data-param="查看公告全文">
+        <div class="nc-head">
+          <span class="nc-level yellow">黄色预警</span>
+          <span class="nc-time">2026-05-24 14:00</span>
+        </div>
+        <div class="nc-title">夏季高温作业防中暑提示</div>
+        <div class="nc-desc">未来 7 天深圳地区持续高温（≥35℃），户外作业请合理安排作息，每 2 小时强制休息 15 分钟，配备充足饮用水与防暑药品...</div>
+        <div class="nc-foot">
+          <div class="nc-foot-tags">
+            <span class="nc-foot-tag">气象</span>
+            <span class="nc-foot-tag">全港</span>
+          </div>
+          <span>已阅 412 人</span>
+        </div>
+      </div>
+
+      <div class="notice-card yellow" data-action="showToast" data-param="查看公告全文">
+        <div class="nc-head">
+          <span class="nc-level yellow">黄色预警</span>
+          <span class="nc-time">2026-05-23 10:00</span>
+        </div>
+        <div class="nc-title">蛇口港3号仓库消防通道堵塞</div>
+        <div class="nc-desc">巡检发现 3 号仓库东侧消防通道堆放杂物约 2 米×3 米区域，已下发整改通知，要求 5/26 前清理完毕...</div>
+        <div class="nc-foot">
+          <div class="nc-foot-tags">
+            <span class="nc-foot-tag">消防</span>
+            <span class="nc-foot-tag">蛇口港</span>
+          </div>
+          <span>已阅 78 人</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      document.querySelectorAll('.level-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('.level-tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+        });
+      });
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        e.stopPropagation();
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'showToast': if (param && window.showToast) showToast(param, 'success'); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

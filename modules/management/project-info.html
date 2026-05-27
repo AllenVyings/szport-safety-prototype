@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目基本信息 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .split-left-title { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--border-divider); margin-bottom:12px; font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); flex-shrink:0; }
+
+    /* Unit tree — matches org.html pattern */
+    .unit-tree { overflow-y: auto; flex: 1; min-height: 0; }
+    .src-node { padding: 5px 6px; border-radius: var(--radius-sm); font-size: var(--font-size-13); cursor: pointer; color: var(--text-primary); display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+    .src-node:hover:not(.disabled-node) { background: var(--bg-hover); }
+    .src-node.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+    .src-node .arrow { font-size: var(--font-size-9); color: var(--text-description); width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: transform var(--duration-fast); }
+    .src-node .arrow.open { transform: rotate(90deg); }
+    .src-node .arrow.empty { visibility: hidden; pointer-events: none; }
+    .src-node .node-icon { font-size: var(--font-size-10); width: 18px; height: 18px; border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .src-node .node-icon.unit { background: var(--primary-light); color: var(--primary); }
+    .src-node .node-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .src-node mark { background: var(--warning-light); color: inherit; padding: 0 1px; }
+    .src-children.collapsed { display: none; }
+    .sb-tree-search { width: 100%; height: 28px; font-size: var(--font-size-12); margin-bottom: 8px; padding: 0 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); flex-shrink: 0; }
+    .sb-tree-empty { padding: 16px 8px; text-align: center; color: var(--text-description); font-size: var(--font-size-12); }
+
+    /* Page view toggle */
+    .page-view { display: none; }
+    .page-view.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+    /* Detail page */
+    .detail-field { display: flex; padding: 8px 0; font-size: var(--font-size-13); border-bottom: 1px solid var(--border-light); }
+    .detail-field:last-child { border-bottom: none; }
+    .detail-field .field-label { width: 100px; flex-shrink: 0; color: var(--text-secondary); }
+    .detail-field .field-value { flex: 1; color: var(--text-primary); }
+
+    /* Form page */
+    .form-page-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
+    .form-page-title { font-size: var(--font-size-16); font-weight: 600; }
+    .form-page-body { padding: 20px 24px 24px; }
+
+    /* Table column widths */
+    .table-wrap .data-table { table-layout: fixed; }
+    .table-wrap .data-table .col-name { width: auto; }
+    .table-wrap .data-table .col-unit { width: 140px; }
+    .table-wrap .data-table .col-type { width: 70px; }
+    .table-wrap .data-table .col-status { width: 80px; }
+    .table-wrap .data-table .col-person { width: 90px; }
+
+    /* Status tags */
+    .tag-prepare { background: var(--tag-info-bg); color: var(--tag-info-color); border: 1px solid var(--tag-info-border); }
+    .tag-building { background: var(--tag-info-bg); color: var(--tag-info-color); border: 1px solid var(--tag-info-border); }
+    .tag-operating { background: var(--tag-success-bg); color: var(--tag-success-color); border: 1px solid var(--tag-success-border); }
+    .tag-ended { background: var(--tag-default-bg); color: var(--tag-default-color); border: 1px solid var(--tag-default-border); }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body class="u-bg-page-px20" style="overflow:hidden;">
+
+  <!-- 列表页 -->
+  <div id="view-list" class="page-view active">
+    <!-- 统计卡片 -->
+    <div class="stat-bar" id="stat-bar">
+      <div class="stat-item stat-active" data-action="filterByStat" data-param="all">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">项目总数</div>
+      </div>
+      <div class="stat-item" data-action="filterByStat" data-param="在建">
+        <div class="stat-num u-text-warning" id="stat-building">0</div>
+        <div class="stat-label">在建项目</div>
+      </div>
+      <div class="stat-item" data-action="filterByStat" data-param="在营">
+        <div class="stat-num u-text-success" id="stat-operating">0</div>
+        <div class="stat-label">在营项目</div>
+      </div>
+      <div class="stat-item" data-action="filterByStat" data-param="已结束">
+        <div class="stat-num u-text-description" id="stat-ended">0</div>
+        <div class="stat-label">已结束</div>
+      </div>
+    </div>
+
+    <!-- 双卡片布局 -->
+    <div style="flex:1; display:flex; gap:16px; min-height:0;">
+      <!-- 左侧卡片：单位树 -->
+      <div class="card" style="width:260px; min-width:260px; display:flex; flex-direction:column; overflow:hidden; padding:20px;">
+        <div class="split-left-title">所属单位</div>
+        <input type="search" class="sb-tree-search" id="unit-tree-search" placeholder="搜索单位名称…" oninput="filterUnitTree(this.value)">
+        <div class="unit-tree" id="unit-tree"></div>
+      </div>
+
+      <!-- 右侧卡片：内容区 -->
+      <div class="card u-p-0" style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+        <div style="padding:20px 24px 0;">
+          <!-- 筛选栏 -->
+          <div class="filter-bar" style="margin-top:0;">
+            <div class="filter-field"><span class="filter-label">项目名称</span><input class="form-input" id="filter-name" placeholder="请输入"></div>
+            <div class="filter-field"><span class="filter-label">项目分类</span><select class="form-input form-select filter-select" id="filter-type">
+              <option value="">全部</option>
+              <option value="在建">在建</option>
+              <option value="在营">在营</option>
+            </select></div>
+            <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select filter-select" id="filter-status">
+              <option value="">全部</option>
+              <option value="筹建">筹建</option>
+              <option value="在建">在建</option>
+              <option value="运营">运营</option>
+              <option value="已结束">已结束</option>
+            </select></div>
+            <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="applyFilters">查询</button>
+            <button class="btn btn-default btn-sm" data-action="resetFilters">重置</button></div>
+          </div>
+
+          <!-- 操作栏 -->
+          <div class="filter-actions-row" style="margin-top:12px;">
+            <button class="btn btn-primary" data-action="showAddPage">+ 新增项目</button>
+            <button class="btn btn-default" data-action="batchDelete">批量删除</button>
+            <button class="btn btn-default" data-action="exportProjects">导出</button>
+          </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-wrap" style="flex:1; min-height:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:40px;"><input type="checkbox" id="select-all"></th>
+                <th style="width:50px;">序号</th>
+                <th class="col-name">项目名称</th>
+                <th class="col-unit">所属单位</th>
+                <th class="col-type">项目分类</th>
+                <th class="col-status">状态</th>
+                <th class="col-person">项目负责人</th>
+                <th class="col-person">安全负责人</th>
+                <th class="col-actions">操作</th>
+              </tr>
+            </thead>
+            <tbody id="project-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">&#128269;</div>
+            <div>未找到匹配的项目</div>
+          </div>
+        </div>
+        <div class="pagination-bar" id="pagination-bar">
+          <span class="pagination-info" id="pagination-info">共 0 条</span>
+          <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option></select>
+          <div class="pagination" id="pagination-pages"></div>
+          <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看页 -->
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;" id="detail-title">项目详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="backToList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="card">
+          <div class="detail-section-title">基本信息</div>
+          <div id="detail-fields"></div>
+        </div>
+        <div class="card" style="margin-top:12px;">
+          <div class="detail-section-title">备注</div>
+          <div id="detail-remark" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑/新增表单页 -->
+  <div id="view-form" class="page-view">
+    <div class="card u-p-0">
+      <div class="form-page-header">
+        <div class="form-page-title" id="form-title">项目表单</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="backToList">← 返回列表</button>
+      </div>
+      <div class="form-page-body">
+        <input type="hidden" id="form-mode" value="">
+        <input type="hidden" id="form-edit-id" value="">
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">项目名称 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" id="form-name">
+          </div>
+          <div class="u-flex-1">
+            <label class="u-label-sm">项目分类 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full" id="form-type">
+              <option value="在建">在建</option>
+              <option value="在营">在营</option>
+            </select>
+          </div>
+        </div>
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">所属单位 <span class="u-text-error-tag">*</span></label>
+            <select class="form-input form-select u-w-full" id="form-unit"></select>
+          </div>
+          <div class="u-flex-1" id="form-status-group" style="display:none;">
+            <label class="u-label-sm">状态</label>
+            <select class="form-input form-select u-w-full" id="form-status">
+              <option value="筹建">筹建</option>
+              <option value="在建">在建</option>
+              <option value="运营">运营</option>
+              <option value="已结束">已结束</option>
+            </select>
+          </div>
+          <div class="u-flex-1" id="form-status-placeholder"></div>
+        </div>
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">项目负责人 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" id="form-manager">
+          </div>
+          <div class="u-flex-1">
+            <label class="u-label-sm">安全负责人</label>
+            <input class="form-input u-w-full" id="form-safety">
+          </div>
+        </div>
+        <div class="u-flex u-gap-12 u-mb-14">
+          <div class="u-flex-1">
+            <label class="u-label-sm">项目地址</label>
+            <input class="form-input u-w-full" id="form-address">
+          </div>
+          <div class="u-flex-1">
+            <label class="u-label-sm">开始日期 <span class="u-text-error-tag">*</span></label>
+            <input class="form-input u-w-full" type="date" id="form-start">
+          </div>
+        </div>
+        <div class="u-mb-14">
+          <label class="u-label-sm">预计结束日期</label>
+          <input class="form-input u-w-full" type="date" id="form-end">
+        </div>
+        <div class="u-mb-14">
+          <label class="u-label-sm">备注</label>
+          <textarea class="form-input u-w-full" style="height:80px;resize:vertical;" id="form-remark" placeholder="请输入项目备注..."></textarea>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;">
+          <button class="btn btn-default" data-action="backToList">取消</button>
+          <button class="btn btn-primary" data-action="saveForm">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../modules/system-admin/org-data.js"></script>
+  <script src="project-info-data.js"></script>
+  <script src="project-info-logic.js"></script>
+</body>
+</html>

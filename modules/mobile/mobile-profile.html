@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-dark-primary);
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 20px 20px;
+    }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame {
+      width: 375px; height: 740px; background: var(--bg-gray-lighter);
+      border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+    .phone-statusbar {
+      height: 44px; background: var(--brand); display: flex; align-items: flex-end;
+      justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse);
+      font-size: 12px; flex-shrink: 0;
+    }
+    .mobile-header {
+      background: linear-gradient(135deg, var(--brand) 0%, var(--primary) 100%);
+      padding: 20px 16px 32px; color: var(--text-inverse); flex-shrink: 0;
+    }
+    .profile-card { display: flex; align-items: center; gap: 14px; }
+    .profile-avatar {
+      width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+    }
+    .profile-info { flex: 1; }
+    .profile-name { font-size: 18px; font-weight: 600; }
+    .profile-dept { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+    .profile-role { font-size: 11px; opacity: 0.7; margin-top: 2px; }
+    .mobile-content {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 0 0 60px 0; -webkit-overflow-scrolling: touch;
+    }
+    .menu-section { margin: 12px; }
+    .menu-section:first-child { margin-top: -16px; position: relative; z-index: 1; }
+    .menu-card {
+      background: var(--bg-card); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .menu-item {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      border-bottom: 1px solid var(--border-light); cursor: pointer;
+      text-decoration: none; color: inherit;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:active { background: var(--bg-hover); }
+    .menu-icon {
+      width: 32px; height: 32px; border-radius: 8px; display: flex;
+      align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+    }
+    .menu-icon.blue { background: rgba(35,102,236,0.1); }
+    .menu-icon.orange { background: rgba(233,124,0,0.1); }
+    .menu-icon.green { background: rgba(0,177,94,0.1); }
+    .menu-icon.red { background: rgba(209,0,0,0.1); }
+    .menu-icon.purple { background: rgba(114,46,209,0.1); }
+    .menu-icon.teal { background: rgba(0,137,123,0.1); }
+    .menu-icon.gray { background: rgba(0,0,0,0.06); }
+    .menu-label { flex: 1; font-size: 14px; color: var(--text-primary); }
+    .menu-arrow { font-size: 14px; color: var(--text-description); }
+    .menu-badge {
+      display: inline-block; min-width: 18px; height: 18px; border-radius: 9px;
+      background: var(--error); color: #fff; font-size: 10px;
+      display: flex; align-items: center; justify-content: center; padding: 0 5px;
+    }
+    .phase2-tag { display: inline-block; font-size: 9px; background: var(--tag-default-bg); color: var(--tag-default-color); border: 1px solid var(--tag-default-border); border-radius: var(--radius-full); padding: 0 4px; line-height: 14px; margin-left: 4px; }
+    .menu-item.phase2 .menu-label { color: var(--text-description); }
+    .menu-item.phase2 .menu-icon { opacity: 0.5; }
+    .logout-btn {
+      margin: 12px; padding: 14px; text-align: center; font-size: 14px;
+      color: var(--error); background: var(--bg-card); border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); cursor: pointer;
+    }
+    .logout-btn:active { background: var(--bg-hover); }
+    .mobile-tabbar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+      background: var(--bg-card); border-top: 1px solid var(--border-light);
+      display: flex; align-items: center; justify-content: space-around;
+      flex-shrink: 0; z-index: 10;
+    }
+    .tabbar-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      cursor: pointer; padding: 4px 12px; text-decoration: none; color: inherit;
+    }
+    .tabbar-item .tabbar-icon { font-size: 20px; color: var(--text-description); }
+    .tabbar-item .tabbar-label { font-size: 10px; color: var(--text-description); }
+    .tabbar-item.active .tabbar-icon { color: var(--primary); }
+    .tabbar-item.active .tabbar-label { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+
+  <div class="phone-frame">
+    <div class="phone-statusbar">
+      <span>09:41</span>
+      <span>5G 100%</span>
+    </div>
+
+    <div class="mobile-header">
+      <div class="profile-card">
+        <div class="profile-avatar">张</div>
+        <div class="profile-info">
+          <div class="profile-name">张明</div>
+          <div class="profile-dept">盐田国际 · 安环部</div>
+          <div class="profile-role">安全主管 | 注册安全工程师</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-content">
+
+      <!-- 功能列表 -->
+      <div class="menu-section">
+        <div class="menu-card">
+          <a href="training-learn.html" class="menu-item">
+            <div class="menu-icon blue">📖</div>
+            <div class="menu-label">我的培训</div>
+            <span class="menu-badge">2</span>
+            <span class="menu-arrow">›</span>
+          </a>
+          <a href="scan-inspection.html" class="menu-item">
+            <div class="menu-icon green">🔍</div>
+            <div class="menu-label">我的巡检</div>
+            <span class="menu-badge">3</span>
+            <span class="menu-arrow">›</span>
+          </a>
+          <a href="mobile-approval.html" class="menu-item">
+            <div class="menu-icon orange">✍️</div>
+            <div class="menu-label">我的审批</div>
+            <span class="menu-badge">5</span>
+            <span class="menu-arrow">›</span>
+          </a>
+          <a href="hazard-report.html" class="menu-item">
+            <div class="menu-icon red">📸</div>
+            <div class="menu-label">我的隐患</div>
+            <span class="menu-arrow">›</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-card">
+          <a href="mobile-medical.html" class="menu-item">
+            <div class="menu-icon teal">🏥</div>
+            <div class="menu-label">我的体检</div>
+            <span class="menu-arrow">›</span>
+          </a>
+          <a href="javascript:void(0)" class="menu-item phase2">
+            <div class="menu-icon purple">📝</div>
+            <div class="menu-label">我的责任书<span class="phase2-tag">二期</span></div>
+            <span class="menu-arrow">›</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <div class="menu-card">
+          <a href="javascript:void(0)" class="menu-item phase2">
+            <div class="menu-icon gray">⚙️</div>
+            <div class="menu-label">设置<span class="phase2-tag">二期</span></div>
+            <span class="menu-arrow">›</span>
+          </a>
+          <a href="javascript:void(0)" class="menu-item phase2">
+            <div class="menu-icon gray">❓</div>
+            <div class="menu-label">帮助与反馈<span class="phase2-tag">二期</span></div>
+            <span class="menu-arrow">›</span>
+          </a>
+          <a href="javascript:void(0)" class="menu-item phase2">
+            <div class="menu-icon gray">ℹ️</div>
+            <div class="menu-label">关于<span class="phase2-tag">二期</span></div>
+            <span class="menu-arrow">›</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="logout-btn">退出登录</div>
+
+    </div><!-- /mobile-content -->
+
+    <div class="mobile-tabbar">
+      <a href="mobile-home.html" class="tabbar-item">
+        <span class="tabbar-icon">🏠</span>
+        <span class="tabbar-label">首页</span>
+      </a>
+      <a href="mobile-function.html" class="tabbar-item">
+        <span class="tabbar-icon">📱</span>
+        <span class="tabbar-label">功能</span>
+      </a>
+      <a href="mobile-message.html" class="tabbar-item">
+        <span class="tabbar-icon">💬</span>
+        <span class="tabbar-label">消息</span>
+      </a>
+      <a href="mobile-profile.html" class="tabbar-item active">
+        <span class="tabbar-icon">👤</span>
+        <span class="tabbar-label">我的</span>
+      </a>
+    </div>
+
+  </div><!-- /phone-frame -->
+
+</body>
+</html>

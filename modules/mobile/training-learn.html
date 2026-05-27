@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>培训学习 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; }
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 0; -webkit-overflow-scrolling: touch; background: var(--bg-gray-lighter); }
+    .learn-tabs { display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 10; }
+    .learn-tab { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; }
+    .learn-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .learn-list { padding: 12px; }
+    .learn-item { background: var(--bg-card); border-radius: 10px; margin-bottom: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .learn-item-cover { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--text-inverse); }
+    .learn-item-cover.video { background: linear-gradient(135deg, #2366ec, #1a4fbf); }
+    .learn-item-cover.course { background: linear-gradient(135deg, #00b15e, #008f4a); }
+    .learn-item-cover.exam { background: linear-gradient(135deg, #e97c00, #c96600); }
+    .learn-item-body { padding: 12px 14px; }
+    .learn-item-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .learn-item-meta { font-size: 12px; color: var(--text-description); margin-bottom: 8px; display: flex; gap: 12px; }
+    .learn-item-progress { height: 4px; background: var(--bg-gray-lighter); border-radius: 2px; overflow: hidden; }
+    .learn-item-progress-bar { height: 100%; border-radius: 2px; transition: width 0.3s; }
+    .learn-item-progress-bar.complete { background: var(--success); }
+    .learn-item-progress-bar.ongoing { background: var(--primary); }
+    .learn-item-progress-bar.not-start { background: var(--border); width: 0; }
+    .learn-item-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .learn-item-status { font-size: 12px; font-weight: 500; }
+    .learn-item-status.complete { color: var(--success); }
+    .learn-item-status.ongoing { color: var(--primary); }
+    .learn-item-status.not-start { color: var(--text-description); }
+    .learn-item-btn { height: 28px; padding: 0 14px; border-radius: 14px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; background: var(--primary); color: var(--text-inverse); }
+    .learn-item-btn:active { opacity: 0.8; }
+    .stat-banner { margin: 12px; padding: 16px; background: linear-gradient(135deg, var(--primary), #1a4fbf); border-radius: 12px; color: var(--text-inverse); display: flex; gap: 16px; }
+    .stat-banner-item { text-align: center; flex: 1; }
+    .stat-banner-value { font-size: 22px; font-weight: 700; }
+    .stat-banner-label { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+      <span class="mobile-nav-title">培训学习</span>
+    </div>
+    <div class="mobile-content">
+      <div class="stat-banner">
+        <div class="stat-banner-item"><div class="stat-banner-value">8</div><div class="stat-banner-label">必修课程</div></div>
+        <div class="stat-banner-item"><div class="stat-banner-value">5</div><div class="stat-banner-label">已完成</div></div>
+        <div class="stat-banner-item"><div class="stat-banner-value">2</div><div class="stat-banner-label">进行中</div></div>
+        <div class="stat-banner-item"><div class="stat-banner-value">1</div><div class="stat-banner-label">未开始</div></div>
+      </div>
+      <div class="learn-tabs">
+        <div class="learn-tab active" data-action="switchLearnTab" data-param="course">视频课件</div>
+        <div class="learn-tab" data-action="switchLearnTab" data-param="knowledge">安全知识</div>
+        <div class="learn-tab" data-action="switchLearnTab" data-param="exam">培训考试</div>
+      </div>
+      <div class="learn-list" id="learnList"></div>
+    </div>
+  </div>
+  <script>
+    var learnData = {
+      course: [
+        { cover:'video', icon:'▶', title:'港口特种设备安全操作规范', meta:'时长 45分钟 | 必修 | 2026-Q2', progress:100, status:'complete', statusName:'已完成' },
+        { cover:'video', icon:'▶', title:'危化品应急处置流程', meta:'时长 30分钟 | 必修 | 2026-Q2', progress:60, status:'ongoing', statusName:'学习中' },
+        { cover:'course', icon:'📖', title:'消防安全知识培训', meta:'时长 25分钟 | 必修 | 2026-Q2', progress:30, status:'ongoing', statusName:'学习中' },
+        { cover:'video', icon:'▶', title:'高空作业安全要点', meta:'时长 20分钟 | 必修 | 2026-Q2', progress:0, status:'not-start', statusName:'未开始' }
+      ],
+      knowledge: [
+        { cover:'course', icon:'📖', title:'《安全生产法》重点解读', meta:'更新于 2026-03 | 阅读 5分钟', progress:100, status:'complete', statusName:'已学习' },
+        { cover:'course', icon:'📖', title:'港口作业十不准', meta:'更新于 2026-04 | 阅读 3分钟', progress:100, status:'complete', statusName:'已学习' },
+        { cover:'course', icon:'📖', title:'职业健康防护指南', meta:'更新于 2026-05 | 阅读 8分钟', progress:0, status:'not-start', statusName:'未学习' }
+      ],
+      exam: [
+        { cover:'exam', icon:'✏', title:'Q2安全知识测验', meta:'共 30 题 | 限时 45 分钟 | 及格 80 分', progress:100, status:'complete', statusName:'已通过 92分' },
+        { cover:'exam', icon:'✏', title:'特种设备操作考核', meta:'共 25 题 | 限时 30 分钟 | 及格 80 分', progress:0, status:'not-start', statusName:'待考试' }
+      ]
+    };
+
+    function switchLearnTab(el, tab) {
+      document.querySelectorAll('.learn-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      renderLearnList(tab);
+    }
+
+    function renderLearnList(tab) {
+      var list = learnData[tab] || [];
+      var el = document.getElementById('learnList');
+      var html = '';
+      list.forEach(function(item) {
+        var btnText = item.status === 'complete' ? '查看' : item.status === 'ongoing' ? '继续学习' : '开始学习';
+        html += '<div class="learn-item">'
+          + '<div class="learn-item-cover ' + item.cover + '">' + item.icon + '</div>'
+          + '<div class="learn-item-body">'
+          + '<div class="learn-item-title">' + item.title + '</div>'
+          + '<div class="learn-item-meta"><span>' + item.meta.split('|')[0].trim() + '</span><span>' + item.meta.split('|')[1].trim() + '</span></div>'
+          + '<div class="learn-item-progress"><div class="learn-item-progress-bar ' + item.status + '" style="width:' + item.progress + '%;"></div></div>'
+          + '<div class="learn-item-footer"><span class="learn-item-status ' + item.status + '">' + item.statusName + '</span>'
+          + '<button class="learn-item-btn" data-action="handleLearnAction" data-param="' + item.status + '">' + btnText + '</button>'
+          + '</div></div></div>';
+      });
+      el.innerHTML = html;
+    }
+
+    function handleLearnAction(btn, status) {
+      if (status === 'complete') {
+        showToast('查看课件详情', 'info');
+      } else if (status === 'ongoing') {
+        btn.textContent = '学习中…';
+        btn.disabled = true;
+        setTimeout(function() { btn.textContent = '继续学习'; btn.disabled = false; }, 1500);
+        showToast('课程播放中', 'success');
+      } else {
+        btn.textContent = '开始中…';
+        btn.disabled = true;
+        setTimeout(function() { btn.textContent = '继续学习'; btn.disabled = false; }, 1500);
+        showToast('课程已开始', 'success');
+      }
+    }
+
+    renderLearnList('course');
+
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'switchLearnTab': switchLearnTab(btn, param); break;
+          case 'handleLearnAction': handleLearnAction(btn, param); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

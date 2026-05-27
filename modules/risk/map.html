@@ -4,69 +4,72 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>风险清单与四色图 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
     .color-legend { display:flex; gap:24px; margin-bottom:16px; padding:12px 16px; background:var(--bg-base); border-radius:var(--radius-md); border:1px solid var(--border-lighter); }
-    .legend-item { display:flex; align-items:center; gap:6px; font-size:13px; }
+    .legend-item { display:flex; align-items:center; gap:6px; font-size:var(--font-size-13); }
     .legend-dot { width:14px; height:14px; border-radius:3px; }
-    .legend-dot.red { background:#F5222D; }
-    .legend-dot.orange { background:#FA8C16; }
-    .legend-dot.yellow { background:#FADB14; }
-    .legend-dot.blue { background:#1890FF; }
+    .legend-dot.red { background:var(--chart-red); }
+    .legend-dot.orange { background:var(--chart-orange); }
+    .legend-dot.yellow { background:var(--chart-yellow); }
+    .legend-dot.blue { background:var(--chart-blue); }
     .four-color-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:16px; }
-    .color-card { border-radius:var(--radius-md); padding:16px; color:#fff; position:relative; overflow:hidden; }
-    .color-card.red { background:linear-gradient(135deg, #F5222D, #CF1322); }
-    .color-card.orange { background:linear-gradient(135deg, #FA8C16, #D48806); }
-    .color-card.yellow { background:linear-gradient(135deg, #FADB14, #D4B106); color:#614700; }
-    .color-card.blue { background:linear-gradient(135deg, #1890FF, #0958D9); }
-    .color-card .card-count { font-size:32px; font-weight:700; }
-    .color-card .card-label { font-size:13px; opacity:0.9; margin-top:4px; }
-    .color-card .card-level { font-size:11px; opacity:0.75; margin-top:2px; }
+    .color-card { border-radius:var(--radius-md); padding:16px; color:var(--text-inverse); position:relative; overflow:hidden; }
+    .color-card.red { background:linear-gradient(135deg, var(--chart-red), var(--tag-error-color)); }
+    .color-card.orange { background:linear-gradient(135deg, var(--chart-orange), var(--tag-warning-color)); }
+    .color-card.yellow { background:linear-gradient(135deg, var(--chart-yellow), var(--chart-gold-dark)); color:var(--chart-yellow-text); }
+    .color-card.blue { background:linear-gradient(135deg, var(--chart-blue), var(--tag-info-color)); }
+    .color-card .card-count { font-size:var(--font-size-32); font-weight:700; }
+    .color-card .card-label { font-size:var(--font-size-13); opacity:0.9; margin-top:4px; }
+    .color-card .card-level { font-size:var(--font-size-11); opacity:0.75; margin-top:2px; }
     .map-container { background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:16px; margin-bottom:16px; min-height:320px; position:relative; }
     .map-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; height:280px; color:var(--text-quaternary); }
-    .map-placeholder .icon { font-size:48px; margin-bottom:12px; }
-    .map-placeholder .text { font-size:13px; }
+    .map-placeholder .icon { font-size:var(--font-size-48); margin-bottom:12px; }
+    .map-placeholder .text { font-size:var(--font-size-13); }
     .map-toolbar { display:flex; gap:8px; margin-bottom:12px; }
     .floor-tabs { display:flex; gap:4px; margin-bottom:12px; }
-    .floor-tab { padding:4px 12px; border-radius:var(--radius-sm); font-size:12px; cursor:pointer; border:1px solid var(--border); background:var(--bg-base); color:var(--text-secondary); }
+    .floor-tab { padding:4px 12px; border-radius:var(--radius-sm); font-size:var(--font-size-12); cursor:pointer; border:1px solid var(--border); background:var(--bg-base); color:var(--text-secondary); }
     .floor-tab.active { background:var(--primary); color:var(--text-inverse); border-color:var(--primary); }
-    .map-marker { position:absolute; width:24px; height:24px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:600; cursor:pointer; }
-    .map-marker.red { background:#F5222D; }
-    .map-marker.orange { background:#FA8C16; }
-    .map-marker.yellow { background:#FADB14; color:#614700; }
-    .map-marker.blue { background:#1890FF; }
+    .map-marker { position:absolute; width:24px; height:24px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; font-size:var(--font-size-10); color:var(--text-inverse); font-weight:600; cursor:pointer; }
+    .map-marker.red { background:var(--chart-red); }
+    .map-marker.orange { background:var(--chart-orange); }
+    .map-marker.yellow { background:var(--chart-yellow); color:var(--chart-yellow-text); }
+    .map-marker.blue { background:var(--chart-blue); }
     .risk-detail-panel { position:absolute; right:16px; top:16px; width:280px; background:var(--bg-base); border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:16px; box-shadow:0 4px 12px rgba(0,0,0,.1); display:none; }
     .risk-detail-panel.show { display:block; }
-    .risk-detail-panel h4 { font-size:14px; margin-bottom:8px; }
-    .risk-detail-panel .detail-row { display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--border-lighter); }
+    .risk-detail-panel h4 { font-size:var(--font-size-14); margin-bottom:8px; }
+    .risk-detail-panel .detail-row { display:flex; justify-content:space-between; font-size:var(--font-size-12); padding:4px 0; border-bottom:1px solid var(--border-lighter); }
     .risk-detail-panel .detail-row .label { color:var(--text-tertiary); }
     .org-tree { border:1px solid var(--border-lighter); border-radius:var(--radius-md); padding:12px; background:var(--bg-base); }
-    .org-node { padding:6px 12px; cursor:pointer; font-size:13px; border-radius:var(--radius-sm); margin-bottom:2px; }
+    .org-node { padding:6px 12px; cursor:pointer; font-size:var(--font-size-13); border-radius:var(--radius-sm); margin-bottom:2px; }
     .org-node:hover { background:var(--primary-1, #E6F7FF); }
     .org-node.active { background:var(--primary); color:var(--text-inverse); }
-    .org-node.level-1 { font-weight:600; font-size:14px; }
+    .org-node.level-1 { font-weight:600; font-size:var(--font-size-14); }
     .org-node.level-2 { padding-left:28px; }
-    .org-node.level-3 { padding-left:44px; font-size:12px; color:var(--text-secondary); }
-    .tag-controlled { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .tag-managing { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-eliminated { background:#F5F5F5; color:#8C8C8C; border:1px solid #D9D9D9; }
-    .tag-escalated { background:#FFF1F0; color:#CF1322; border:1px solid #FFA39E; }
+    .org-node.level-3 { padding-left:44px; font-size:var(--font-size-12); color:var(--text-secondary); }
+    .tag-controlled { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-managing { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-eliminated { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-escalated { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
 </style>
+<script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
-  <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">当前视角：深圳港集团（全集团） | 可切换至各二级企业查看</div>
+  <div style="font-size:var(--font-size-12); color:var(--text-tertiary); margin-bottom:8px;">当前视角：深圳港集团（全集团） | 可切换至各二级企业查看</div>
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">156</div><div class="stat-label">风险点总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--color-error)">2</div><div class="stat-label">等级上升预警</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">等级上升预警</div></div>
   </div>
 
   <!-- 极端风险分布 -->
   <div style="margin-bottom:12px;">
-    <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary); padding-left:4px;">极端风险分布</div>
+    <div style="font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; color:var(--text-secondary); padding-left:4px;">极端风险分布</div>
     <div class="four-color-grid">
       <div class="color-card red">
         <div class="card-count">8</div>
@@ -92,8 +95,8 @@
   </div>
 
   <!-- 现实风险分布 -->
-  <div style="margin-bottom:16px;">
-    <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary); padding-left:4px;">现实风险分布</div>
+  <div class="u-mb-16">
+    <div style="font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; color:var(--text-secondary); padding-left:4px;">现实风险分布</div>
     <div class="four-color-grid">
       <div class="color-card red">
         <div class="card-count">3</div>
@@ -118,53 +121,55 @@
     </div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('list')">风险清单</div>
-    <div class="tab-item" onclick="switchTab('static-map')">静态四色图</div>
-    <div class="tab-item" onclick="switchTab('dynamic-map')">动态四色图</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="list">风险清单</div>
+      <div class="tab-item" data-action="switchTab" data-param="static-map">静态四色图</div>
+      <div class="tab-item" data-action="switchTab" data-param="dynamic-map">动态四色图</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- 风险清单 -->
   <div id="tab-list" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索风险点..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部极端风险</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">风险点</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">极端风险</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>极端-重大</option>
           <option>极端-较大</option>
           <option>极端-一般</option>
           <option>极端-低</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部现实风险</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">现实风险</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>现实-重大</option>
           <option>现实-较大</option>
           <option>现实-一般</option>
           <option>现实-低</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>管控中</option>
           <option>受控</option>
           <option>已消除</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部管控层级</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">管控层级</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>公司级</option>
           <option>部门级</option>
           <option>班组级</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
+      <div class="filter-actions-row">
         <button class="btn btn-default">导出清单</button>
         <button class="btn btn-default">上报集团</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -191,7 +196,7 @@
             <td>油罐区A区</td>
             <td><span class="tag tag-managing">管控中</span></td>
             <td><span class="tag tag-escalated">集团关注</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-1'">查看</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -203,7 +208,7 @@
             <td>集装箱码头</td>
             <td><span class="tag tag-controlled">受控</span></td>
             <td>—</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-2'">查看</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -215,7 +220,7 @@
             <td>散货堆场</td>
             <td><span class="tag tag-managing">管控中</span></td>
             <td>—</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-3'">查看</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -227,7 +232,7 @@
             <td>配电中心</td>
             <td><span class="tag tag-managing">管控中</span></td>
             <td>—</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-4'">查看</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -239,7 +244,7 @@
             <td>办公楼</td>
             <td><span class="tag tag-controlled">受控</span></td>
             <td>—</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-5'">查看</button></td>
           </tr>
           <tr>
             <td>6</td>
@@ -251,7 +256,7 @@
             <td>油罐区B区</td>
             <td><span class="tag tag-escalated">等级上升</span></td>
             <td><span class="tag tag-escalated">集团关注</span></td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-6'">查看</button></td>
           </tr>
           <tr>
             <td>7</td>
@@ -263,18 +268,17 @@
             <td>施工现场</td>
             <td><span class="tag tag-eliminated">已消除</span></td>
             <td>—</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openRiskMapDetail" data-param="'riskm-7'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 156 条</span>
-        <div class="pagination-page">1</div>
-        <div class="pagination-page active">2</div>
-        <div class="pagination-page">3</div>
-        <div class="pagination-page">...</div>
-        <div class="pagination-page">16</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 7 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
@@ -285,13 +289,13 @@
       <div class="legend-item"><div class="legend-dot orange"></div> 较大风险（极端风险）</div>
       <div class="legend-item"><div class="legend-dot yellow"></div> 一般风险（极端风险）</div>
       <div class="legend-item"><div class="legend-dot blue"></div> 低风险（极端风险）</div>
-      <div style="flex:1"></div>
-      <span style="font-size:12px; color:var(--text-tertiary)">静态四色图（基于极端风险）：根据极端风险等级形成，各单位每年开展风险辨识时更新</span>
+      <div class="u-flex-1"></div>
+      <span style="font-size:var(--font-size-12); color:var(--text-tertiary)">静态四色图（基于极端风险）：根据极端风险等级形成，各单位每年开展风险辨识时更新</span>
     </div>
-    <div style="display:flex; gap:16px;">
+    <div class="u-flex u-gap-16">
       <!-- 组织架构选择 -->
       <div class="org-tree" style="width:240px; flex-shrink:0;">
-        <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary)">选择组织</div>
+        <div style="font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; color:var(--text-secondary)">选择组织</div>
         <div class="org-node level-1 active">深圳港集团</div>
         <div class="org-node level-2">集装箱码头公司</div>
         <div class="org-node level-2">油品码头公司</div>
@@ -303,7 +307,7 @@
         <div class="org-node level-2">物业公司</div>
       </div>
       <!-- 图纸展示 -->
-      <div style="flex:1;">
+      <div class="u-flex-1">
         <div class="map-toolbar">
           <button class="btn btn-primary btn-sm">上传图纸</button>
           <button class="btn btn-default btn-sm">标记危险源范围</button>
@@ -330,14 +334,14 @@
           <!-- 风险详情面板 -->
           <div class="risk-detail-panel" id="riskDetailPanel">
             <h4 id="detailTitle">1号原油储罐区</h4>
-            <div class="detail-row"><span class="label">极端风险</span><span style="color:#F5222D; font-weight:500">重大</span></div>
-            <div class="detail-row"><span class="label">现实风险</span><span style="color:#FA8C16; font-weight:500">较大</span></div>
+            <div class="detail-row"><span class="label">极端风险</span><span style="color:var(--chart-red); font-weight:500">重大</span></div>
+            <div class="detail-row"><span class="label">现实风险</span><span style="color:var(--chart-orange); font-weight:500">较大</span></div>
             <div class="detail-row"><span class="label">危险源类型</span><span>危化品存储</span></div>
             <div class="detail-row"><span class="label">管控层级</span><span>公司级</span></div>
             <div class="detail-row"><span class="label">管控状态</span><span>管控中</span></div>
             <div class="detail-row"><span class="label">管控措施</span><span>3项</span></div>
-            <div class="detail-row"><span class="label">集团关注</span><span style="color:#CF1322">是</span></div>
-            <div style="margin-top:8px;"><button class="btn btn-primary btn-sm" style="width:100%">查看详情</button></div>
+            <div class="detail-row"><span class="label">集团关注</span><span style="color:var(--tag-error-color)">是</span></div>
+            <div class="u-mt-8"><button class="btn btn-primary btn-sm u-w-full">查看详情</button></div>
           </div>
         </div>
       </div>
@@ -351,13 +355,13 @@
       <div class="legend-item"><div class="legend-dot orange"></div> 较大风险（现实风险）</div>
       <div class="legend-item"><div class="legend-dot yellow"></div> 一般风险（现实风险）</div>
       <div class="legend-item"><div class="legend-dot blue"></div> 低风险（现实风险）</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#722ED1"></div> 危险作业升档（↑结束后自动恢复）</div>
-      <div style="flex:1"></div>
-      <span style="font-size:12px; color:var(--text-tertiary)">动态四色图（基于现实风险）：根据危险源现实风险等级实时展示，存在危险作业时区域风险自动升档</span>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--chart-purple)"></div> 危险作业升档（↑结束后自动恢复）</div>
+      <div class="u-flex-1"></div>
+      <span style="font-size:var(--font-size-12); color:var(--text-tertiary)">动态四色图（基于现实风险）：根据危险源现实风险等级实时展示，存在危险作业时区域风险自动升档</span>
     </div>
-    <div style="display:flex; gap:16px;">
+    <div class="u-flex u-gap-16">
       <div class="org-tree" style="width:240px; flex-shrink:0;">
-        <div style="font-size:13px; font-weight:500; margin-bottom:8px; color:var(--text-secondary)">选择组织</div>
+        <div style="font-size:var(--font-size-13); font-weight:500; margin-bottom:8px; color:var(--text-secondary)">选择组织</div>
         <div class="org-node level-1 active">深圳港集团</div>
         <div class="org-node level-2">集装箱码头公司</div>
         <div class="org-node level-2">油品码头公司</div>
@@ -368,11 +372,11 @@
         <div class="org-node level-3">仓储区</div>
         <div class="org-node level-2">物业公司</div>
       </div>
-      <div style="flex:1;">
+      <div class="u-flex-1">
         <div class="map-toolbar">
           <button class="btn btn-default btn-sm">刷新数据</button>
           <button class="btn btn-default btn-sm">全屏查看</button>
-          <span style="font-size:12px; color:var(--text-tertiary); line-height:32px; margin-left:auto">最后更新：2026-05-17 14:30:00</span>
+          <span style="font-size:var(--font-size-12); color:var(--text-tertiary); line-height:32px; margin-left:auto">最后更新：2026-05-17 14:30:00</span>
         </div>
         <div class="floor-tabs">
           <div class="floor-tab active">整体平面图</div>
@@ -388,14 +392,15 @@
           </div>
           <!-- 动态标记（含危险作业升高标识） -->
           <div class="map-marker red" style="left:25%; top:30%; display:none" title="1号原油储罐区">1</div>
-          <div class="map-marker red" style="left:60%; top:45%; display:none; box-shadow:0 0 0 3px #722ED1, 0 2px 6px rgba(0,0,0,.3); border-color:#722ED1" title="3号泊位输油管道（危险作业中）">2</div>
+          <div class="map-marker red" style="left:60%; top:45%; display:none; box-shadow:0 0 0 3px var(--chart-purple), 0 2px 6px rgba(0,0,0,.3); border-color:var(--tag-purple-color)" title="3号泊位输油管道（危险作业中）">2</div>
           <div class="map-marker orange" style="left:40%; top:60%; display:none" title="集装箱码头岸桥">3</div>
-          <div class="map-marker yellow" style="left:75%; top:25%; display:none; box-shadow:0 0 0 3px #FA8C16, 0 2px 6px rgba(0,0,0,.3); border-color:#FA8C16" title="散货堆场（作业中等级升高）">4</div>
+          <div class="map-marker yellow" style="left:75%; top:25%; display:none; box-shadow:0 0 0 3px var(--chart-orange), 0 2px 6px rgba(0,0,0,.3); border-color:var(--chart-orange)" title="散货堆场（作业中等级升高）">4</div>
           <div class="map-marker blue" style="left:80%; top:70%; display:none" title="办公区">5</div>
         </div>
         <!-- 动态作业状态 -->
         <div class="card" style="margin-top:12px; padding:12px 16px;">
-          <div style="font-size:13px; font-weight:500; margin-bottom:8px;">当前进行中危险作业</div>
+          <div style="font-size:var(--font-size-13); font-weight:500; margin-bottom:8px;">当前进行中危险作业</div>
+          <div class="table-wrap">
           <table class="data-table">
             <thead>
               <tr>
@@ -413,8 +418,8 @@
                 <td>油罐区B区</td>
                 <td><span class="tag tag-risk-orange">较大</span></td>
                 <td><span class="tag tag-risk-orange">较大</span></td>
-                <td><span class="tag" style="background:#F9F0FF; color:#722ED1; border:1px solid #D3ADF7" title="危险作业升档，结束后自动恢复">重大↑</span></td>
-                <td><span style="color:var(--color-error); font-size:12px">● 进行中</span></td>
+                <td><span class="tag" style="background:var(--tag-purple-bg); color:var(--tag-purple-color); border-color:var(--tag-purple-border)" title="危险作业升档，结束后自动恢复">重大↑</span></td>
+                <td><span style="color:var(--color-error); font-size:var(--font-size-12)">● 进行中</span></td>
               </tr>
               <tr>
                 <td>散货堆场吊装作业</td>
@@ -422,11 +427,12 @@
                 <td><span class="tag tag-risk-yellow">一般</span></td>
                 <td><span class="tag tag-risk-yellow">一般</span></td>
                 <td><span class="tag tag-risk-orange" title="危险作业升档，结束后自动恢复">较大↑</span></td>
-                <td><span style="color:var(--color-error); font-size:12px">● 进行中</span></td>
+                <td><span style="color:var(--color-error); font-size:var(--font-size-12)">● 进行中</span></td>
               </tr>
             </tbody>
           </table>
-          <div style="margin-top:10px; padding:10px 12px; background:#FFF7E6; border:1px solid #FFE58F; border-radius:var(--radius-sm); font-size:12px; color:#D48806; line-height:1.6;">
+          </div>
+          <div style="margin-top:10px; padding:10px 12px; background:var(--tag-warning-bg); border-color:var(--tag-warning-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-warning-color); line-height:1.6;">
             ⚠️ 升档规则：区域存在进行中危险作业时，现实风险自动升一档（如一般→较大、较大→重大）；危险作业结束后自动恢复原等级
           </div>
         </div>
@@ -434,6 +440,33 @@
     </div>
   </div>
 
+    </div>
+  </div>
+
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="riskm-detail-title" style="font-size:var(--font-size-16);font-weight:600;">风险清单与四色图详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showRiskMapList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="riskm-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="riskm-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="riskm-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  
   <script>
     function switchTab(name) {
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -477,6 +510,28 @@
         this.classList.add('active');
       });
     });
+    var riskMapDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var riskMapDetailData = {};
+    function fillRiskMapDetail(d) {
+      document.getElementById('riskm-detail-title').textContent = d.title;
+      document.getElementById('riskm-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('riskm-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('riskm-detail-timeline', d.timeline);
+    }
+    function openRiskMapDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = riskMapDetailData[key] || riskMapDetailDataFallback;
+      fillRiskMapDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openRiskMapDetail = openRiskMapDetail;
+    function showRiskMapList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showRiskMapList = showRiskMapList;
+
   </script>
 </body>
 </html>

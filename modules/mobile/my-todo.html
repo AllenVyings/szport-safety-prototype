@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的待办 - 移动端</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); background: var(--bg-dark-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 12px 20px 20px; }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame { width: 375px; height: 740px; background: var(--bg-gray-lighter); border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .phone-statusbar { height: 44px; background: var(--brand); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse); font-size: 12px; flex-shrink: 0; }
+    .mobile-nav { background: var(--brand); padding: 10px 16px; display: flex; align-items: center; gap: 12px; color: var(--text-inverse); flex-shrink: 0; }
+    .mobile-nav-back { font-size: 18px; cursor: pointer; }
+    .mobile-nav-title { font-size: 17px; font-weight: 600; }
+    .mobile-content { flex: 1; min-height: 0; overflow-y: auto; padding: 0; -webkit-overflow-scrolling: touch; background: var(--bg-gray-lighter); }
+    .todo-tabs { display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 10; }
+    .todo-tab { flex: 1; text-align: center; padding: 12px 0; font-size: 14px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; }
+    .todo-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .todo-tab .tab-badge { display: inline-block; min-width: 16px; height: 16px; line-height: 16px; padding: 0 4px; border-radius: 8px; background: var(--error); color: var(--text-inverse); font-size: 10px; margin-left: 4px; vertical-align: middle; }
+    .todo-list { padding: 12px; }
+    .todo-item { background: var(--bg-card); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .todo-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .todo-item-type { font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+    .todo-item-type.urgent { background: rgba(244,67,54,0.1); color: var(--error); }
+    .todo-item-type.normal { background: rgba(35,102,236,0.1); color: var(--primary); }
+    .todo-item-type.info { background: rgba(0,177,94,0.1); color: var(--success); }
+    .todo-item-deadline { font-size: 12px; color: var(--text-description); }
+    .todo-item-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .todo-item-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5; }
+    .todo-item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .todo-item-source { font-size: 12px; color: var(--text-description); }
+    .todo-item-actions { display: flex; gap: 8px; }
+    .todo-btn { height: 28px; padding: 0 14px; border-radius: 14px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; }
+    .todo-btn.primary { background: var(--primary); color: var(--text-inverse); }
+    .todo-btn.outline { background: none; border: 1px solid var(--border); color: var(--text-secondary); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-description); }
+    .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state-text { font-size: 14px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body>
+  <div id="view-list" class="page-view active">
+  <div class="simulator-label">移动端原型模拟 (375 x 812)</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>09:41</span><span>5G 100%</span></div>
+    <div class="mobile-nav">
+      <span class="mobile-nav-back" data-action="goBack">&larr;</span>
+      <span class="mobile-nav-title">我的待办</span>
+    </div>
+    <div class="mobile-content">
+      <div class="todo-tabs">
+        <div class="todo-tab active" data-action="switchTodoTab" data-param="pending">待处理<span class="tab-badge">5</span></div>
+        <div class="todo-tab" data-action="switchTodoTab" data-param="done">已处理</div>
+        <div class="todo-tab" data-action="switchTodoTab" data-param="cc">抄送我</div>
+      </div>
+      <div class="todo-list" id="todoList"></div>
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="mobil-detail-title" style="font-size:var(--font-size-16);font-weight:600;">我的待办 - 移动端详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showMobileMyTodoList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="mobil-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">说明</div><div id="mobil-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">办理时间轴</div><div id="mobil-detail-timeline" class="timeline"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  
+  <script>
+    var todoData = {
+      pending: [
+        { type:'urgent', typeName:'隐患整改', title:'MH-01门机钢丝绳磨损超标', desc:'隐患等级：重大 | 来源：巡检发现 | 整改期限：2026-05-25', source:'盐田国际安环部', deadline:'剩余3天' },
+        { type:'urgent', typeName:'作业审批', title:'2号泊位动火作业申请', desc:'申请类型：二级动火 | 申请人：李明华 | 作业时间：2026-05-23', source:'盐田国际运营部', deadline:'今日' },
+        { type:'normal', typeName:'风险核查', title:'QC-01岸桥风险动态核查', desc:'核查类型：季度核查 | 风险等级：橙色 | 责任区：2号泊位', source:'集团安环部', deadline:'剩余7天' },
+        { type:'normal', typeName:'培训签到', title:'2026年Q2安全知识培训', desc:'培训主题：港口危化品应急 | 时间：2026-05-25 14:00', source:'集团培训中心', deadline:'剩余3天' },
+        { type:'info', typeName:'安全履职', title:'5月安全巡检任务反馈', desc:'任务：5月设备巡检计划执行反馈 | 截止：2026-05-31', source:'盐田国际安环部', deadline:'剩余9天' }
+      ],
+      done: [
+        { type:'info', typeName:'隐患整改', title:'消防泵房照明线路老化', desc:'整改状态：已完成 | 验收人：周伟 | 完成时间：2026-05-18', source:'盐田国际安环部', deadline:'已完成' },
+        { type:'info', typeName:'作业审批', title:'3号堆场临时用电申请', desc:'审批状态：已通过 | 作业时间：2026-05-16', source:'盐田国际运营部', deadline:'已完成' }
+      ],
+      cc: [
+        { type:'normal', typeName:'事故快报', title:'大铲湾码头轻微碰撞事件', desc:'事件等级：一般 | 报告人：刘强 | 时间：2026-05-20', source:'大铲湾码头', deadline:'仅查看' },
+        { type:'normal', typeName:'隐患通报', title:'兄弟单位安全隐患通报', desc:'通报类型：季度汇总 | 来源：集团安环部', source:'集团安环部', deadline:'仅查看' }
+      ]
+    };
+
+    function switchTodoTab(el, tab) {
+      document.querySelectorAll('.todo-tab').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      renderTodoList(tab);
+    }
+
+    function renderTodoList(tab) {
+      var list = todoData[tab] || [];
+      var el = document.getElementById('todoList');
+      if (!list.length) {
+        el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">暂无待办事项</div></div>';
+        return;
+      }
+      var html = '';
+      list.forEach(function(item, idx) {
+        html += '<div class="todo-item">'
+          + '<div class="todo-item-header"><span class="todo-item-type ' + item.type + '">' + item.typeName + '</span><span class="todo-item-deadline">' + item.deadline + '</span></div>'
+          + '<div class="todo-item-title">' + item.title + '</div>'
+          + '<div class="todo-item-desc">' + item.desc + '</div>'
+          + '<div class="todo-item-footer"><span class="todo-item-source">' + item.source + '</span>'
+          + '<div class="todo-item-actions">';
+        if (tab === 'pending') {
+          html += '<button class="todo-btn primary" data-action="openMobileMyTodoDetail" data-param="\'mtodo-pending-' + (idx + 1) + '\'">去处理</button>';
+        } else {
+          html += '<button class="todo-btn outline" data-action="openMobileMyTodoDetail" data-param="\'mtodo-' + tab + '-' + (idx + 1) + '\'">查看</button>';
+        }
+        html += '</div></div></div>';
+      });
+      el.innerHTML = html;
+    }
+
+    renderTodoList('pending');
+    var mobileMyTodoDetailDataFallback = {
+      title: '记录详情', basic: [['状态', '进行中']], desc: '原型样例：展示业务基本信息与办理/处置进度。', timeline: [{ status: 'done', time: '2026-05-01', event: '登记' }, { status: 'active', time: '进行中', event: '办理' }]
+    };
+    var mobileMyTodoDetailData = {
+      'mtodo-pending-1': { title: 'MH-01门机钢丝绳磨损超标', basic: [['类型', '隐患整改'], ['状态', '待处理'], ['期限', '剩余3天']], desc: '隐患等级：重大 | 来源：巡检发现 | 整改期限：2026-05-25', timeline: [{ status: 'done', time: '2026-05-20', event: '隐患登记' }, { status: 'active', time: '进行中', event: '整改办理' }] },
+      'mtodo-pending-2': { title: '2号泊位动火作业申请', basic: [['类型', '作业审批'], ['状态', '待处理']], desc: '申请类型：二级动火 | 申请人：李明华 | 作业时间：2026-05-23', timeline: [{ status: 'done', time: '2026-05-22', event: '提交申请' }, { status: 'active', time: '今日', event: '待审批' }] },
+      'mtodo-pending-3': { title: 'QC-01岸桥风险动态核查', basic: [['类型', '风险核查'], ['状态', '待处理']], desc: '核查类型：季度核查 | 风险等级：橙色', timeline: [{ status: 'active', time: '剩余7天', event: '待核查' }] },
+      'mtodo-pending-4': { title: '2026年Q2安全知识培训', basic: [['类型', '培训签到'], ['状态', '待处理']], desc: '培训主题：港口危化品应急 | 时间：2026-05-25 14:00', timeline: [{ status: 'active', time: '剩余3天', event: '待签到' }] },
+      'mtodo-pending-5': { title: '5月安全巡检任务反馈', basic: [['类型', '安全履职'], ['状态', '待处理']], desc: '任务：5月设备巡检计划执行反馈 | 截止：2026-05-31', timeline: [{ status: 'active', time: '剩余9天', event: '待反馈' }] },
+      'mtodo-done-1': { title: '消防泵房照明线路老化', basic: [['类型', '隐患整改'], ['状态', '已完成']], desc: '整改状态：已完成 | 验收人：周伟 | 完成时间：2026-05-18', timeline: [{ status: 'done', time: '2026-05-18', event: '整改完成' }] },
+      'mtodo-done-2': { title: '3号堆场临时用电申请', basic: [['类型', '作业审批'], ['状态', '已完成']], desc: '审批状态：已通过 | 作业时间：2026-05-16', timeline: [{ status: 'done', time: '2026-05-16', event: '审批通过' }] },
+      'mtodo-cc-1': { title: '大铲湾码头轻微碰撞事件', basic: [['类型', '事故快报']], desc: '事件等级：一般 | 报告人：刘强 | 时间：2026-05-20', timeline: [{ status: 'done', time: '2026-05-20', event: '抄送查阅' }] },
+      'mtodo-cc-2': { title: '兄弟单位安全隐患通报', basic: [['类型', '隐患通报']], desc: '通报类型：季度汇总 | 来源：集团安环部', timeline: [{ status: 'done', time: '2026-05-15', event: '已阅' }] }
+    };
+    function fillMobileMyTodoDetail(d) {
+      document.getElementById('mobil-detail-title').textContent = d.title;
+      document.getElementById('mobil-detail-basic').innerHTML = d.basic.map(function(r) {
+        return '<div class="detail-row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:var(--font-size-13);"><span style="color:var(--text-secondary);">' + r[0] + '</span><span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('mobil-detail-desc').textContent = d.desc;
+      renderApprovalTimeline('mobil-detail-timeline', d.timeline);
+    }
+    function openMobileMyTodoDetail(id) {
+      var key = String(id || '').replace(/'/g, '');
+      var d = mobileMyTodoDetailData[key] || mobileMyTodoDetailDataFallback;
+      fillMobileMyTodoDetail(d);
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openMobileMyTodoDetail = openMobileMyTodoDetail;
+    function showMobileMyTodoList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showMobileMyTodoList = showMobileMyTodoList;
+
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'goBack': history.back(); break;
+          case 'switchTodoTab': switchTodoTab(btn, param); break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

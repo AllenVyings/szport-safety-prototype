@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>事故上报 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-dark-primary);
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 20px 20px;
+    }
+    .simulator-label { color: var(--text-inverse); font-size: 14px; margin-bottom: 16px; opacity: 0.7; letter-spacing: 1px; }
+    .phone-frame {
+      width: 375px; height: 740px; background: var(--bg-gray-lighter);
+      border-radius: 32px; box-shadow: 0 0 0 8px var(--bg-dark-secondary), 0 20px 60px rgba(0,0,0,0.5);
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+    .phone-statusbar {
+      height: 44px; background: var(--brand); display: flex; align-items: flex-end;
+      justify-content: space-between; padding: 0 24px 8px; color: var(--text-inverse);
+      font-size: 12px; flex-shrink: 0;
+    }
+    .mobile-header {
+      background: var(--brand); padding: 12px 16px 16px; color: var(--text-inverse); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mobile-header .back-btn { font-size: 18px; cursor: pointer; }
+    .mobile-header .title { font-size: 17px; font-weight: 600; }
+    .mobile-header .action { font-size: 14px; opacity: 0.8; }
+    .mobile-body { flex: 1; min-height: 0; overflow-y: auto; background: var(--bg-gray-lighter); }
+    .mobile-content { padding: 16px; }
+    .tab-bar-mobile {
+      display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border-light);
+      flex-shrink: 0;
+    }
+    .tab-bar-mobile .tab-m {
+      flex: 1; text-align: center; padding: 10px 0; font-size: 14px; color: var(--text-secondary);
+      border-bottom: 2px solid transparent; cursor: pointer;
+    }
+    .tab-bar-mobile .tab-m.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
+    .tab-m-content { display: none; }
+    .tab-m-content.active { display: block; }
+    /* form */
+    .form-m { background: var(--bg-card); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+    .form-m-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+    .form-m-group { margin-bottom: 14px; }
+    .form-m-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .form-m-label .req { color: var(--error); }
+    .form-m-input {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+      font-size: 14px; background: var(--bg-page); color: var(--text-primary);
+    }
+    .form-m-input:focus { border-color: var(--primary); outline: none; }
+    .form-m-textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; min-height: 80px; resize: vertical; background: var(--bg-page); }
+    .form-m-row { display: flex; gap: 10px; }
+    .form-m-row > .form-m-group { flex: 1; }
+    .form-m-select {
+      width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;
+      font-size: 14px; background: var(--bg-page); color: var(--text-primary); appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23666' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+    }
+    /* level selector */
+    .level-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+    .level-btn {
+      padding: 6px 14px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border);
+      background: var(--bg-page); color: var(--text-primary); cursor: pointer;
+    }
+    .level-btn.selected { border-color: var(--primary); background: rgba(0,82,204,0.08); color: var(--primary); font-weight: 500; }
+    .level-btn.lv1.selected { border-color: var(--success); background: rgba(0,168,112,0.08); color: var(--success); }
+    .level-btn.lv2.selected { border-color: var(--warning); background: rgba(212,160,0,0.08); color: var(--warning); }
+    .level-btn.lv3.selected { border-color: var(--error); background: rgba(209,0,0,0.08); color: var(--error); }
+    .level-btn.lv4.selected { border-color: #7b1fa2; background: rgba(123,31,162,0.08); color: #7b1fa2; }
+    /* photo upload */
+    .photo-upload-area {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;
+    }
+    .photo-item {
+      width: 72px; height: 72px; border-radius: 8px; border: 1px dashed var(--border);
+      display: flex; align-items: center; justify-content: center; color: var(--text-tertiary);
+      font-size: 24px; background: var(--bg-page); cursor: pointer;
+    }
+    .photo-item.add { border-style: dashed; }
+    .photo-item.preview { border-style: solid; background: var(--bg-gray-lighter); font-size: 11px; color: var(--text-secondary); }
+    /* bottom action */
+    .mobile-bottom-action {
+      padding: 12px 16px; background: var(--bg-card); border-top: 1px solid var(--border-light);
+      flex-shrink: 0; display: flex; gap: 10px;
+    }
+    .mobile-bottom-action .btn-m {
+      flex: 1; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 500;
+      text-align: center; cursor: pointer; border: none;
+    }
+    .btn-m-primary { background: var(--primary); color: #fff; }
+    .btn-m-default { background: var(--bg-page); color: var(--text-secondary); border: 1px solid var(--border); }
+    /* bottom tab */
+    .mobile-tab-bar {
+      display: flex; background: var(--bg-card); border-top: 1px solid var(--border-light);
+      padding: 6px 0 10px; flex-shrink: 0;
+    }
+    .mobile-tab-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; color: var(--text-tertiary); cursor: pointer;
+    }
+    .mobile-tab-item .tab-icon { font-size: 20px; }
+    .mobile-tab-item.active { color: var(--primary); }
+    /* detail */
+    .detail-card { background: var(--bg-card); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+    .detail-card .dc-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+    .detail-row .dr-label { color: var(--text-secondary); }
+    .detail-row .dr-value { color: var(--text-primary); font-weight: 500; text-align: right; }
+    .timeline-m { padding: 0 4px; }
+    .tl-m-item { display: flex; gap: 10px; padding-bottom: 14px; position: relative; }
+    .tl-m-item:not(:last-child)::before { content:''; position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: var(--border-light); }
+    .tl-m-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .tl-m-dot.done { background: var(--success); color: #fff; }
+    .tl-m-dot.current { background: var(--primary); color: #fff; }
+    .tl-m-body { flex: 1; }
+    .tl-m-body .tl-m-title { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .tl-m-body .tl-m-time { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div class="simulator-label">375 x 740 · 移动端预览</div>
+  <div class="phone-frame">
+    <div class="phone-statusbar"><span>9:41</span><span>●●● 🔋</span></div>
+    <div class="mobile-header">
+      <span class="back-btn" data-action="showView" data-param="list">←</span>
+      <span class="title" id="page-title">事故上报</span>
+      <span class="action" id="header-action"></span>
+    </div>
+
+    <div class="mobile-body">
+      <!-- 列表视图 -->
+      <div id="view-list" class="page-view active">
+        <div class="tab-bar-mobile">
+          <div class="tab-m active" data-action="switchMTab" data-param="list">上报记录</div>
+          <div class="tab-m" data-action="switchMTab" data-param="new">新建上报</div>
+        </div>
+        <div id="mtab-list" class="tab-m-content active">
+          <div class="mobile-content">
+            <div class="detail-card" data-action="showView" data-param="detail">
+              <div class="dc-title" style="display:flex;align-items:center;gap:6px;">
+                <span style="background:var(--tag-warning-bg);color:var(--tag-warning-color);padding:1px 8px;border-radius:4px;font-size:11px;">一般</span>
+                港口物流公司高处坠落事故
+              </div>
+              <div class="detail-row"><span class="dr-label">发生时间</span><span class="dr-value">2026-05-20 14:30</span></div>
+              <div class="detail-row"><span class="dr-label">上报人</span><span class="dr-value">张伟</span></div>
+              <div class="detail-row"><span class="dr-label">状态</span><span class="dr-value" style="color:var(--warning);">审批中</span></div>
+            </div>
+            <div class="detail-card">
+              <div class="dc-title" style="display:flex;align-items:center;gap:6px;">
+                <span style="background:var(--tag-info-bg);color:var(--tag-info-color);padding:1px 8px;border-radius:4px;font-size:11px;">未遂</span>
+                危化品泄漏险情
+              </div>
+              <div class="detail-row"><span class="dr-label">发生时间</span><span class="dr-value">2026-05-18 09:15</span></div>
+              <div class="detail-row"><span class="dr-label">上报人</span><span class="dr-value">李明</span></div>
+              <div class="detail-row"><span class="dr-label">状态</span><span class="dr-value" style="color:var(--success);">已归档</span></div>
+            </div>
+            <div class="detail-card">
+              <div class="dc-title" style="display:flex;align-items:center;gap:6px;">
+                <span style="background:var(--tag-error-bg);color:var(--tag-error-color);padding:1px 8px;border-radius:4px;font-size:11px;">较大</span>
+                机械伤害事故
+              </div>
+              <div class="detail-row"><span class="dr-label">发生时间</span><span class="dr-value">2026-04-12 16:45</span></div>
+              <div class="detail-row"><span class="dr-label">上报人</span><span class="dr-value">王刚</span></div>
+              <div class="detail-row"><span class="dr-label">状态</span><span class="dr-value" style="color:var(--primary);">调查中</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="mtab-new" class="tab-m-content">
+          <div class="mobile-content">
+            <div class="form-m">
+              <div class="form-m-title">事故基本信息</div>
+              <div class="form-m-group">
+                <div class="form-m-label"><span class="req">*</span>事故名称</div>
+                <input class="form-m-input" placeholder="请输入事故名称">
+              </div>
+              <div class="form-m-group">
+                <div class="form-m-label"><span class="req">*</span>事故等级</div>
+                <div class="level-selector">
+                  <span class="level-btn lv1" data-action="selectLevel">未遂</span>
+                  <span class="level-btn lv1" data-action="selectLevel">一般</span>
+                  <span class="level-btn lv2" data-action="selectLevel">较大</span>
+                  <span class="level-btn lv3" data-action="selectLevel">重大</span>
+                  <span class="level-btn lv4" data-action="selectLevel">特别重大</span>
+                </div>
+              </div>
+              <div class="form-m-row">
+                <div class="form-m-group">
+                  <div class="form-m-label"><span class="req">*</span>发生日期</div>
+                  <input class="form-m-input" type="date">
+                </div>
+                <div class="form-m-group">
+                  <div class="form-m-label"><span class="req">*</span>发生时间</div>
+                  <input class="form-m-input" type="time">
+                </div>
+              </div>
+              <div class="form-m-group">
+                <div class="form-m-label"><span class="req">*</span>发生地点</div>
+                <input class="form-m-input" placeholder="请输入事故发生地点">
+              </div>
+              <div class="form-m-group">
+                <div class="form-m-label"><span class="req">*</span>事故类型</div>
+                <select class="form-m-select">
+                  <option>请选择</option>
+                  <option>高处坠落</option>
+                  <option>机械伤害</option>
+                  <option>物体打击</option>
+                  <option>触电</option>
+                  <option>火灾</option>
+                  <option>中毒窒息</option>
+                  <option>坍塌</option>
+                  <option>车辆伤害</option>
+                  <option>灼烫</option>
+                  <option>其他</option>
+                </select>
+              </div>
+              <div class="form-m-row">
+                <div class="form-m-group">
+                  <div class="form-m-label">伤亡人数</div>
+                  <input class="form-m-input" type="number" placeholder="0" min="0">
+                </div>
+                <div class="form-m-group">
+                  <div class="form-m-label">受伤人数</div>
+                  <input class="form-m-input" type="number" placeholder="0" min="0">
+                </div>
+              </div>
+              <div class="form-m-group">
+                <div class="form-m-label">直接经济损失(万元)</div>
+                <input class="form-m-input" type="number" placeholder="0" min="0">
+              </div>
+            </div>
+            <div class="form-m">
+              <div class="form-m-title">事故经过描述</div>
+              <div class="form-m-group">
+                <textarea class="form-m-textarea" placeholder="请详细描述事故经过、初步原因及已采取的措施"></textarea>
+              </div>
+            </div>
+            <div class="form-m">
+              <div class="form-m-title">现场照片</div>
+              <div class="photo-upload-area">
+                <div class="photo-item preview">照片1</div>
+                <div class="photo-item preview">照片2</div>
+                <div class="photo-item add">+</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 详情视图 -->
+      <div id="view-detail" class="page-view">
+        <div class="mobile-content">
+          <div class="detail-card">
+            <div class="dc-title" style="display:flex;align-items:center;gap:6px;">
+              <span style="background:var(--tag-warning-bg);color:var(--tag-warning-color);padding:1px 8px;border-radius:4px;font-size:11px;">一般</span>
+              港口物流公司高处坠落事故
+            </div>
+            <div class="detail-row"><span class="dr-label">事故类型</span><span class="dr-value">高处坠落</span></div>
+            <div class="detail-row"><span class="dr-label">发生时间</span><span class="dr-value">2026-05-20 14:30</span></div>
+            <div class="detail-row"><span class="dr-label">发生地点</span><span class="dr-value">3号码头作业平台</span></div>
+            <div class="detail-row"><span class="dr-label">伤亡情况</span><span class="dr-value" style="color:var(--error);">轻伤1人</span></div>
+            <div class="detail-row"><span class="dr-label">经济损失</span><span class="dr-value">5万元</span></div>
+            <div class="detail-row"><span class="dr-label">上报人</span><span class="dr-value">张伟</span></div>
+            <div style="margin-top:8px;font-size:13px;color:var(--text-secondary);line-height:1.6;">
+              作业人员在进行高处作业时未正确使用安全带，从3米高处坠落，导致右臂骨折。现场已进行紧急救护并送医。
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="dc-title">审批进度</div>
+            <div class="timeline-m">
+              <div class="tl-m-item"><div class="tl-m-dot done">✓</div><div class="tl-m-body"><div class="tl-m-title">接报登记</div><div class="tl-m-time">2026-05-20 14:45 张伟</div></div></div>
+              <div class="tl-m-item"><div class="tl-m-dot current">2</div><div class="tl-m-body"><div class="tl-m-title">部门审核</div><div class="tl-m-time">审核中 · 安全管理部 刘主任</div></div></div>
+              <div class="tl-m-item"><div class="tl-m-dot">3</div><div class="tl-m-body"><div class="tl-m-title">领导审批</div><div class="tl-m-time">待审批</div></div></div>
+              <div class="tl-m-item"><div class="tl-m-dot">4</div><div class="tl-m-body"><div class="tl-m-title">归档</div><div class="tl-m-time">待归档</div></div></div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="dc-title">续报记录</div>
+            <div style="text-align:center;padding:20px 0;color:var(--text-tertiary);font-size:13px;">暂无续报，可在审批通过后追加</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-bottom-action" id="new-action" style="display:none;">
+      <button class="btn-m btn-m-default">暂存草稿</button>
+      <button class="btn-m btn-m-primary" data-action="submitReport">提交上报</button>
+    </div>
+    <div class="mobile-tab-bar">
+      <div class="mobile-tab-item" data-action="navigateTo" data-param="mobile-home"><span class="tab-icon">🏠</span>首页</div>
+      <div class="mobile-tab-item active" data-action="navigateTo" data-param="mobile-function"><span class="tab-icon">📋</span>功能</div>
+      <div class="mobile-tab-item" data-action="navigateTo" data-param="mobile-message"><span class="tab-icon">💬</span>消息</div>
+      <div class="mobile-tab-item" data-action="navigateTo" data-param="mobile-profile"><span class="tab-icon">👤</span>我的</div>
+    </div>
+  </div>
+
+  <script>
+    function showView(v) {
+      document.querySelectorAll('.page-view').forEach(function(el){ el.classList.remove('active'); });
+      var target = document.getElementById('view-'+v);
+      if(target) target.classList.add('active');
+      var title = document.getElementById('page-title');
+      var action = document.getElementById('header-action');
+      var newAction = document.getElementById('new-action');
+      if(v==='detail'){ title.textContent='事故详情'; action.textContent=''; newAction.style.display='none'; }
+      else if(v==='list'){ title.textContent='事故上报'; action.textContent=''; newAction.style.display='none'; }
+    }
+    window.showView = showView;
+    function switchMTab(tab) {
+      document.querySelectorAll('.tab-m').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.tab-m-content').forEach(function(c){ c.classList.remove('active'); });
+      document.querySelector('.tab-m[data-param="'+tab+'"]').classList.add('active');
+      document.getElementById('mtab-'+tab).classList.add('active');
+      var newAction = document.getElementById('new-action');
+      newAction.style.display = tab==='new' ? 'flex' : 'none';
+    }
+    window.switchMTab = switchMTab;
+    function selectLevel(el) {
+      el.parentElement.querySelectorAll('.level-btn').forEach(function(b){ b.classList.remove('selected'); });
+      el.classList.add('selected');
+    }
+    window.selectLevel = selectLevel;
+    document.querySelectorAll('[data-action="switchMTab"]').forEach(function(el){
+      el.addEventListener('click', function(){ switchMTab(this.getAttribute('data-param')); });
+    });
+
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'showView': if (param) showView(param); break;
+          case 'selectLevel': selectLevel(btn); break;
+          case 'submitReport': showToast('已提交，等待审核', 'success'); break;
+          case 'navigateTo': if (param) location.href = param + '.html'; break;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

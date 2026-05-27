@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>应急预案 - 深圳港集团安全综合管理系统</title>
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>
+    .tag-approved { background:var(--tag-success-bg); color:var(--tag-success-color); border-color:var(--tag-success-border); }
+    .tag-draft { background:var(--tag-default-bg); color:var(--tag-default-color); border-color:var(--tag-default-border); }
+    .tag-expired { background:var(--tag-error-bg); color:var(--tag-error-color); border-color:var(--tag-error-border); }
+    .detail-section { margin-bottom:16px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border-light); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
+    .detail-row .label { color:var(--text-secondary); }
+    .detail-row .value { color:var(--text-primary); font-weight:500; }
+    .detail-panel { width:360px; flex-shrink:0; }
+    .detail-panel .card { height:100%; }
+    .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; }
+    .modal-overlay.show { display:flex; }
+    .modal { background:var(--bg-card); border-radius:var(--radius-lg); max-height:80vh; overflow-y:auto; }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-light); }
+    .modal-header h3 { font-size:var(--font-size-16); margin:0; }
+    .modal-body { padding:20px; }
+    .modal-footer { padding:12px 20px; border-top:1px solid var(--border-light); display:flex; justify-content:flex-end; gap:8px; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:var(--font-size-13); color:var(--text-secondary); margin-bottom:4px; }
+    .alert-orange { padding:10px 14px; background:var(--tag-warning-bg); border-color:var(--tag-warning-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--tag-warning-color); margin-bottom:12px; }
+  </style>
+  <script src="../../js/common.js?v=2.0"></script>
+</head>
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
+  <!-- 统计概览 -->
+  <div class="stat-bar">
+    <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">应急预案总数</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">8</div><div class="stat-label">已备案</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">3</div><div class="stat-label">编制中</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">即将过期</div></div>
+  </div>
+
+  <div class="alert-orange">&#9888; 预案到期前30天/7天自动提醒修订；修订后需重新备案；已过期预案将影响应急响应有效性考核</div>
+
+  <div class="card u-content-section">
+    <div class="filter-bar u-mb-0">
+      <div class="filter-field"><span class="filter-label">预案名称</span><input class="form-input" placeholder="请输入"></div>
+      <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select">
+        <option>全部</option><option>综合预案</option><option>专项预案</option><option>现场处置方案</option>
+      </select></div>
+      <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select">
+        <option>全部</option><option>编制中</option><option>已备案</option><option>已过期</option>
+      </select></div>
+      <div class="filter-bar-actions"><button class="btn btn-primary btn-sm" data-action="filterPlan">查询</button>
+      <button class="btn btn-default btn-sm" data-action="resetFilter">重置</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="filter-actions-row">
+      <button class="btn btn-primary" data-action="showAddModal">+ 新增预案</button>
+      <button class="btn btn-default" data-action="exportData">导出</button>
+    </div>
+    <div class="table-wrap">
+    <table class="data-table">
+      <colgroup><col style="width:56px"><col style="width:240px"><col style="width:100px"><col style="width:72px"><col style="width:80px"><col style="width:96px"><col style="width:80px"><col style="width:80px"><col></colgroup>
+      <thead>
+        <tr><th>序号</th><th>预案名称</th><th>预案类型</th><th>版本</th><th>状态</th><th>到期日</th><th>关联人员</th><th>关联资源</th><th>操作</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td><td>深圳港集团综合应急预案</td><td>综合预案</td><td>V3.0</td>
+          <td><span class="tag tag-approved">已备案</span></td><td>2027-06-30</td><td>12人</td><td>8项</td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'plan-1'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">修订</button></td>
+        </tr>
+        <tr>
+          <td>2</td><td>危化品泄漏专项预案</td><td>专项预案</td><td>V2.1</td>
+          <td><span class="tag tag-approved">已备案</span></td><td>2026-12-31</td><td>8人</td><td>15项</td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'plan-2'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">修订</button></td>
+        </tr>
+        <tr>
+          <td>3</td><td>火灾应急处置方案</td><td>现场处置方案</td><td>V1.2</td>
+          <td><span class="tag tag-draft">编制中</span></td><td>--</td><td>6人</td><td>10项</td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'plan-3'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">备案</button></td>
+        </tr>
+        <tr>
+          <td>4</td><td>防汛防台专项预案</td><td>专项预案</td><td>V2.0</td>
+          <td><span class="tag tag-draft">编制中</span></td><td>--</td><td>10人</td><td>12项</td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'plan-4'">查看</button><button class="btn btn-text btn-sm">编辑</button><button class="btn btn-text btn-sm">备案</button></td>
+        </tr>
+        <tr>
+          <td>5</td><td>人员落水应急处置方案</td><td>现场处置方案</td><td>V1.0</td>
+          <td><span class="tag tag-expired">已过期</span></td><td>2026-03-01</td><td>4人</td><td>6项</td>
+          <td><button class="btn btn-text btn-sm" data-action="openDetail" data-param="'plan-5'">查看</button><button class="btn btn-text btn-sm u-text-error">修订</button></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+  </div>
+
+  <!-- 结构化录入说明 -->
+  <div class="card">
+    <div class="u-fs14-fw600-title">预案结构化录入内容</div>
+    <div class="u-flex u-gap-16">
+      <div class="u-section-card">
+        <div class="u-fs13-fw600-primary-mb6">响应分级</div>
+        <div class="u-hint-text">I级响应（集团级）/ II级响应（公司级）/ III级响应（现场级）</div>
+      </div>
+      <div class="u-section-card">
+        <div class="u-fs13-fw600-primary-mb6">处置措施</div>
+        <div class="u-hint-text">按响应级别分解处置步骤、责任人与时限</div>
+      </div>
+      <div class="u-section-card">
+        <div class="u-fs13-fw600-primary-mb6">资源清单</div>
+        <div class="u-hint-text">关联应急资源，物资自动从应急资源模块选取</div>
+      </div>
+      <div class="u-section-card">
+        <div class="u-fs13-fw600-primary-mb6">人员清单</div>
+        <div class="u-hint-text">关联应急人员，AB角状态自动同步</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="plan-detail-title" style="font-size:var(--font-size-16);font-weight:600;">预案详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">基本信息</div><div id="plan-detail-basic"></div></div></div>
+            <div class="card"><div class="detail-section"><div class="detail-section-title">预案内容摘要</div><div id="plan-detail-desc" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div></div></div>
+          </div>
+          <div class="detail-panel">
+            <div class="card"><div class="detail-section"><div class="detail-section-title">版本记录</div><div id="plan-detail-timeline" class="timeline"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="plan-data.js?v=2.0"></script>
+  <script src="plan-logic.js?v=2.0"></script>
+  <div class="toast" id="toast"></div>
+</body>
+</html>

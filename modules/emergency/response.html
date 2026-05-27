@@ -4,88 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>应急处置 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
   <style>    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-reported { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-handling { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-archived { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .flow-steps { display:flex; align-items:center; gap:4px; padding:12px 0; flex-wrap:wrap; }
-    .flow-node { padding:6px 14px; border-radius:var(--radius-sm); font-size:13px; white-space:nowrap; border:1px solid var(--border); background:var(--bg-base); color:var(--text-secondary); }
-    .flow-node.active { background:var(--primary); color:var(--text-inverse); border-color:var(--primary); }
-    .flow-node.done { background:var(--success); color:var(--text-inverse); border-color:var(--success); }
-    .flow-arrow { color:var(--text-description); font-size:12px; }
+    .tag-reported { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .tag-handling { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
     .kanban-card { padding:16px; background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:12px; }
     .kanban-card:hover { box-shadow:var(--shadow-sm); }
     .kanban-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-    .kanban-title { font-size:14px; font-weight:600; color:var(--text-primary); }
-    .kanban-meta { font-size:12px; color:var(--text-secondary); }
+    .kanban-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); }
+    .kanban-meta { font-size:var(--font-size-12); color:var(--text-secondary); }
     .kanban-progress { margin-top:10px; }
-    .progress-step { display:flex; align-items:center; gap:8px; padding:4px 0; font-size:12px; }
+    .progress-step { display:flex; align-items:center; gap:8px; padding:4px 0; font-size:var(--font-size-12); }
     .progress-step .step-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
     .progress-step .step-dot.done { background:var(--success); }
     .progress-step .step-dot.active { background:var(--primary); }
-    .progress-step .step-dot.pending { background:#D9D9D9; }
-    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; }
+    .progress-step .step-dot.pending { background:var(--tag-default-border); }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
     .detail-row .label { color:var(--text-secondary); }
     .detail-row .value { color:var(--text-primary); font-weight:500; }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">24</div><div class="stat-label">事件总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">3</div><div class="stat-label">已上报</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">2</div><div class="stat-label">处置中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">19</div><div class="stat-label">已归档</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">3</div><div class="stat-label">已上报</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">2</div><div class="stat-label">处置中</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">19</div><div class="stat-label">已归档</div></div>
+    <div class="stat-item"><div class="stat-num u-text-error">2</div><div class="stat-label">超时预警</div></div>
     <div class="stat-item"><div class="stat-num" style="color:var(--risk-major)">5</div><div class="stat-label">危化品泄漏</div></div>
     <div class="stat-item"><div class="stat-num" style="color:var(--risk-significant)">8</div><div class="stat-label">火灾</div></div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('events')">事件列表</div>
-    <div class="tab-item" onclick="switchTab('kanban')">处置看板</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="events">事件列表</div>
+      <div class="tab-item" data-action="switchTab" data-param="kanban">处置看板</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab 1: 事件列表 -->
   <div id="tab-events" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索事件名称..." style="width:200px">
-        <select class="form-input form-select" style="width:140px">
-          <option>全部类型</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">事件名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">类型</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>危化品泄漏</option>
           <option>火灾</option>
           <option>人员伤亡</option>
           <option>设备故障</option>
           <option>自然灾害</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部级别</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">级别</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>I级（集团级）</option>
           <option>II级（公司级）</option>
           <option>III级（现场级）</option>
-        </select>
-        <select class="form-input form-select" style="width:140px">
-          <option>全部状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>已上报</option>
           <option>处置中</option>
           <option>已归档</option>
-        </select>
-        <input class="form-input" type="date" style="width:140px" placeholder="开始日期">
-        <input class="form-input" type="date" style="width:140px" placeholder="结束日期">
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">开始日期</span><input class="form-input" type="date" ></div>
+        <div class="filter-field"><span class="filter-label">结束日期</span><input class="form-input" type="date" ></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showAddEventModal()">+ 新增事件</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showAddEventModal">+ 新增事件</button>
         <button class="btn btn-default">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -108,7 +108,7 @@
             <td>2026-05-12 08:30</td>
             <td>张建国</td>
             <td><span class="tag tag-handling">处置中</span></td>
-            <td><button class="btn btn-text btn-sm">查看详情</button><button class="btn btn-text btn-sm">处置</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openResponseDetail" data-param="'evt-1'">查看详情</button><button class="btn btn-text btn-sm">处置</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -118,7 +118,7 @@
             <td>2026-05-16 10:20</td>
             <td>李安全</td>
             <td><span class="tag tag-handling">处置中</span></td>
-            <td><button class="btn btn-text btn-sm">查看详情</button><button class="btn btn-text btn-sm">处置</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openResponseDetail" data-param="'evt-2'">查看详情</button><button class="btn btn-text btn-sm">处置</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -128,7 +128,7 @@
             <td>2026-05-17 14:05</td>
             <td>--</td>
             <td><span class="tag tag-reported">已上报</span></td>
-            <td><button class="btn btn-text btn-sm">查看详情</button><button class="btn btn-text btn-sm" style="color:var(--primary)">启动响应</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openResponseDetail" data-param="'evt-3'">查看详情</button><button class="btn btn-text btn-sm u-text-primary" data-action="showModal" data-param="modal-response-level">启动响应</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -138,7 +138,7 @@
             <td>2026-04-22 15:45</td>
             <td>王消防</td>
             <td><span class="tag tag-archived">已归档</span></td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openResponseDetail" data-param="'evt-4'">查看详情</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -148,35 +148,24 @@
             <td>2026-04-10 09:15</td>
             <td>赵危化</td>
             <td><span class="tag tag-archived">已归档</span></td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openResponseDetail" data-param="'evt-5'">查看详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 24 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
-        <div class="pagination-page">3</div>
       </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
   <!-- Tab 2: 处置看板 -->
   <div id="tab-kanban" class="tab-content">
-    <!-- 处置进度说明 -->
-    <div class="card" style="margin-bottom:16px; padding:12px 16px;">
-      <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">应急处置流程</div>
-      <div class="flow-steps">
-        <div class="flow-node done">事件上报</div><span class="flow-arrow">→</span>
-        <div class="flow-node done">响应启动</div><span class="flow-arrow">→</span>
-        <div class="flow-node active">资源调度</div><span class="flow-arrow">→</span>
-        <div class="flow-node">处置记录</div><span class="flow-arrow">→</span>
-        <div class="flow-node">归档</div>
-      </div>
-    </div>
-
     <!-- 当前处置中事件列表 -->
-    <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">当前处置中事件</div>
+    <div class="u-fs14-fw600-title">当前处置中事件</div>
 
     <div class="kanban-card">
       <div class="kanban-header">
@@ -194,7 +183,7 @@
       </div>
       <div style="margin-top:10px; display:flex; gap:8px;">
         <button class="btn btn-primary btn-sm">录入处置记录</button>
-        <button class="btn btn-default btn-sm">查看详情</button>
+        <button class="btn btn-default btn-sm" data-action="openResponseDetail" data-param="'evt-1'">查看详情</button>
         <button class="btn btn-ghost btn-sm">转入事故流程</button>
       </div>
     </div>
@@ -215,13 +204,13 @@
       </div>
       <div style="margin-top:10px; display:flex; gap:8px;">
         <button class="btn btn-primary btn-sm">确认归档</button>
-        <button class="btn btn-default btn-sm">查看详情</button>
+        <button class="btn btn-default btn-sm" data-action="openResponseDetail" data-param="'evt-2'">查看详情</button>
         <button class="btn btn-ghost btn-sm">转入事故流程</button>
       </div>
     </div>
 
     <!-- 已上报待响应事件 -->
-    <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin:20px 0 12px;">已上报待响应</div>
+    <div style="font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin:20px 0 12px;">已上报待响应</div>
 
     <div class="kanban-card">
       <div class="kanban-header">
@@ -240,10 +229,185 @@
       </div>
       <div style="margin-top:10px; display:flex; gap:8px;">
         <button class="btn btn-primary btn-sm">启动响应</button>
-        <button class="btn btn-default btn-sm">查看详情</button>
+        <button class="btn btn-default btn-sm" data-action="openResponseDetail" data-param="'evt-3'">查看详情</button>
       </div>
     </div>
   </div>
+
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div id="response-detail-title" style="font-size:var(--font-size-16);font-weight:600;">应急处置详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showResponseList">← 返回列表</button>
+      </div>
+      <div style="padding:20px 24px 24px;">
+        <div class="u-flex u-gap-16">
+          <div class="u-flex-1">
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">事件信息</div>
+                <div id="response-detail-basic"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">处置进展</div>
+                <div id="response-detail-progress" style="font-size:var(--font-size-13);color:var(--text-secondary);line-height:1.8;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="detail-panel">
+            <div class="card">
+              <div class="detail-section">
+                <div class="detail-section-title">办理时间轴</div>
+                <div id="response-detail-timeline" class="timeline"></div>
+                <div id="response-detail-timeline-empty" class="u-hint-text" style="display:none;text-align:center;padding:16px 0;">暂无办理记录</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /view-detail -->
+
+  <!-- 事件创建弹窗 -->
+  <div id="modal-create-event" class="modal-overlay">
+    <div class="modal" style="width:var(--modal-md);">
+      <div class="modal-header">
+        <span>新增应急处置事件</span>
+        <button class="btn btn-text" data-action="hideModal" data-param="modal-create-event">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>事件名称</label>
+          <div class="form-content">
+            <input class="form-input u-w-full" placeholder="请输入事件名称">
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>事件类型</label>
+            <div class="form-content">
+              <select class="form-input form-select u-w-full">
+                <option>请选择</option>
+                <option>危化品泄漏</option>
+                <option>火灾</option>
+                <option>人员伤亡</option>
+                <option>设备故障</option>
+                <option>自然灾害</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>发生时间</label>
+            <div class="form-content">
+              <input class="form-input" type="datetime-local" class="u-w-full">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="required">*</span>发生地点</label>
+            <div class="form-content">
+              <select class="form-input form-select u-w-full">
+                <option>请选择</option>
+                <option>码头作业区</option>
+                <option>油罐区</option>
+                <option>化学品仓库</option>
+                <option>综合办公区</option>
+                <option>配电间</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">预估等级</label>
+            <div class="form-content">
+              <select class="form-input form-select u-w-full">
+                <option>请选择</option>
+                <option>I级（集团级）</option>
+                <option>II级（公司级）</option>
+                <option>III级（现场级）</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">初步描述</label>
+          <div class="form-content">
+            <textarea class="form-input" style="width:100%; height:100px;" placeholder="请描述事件初步情况"></textarea>
+          </div>
+        </div>
+        <div style="padding:10px 14px; background:var(--warning-light); border:1px solid var(--warning-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--warning);">
+          事件上报后需确认响应级别并启动应急预案，处置超时24h升级至单位安全管理人员，72h升级至集团安全管理人员
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-create-event">取消</button>
+        <button class="btn btn-primary" data-action="doAction" data-param="create-event">上报事件</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 响应级别确认弹窗 -->
+  <div id="modal-response-level" class="modal-overlay">
+    <div class="modal" style="width:var(--modal-md);">
+      <div class="modal-header">
+        <span>启动应急响应</span>
+        <button class="btn btn-text" data-action="hideModal" data-param="modal-response-level">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="padding:10px 14px; background:var(--bg-table-header); border-radius:var(--radius-sm); margin-bottom:16px;">
+          <div style="font-size:var(--font-size-13); color:var(--text-secondary);">事件：码头配电间短路冒烟 | 设备故障</div>
+          <div style="font-size:var(--font-size-12); color:var(--text-tertiary); margin-top:4px;">上报时间：2026-05-17 14:05</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>响应级别</label>
+          <div class="form-content">
+            <div class="u-flex u-gap-12">
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--font-size-14); padding:8px 16px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <input type="radio" name="response-level" value="1"> Ⅰ级（集团级）
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--font-size-14); padding:8px 16px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <input type="radio" name="response-level" value="2"> Ⅱ级（公司级）
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:var(--font-size-14); padding:8px 16px; border:2px solid var(--primary); border-radius:var(--radius-sm); background:var(--primary-light);">
+                <input type="radio" name="response-level" value="3" checked> Ⅲ级（现场级）
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="required">*</span>启动预案</label>
+          <div class="form-content">
+            <select class="form-input form-select u-w-full">
+              <option>请选择关联应急预案</option>
+              <option>配电间电气火灾应急预案</option>
+              <option>设备故障应急处置预案</option>
+              <option>综合应急预案</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">响应措施</label>
+          <div class="form-content">
+            <textarea class="form-input" style="width:100%; height:80px;" placeholder="请描述拟采取的响应措施"></textarea>
+          </div>
+        </div>
+        <div style="padding:10px 14px; background:var(--info-light); border:1px solid var(--info-border); border-radius:var(--radius-sm); font-size:var(--font-size-12); color:var(--info);">
+          Ⅲ级响应确认超时2h将升级通知至集团安全管理人员+集团分管安全领导（双线通知）
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-response-level">取消</button>
+        <button class="btn btn-primary" data-action="doAction" data-param="start-response">确认启动</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div id="toast-container" class="toast-container"></div>
 
   <script>
     function switchTab(name) {
@@ -252,7 +416,107 @@
       event.target.classList.add('active');
       document.getElementById('tab-' + name).classList.add('active');
     }
-    function showAddEventModal() { alert('新增事件弹窗（开发中）'); }
+
+
+    function showAddEventModal() { showModal('modal-create-event'); }
+
+    function doAction(action) {
+      var msgs = {
+        'create-event': '事件已上报，请尽快确认响应级别',
+        'start-response': '应急响应已启动'
+      };
+      hideModal('modal-create-event');
+      hideModal('modal-response-level');
+      showToast(msgs[action] || '操作成功');
+    }
+
+    var responseDetailData = {
+      'evt-1': {
+        title: '2号泊位油品泄漏',
+        basic: [['事件类型', '危化品泄漏'], ['事件级别', 'I级（集团级）'], ['上报时间', '2026-05-12 08:30'], ['处置人', '张建国'], ['状态', '处置中']],
+        progress: '响应已启动，应急人员与围油栏已到位；正在录入现场处置记录，待完成后归档。',
+        timeline: [
+          { status: 'done', time: '2026-05-12 08:30', event: '事件上报 — 现场值班员' },
+          { status: 'done', time: '2026-05-12 08:32', event: '响应启动 — I级，启动油品泄漏专项预案' },
+          { status: 'done', time: '2026-05-12 08:45', event: '资源调度 — 应急队伍、物资到位' },
+          { status: 'active', time: '进行中', event: '处置记录 — 围控与回收作业' }
+        ]
+      },
+      'evt-2': {
+        title: '集装箱倾倒人员受伤',
+        basic: [['事件类型', '人员伤亡'], ['事件级别', 'II级（公司级）'], ['上报时间', '2026-05-16 10:20'], ['处置人', '李安全'], ['状态', '处置中']],
+        progress: '伤者已送医，现场已清理；待确认后归档。',
+        timeline: [
+          { status: 'done', time: '2026-05-16 10:20', event: '事件上报' },
+          { status: 'done', time: '2026-05-16 10:22', event: '响应启动 — II级' },
+          { status: 'done', time: '2026-05-16 10:35', event: '资源调度 — 医疗救护组到达' },
+          { status: 'active', time: '待确认', event: '归档确认' }
+        ]
+      },
+      'evt-3': {
+        title: '码头配电间短路冒烟',
+        basic: [['事件类型', '设备故障'], ['事件级别', 'III级（现场级）'], ['上报时间', '2026-05-17 14:05'], ['处置人', '—'], ['状态', '已上报']],
+        progress: '已上报，待确认响应级别并启动应急预案。',
+        timeline: [
+          { status: 'done', time: '2026-05-17 14:05', event: '事件上报 — 配电间巡检' },
+          { status: 'active', time: '待处理', event: '响应启动 — 待确认级别' }
+        ]
+      },
+      'evt-4': {
+        title: '仓库初期火灾',
+        basic: [['事件类型', '火灾'], ['事件级别', 'II级'], ['上报时间', '2026-04-22 15:45'], ['处置人', '王消防'], ['状态', '已归档']],
+        progress: '初期火情已扑灭，损失评估完成，事件已归档。',
+        timeline: [
+          { status: 'done', time: '2026-04-22 15:45', event: '事件上报' },
+          { status: 'done', time: '2026-04-22 15:50', event: '响应启动' },
+          { status: 'done', time: '2026-04-22 16:30', event: '处置完成 — 火情扑灭' },
+          { status: 'done', time: '2026-04-23 09:00', event: '归档 — 二级企业安全部' }
+        ]
+      },
+      'evt-5': {
+        title: '1号罐区可燃气体报警',
+        basic: [['事件类型', '危化品泄漏'], ['事件级别', 'I级'], ['上报时间', '2026-04-10 09:15'], ['处置人', '赵危化'], ['状态', '已归档']],
+        progress: '误报复核后解除警戒，相关记录已归档。',
+        timeline: [
+          { status: 'done', time: '2026-04-10 09:15', event: '报警触发' },
+          { status: 'done', time: '2026-04-10 09:25', event: '现场核查 — 浓度正常' },
+          { status: 'done', time: '2026-04-10 11:00', event: '解除响应并归档' }
+        ]
+      }
+    };
+
+    function openResponseDetail(id) {
+      var cleanId = id ? String(id).replace(/'/g, '') : '';
+      var d = responseDetailData[cleanId];
+      if (!d) return;
+      document.getElementById('response-detail-title').textContent = d.title;
+      document.getElementById('response-detail-basic').innerHTML = d.basic.map(function(row) {
+        return '<div class="detail-row"><span class="label">' + row[0] + '</span><span class="value">' + row[1] + '</span></div>';
+      }).join('');
+      document.getElementById('response-detail-progress').textContent = d.progress;
+      renderApprovalTimeline('response-detail-timeline', d.timeline, 'response-detail-timeline-empty');
+      setPageView('view-list', 'view-detail', 'detail');
+    }
+    window.openResponseDetail = openResponseDetail;
+    function showResponseList() { setPageView('view-list', 'view-detail', 'list'); }
+    window.showResponseList = showResponseList;
+
+    (function() {
+      document.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'showAddEventModal': showAddEventModal(); break;
+          case 'doAction': if (param) doAction(param); break;
+          case 'hideModal': if (param) hideModal(param); break;
+        }
+      });
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) hideModal(e.target.id);
+      });
+    })();
   </script>
 </body>
 </html>

@@ -4,64 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>事故调查与归档 - 深圳港集团安全综合管理系统</title>
-  <link rel="stylesheet" href="../../css/variables.css">
-  <link rel="stylesheet" href="../../css/framework.css">
-  <style>    .tab-bar { gap: 0; margin-bottom: 16px }
+  <link rel="stylesheet" href="../../css/variables.css?v=2.0">
+  <link rel="stylesheet" href="../../css/framework.css?v=2.0">
+  <link rel="stylesheet" href="../../css/utility.css?v=2.0">
+  <style>    .page-view { display:none; }
+    .page-view.active { display:block; }
+    .tab-bar { gap: 0; margin-bottom: 16px }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
-    .tag-investigating { background:#E6F7FF; color:#0958D9; border:1px solid #91CAFF; }
-    .tag-report-approving { background:#FFF7E6; color:#D48806; border:1px solid #FFE58F; }
-    .tag-archived { background:#F6FFED; color:#389E0D; border:1px solid #B7EB8F; }
-    .chart-placeholder { height:200px; background:var(--bg-page); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:13px; border:1px dashed var(--border); }
-    .filter-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:var(--radius-full); font-size:12px; border:1px solid var(--border); color:var(--text-secondary); cursor:pointer; background:var(--bg-card); }
+    .detail-section { margin-bottom:20px; }
+    .detail-section-title { font-size:var(--font-size-14); font-weight:600; color:var(--text-primary); margin-bottom:12px; padding-left:10px; border-left:3px solid var(--primary); }
+    .timeline { border-left:2px solid var(--border); padding-left:16px; }
+    .timeline-item { position:relative; padding-bottom:16px; }
+    .timeline-item::before { content:''; position:absolute; left:-21px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--border); }
+    .timeline-item.done::before { background:var(--success); }
+    .timeline-item.active::before { background:var(--primary); }
+    .timeline-item .time { font-size:var(--font-size-12); color:var(--text-description); }
+    .timeline-item .event { font-size:var(--font-size-13); color:var(--text-primary); }
+    .tag-investigating { background:var(--tag-info-bg); color:var(--tag-info-color); border-color:var(--tag-info-border); }
+    .tag-report-approving { background:var(--tag-warning-bg); color:var(--tag-warning-color); border-color:var(--tag-warning-border); }
+    .chart-placeholder { height:200px; background:var(--bg-page); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-description); font-size:var(--font-size-13); border:1px dashed var(--border); }
+    .filter-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:var(--radius-full); font-size:var(--font-size-12); border:1px solid var(--border); color:var(--text-secondary); cursor:pointer; background:var(--bg-card); }
     .filter-tag.active { background:var(--primary-light); color:var(--primary); border-color:var(--primary); }
-    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; }
+    .detail-row { display:flex; justify-content:space-between; padding:4px 0; font-size:var(--font-size-13); }
     .detail-row .label { color:var(--text-secondary); }
     .detail-row .value { color:var(--text-primary); font-weight:500; }
+    .detail-panel { width:360px; flex-shrink:0; }
 </style>
+  <script src="../../js/common.js?v=2.0"></script>
 </head>
-<body style="padding:20px; background:var(--bg-page);">
+<body class="u-bg-page-px20">
+
+  <div id="view-list" class="page-view active">
   <!-- 统计概览 -->
   <div class="stat-bar">
     <div class="stat-item"><div class="stat-num">15</div><div class="stat-label">事故总数</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--primary)">3</div><div class="stat-label">调查中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--warning)">2</div><div class="stat-label">报告审批中</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--success)">10</div><div class="stat-label">已归档</div></div>
+    <div class="stat-item"><div class="stat-num u-text-primary">3</div><div class="stat-label">调查中</div></div>
+    <div class="stat-item"><div class="stat-num u-text-warning">2</div><div class="stat-label">报告审批中</div></div>
+    <div class="stat-item"><div class="stat-num u-text-success">10</div><div class="stat-label">已归档</div></div>
     <div class="stat-item"><div class="stat-num" style="color:var(--risk-major)">2</div><div class="stat-label">重大事故</div></div>
   </div>
 
-  <!-- Tab切换 -->
-  <div class="tab-bar">
-    <div class="tab-item active" onclick="switchTab('investigation')">调查管理</div>
-    <div class="tab-item" onclick="switchTab('archive')">事故档案</div>
-  </div>
+  <div class="card u-p-0">
+    <div class="tab-bar" style="padding:0 20px;">
+      <div class="tab-item active" data-action="switchTab" data-param="investigation">调查管理</div>
+      <div class="tab-item" data-action="switchTab" data-param="archive">事故档案</div>
+    </div>
+    <div style="padding:0 20px 20px;">
 
   <!-- Tab 1: 调查管理 -->
   <div id="tab-investigation" class="tab-content active">
-    <div class="card" style="margin-bottom:16px; padding:16px 20px;">
-      <div class="filter-bar" style="margin-bottom:0;">
-        <input class="form-input" placeholder="搜索事故名称..." style="width:200px">
-        <select class="form-input form-select" style="width:160px">
-          <option>全部调查状态</option>
+    <div class="card u-content-section">
+      <div class="filter-bar u-mb-0">
+        <div class="filter-field"><span class="filter-label">事故名称</span><input class="form-input" placeholder="请输入" ></div>
+        <div class="filter-field"><span class="filter-label">调查状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>调查中</option>
           <option>报告审批中</option>
           <option>已归档</option>
-        </select>
-        <select class="form-input form-select" style="width:160px">
-          <option>全部审批状态</option>
+        </select></div>
+        <div class="filter-field"><span class="filter-label">审批状态</span><select class="form-input form-select" >
+          <option>全部</option>
           <option>待审批</option>
           <option>审批中</option>
           <option>已通过</option>
-        </select>
-        <button class="btn btn-primary btn-sm">查询</button>
-        <button class="btn btn-default btn-sm">重置</button>
+        </select></div>
+        <div class="filter-bar-actions"><button class="btn btn-primary btn-sm">查询</button>
+        <button class="btn btn-default btn-sm">重置</button></div>
       </div>
     </div>
     <div class="card">
-      <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
-        <button class="btn btn-primary" onclick="showAddInvestigation()">+ 新增调查</button>
+      <div class="filter-actions-row">
+        <button class="btn btn-primary" data-action="showAddInvestigation">+ 新增调查</button>
         <button class="btn btn-default">导出</button>
       </div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -82,7 +99,7 @@
             <td><span class="tag tag-investigating">调查中</span></td>
             <td>--</td>
             <td>2026-05-12</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button><button class="btn btn-text btn-sm">录入报告</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-1'">查看详情</button><button class="btn btn-text btn-sm">录入报告</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -91,7 +108,7 @@
             <td><span class="tag tag-report-approving">报告审批中</span></td>
             <td><span class="tag tag-report-approving">审批中</span></td>
             <td>2026-04-20</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button><button class="btn btn-text btn-sm">审批</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-2'">查看详情</button><button class="btn btn-text btn-sm">审批</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -100,7 +117,7 @@
             <td><span class="tag tag-investigating">调查中</span></td>
             <td>--</td>
             <td>2026-05-17</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button><button class="btn btn-text btn-sm">配置调查组</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-3'">查看详情</button><button class="btn btn-text btn-sm">配置调查组</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -109,7 +126,7 @@
             <td><span class="tag tag-archived">已归档</span></td>
             <td><span class="tag tag-archived">已通过</span></td>
             <td>2026-03-26</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-4'">查看详情</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -118,38 +135,17 @@
             <td><span class="tag tag-archived">已归档</span></td>
             <td><span class="tag tag-archived">已通过</span></td>
             <td>2026-02-21</td>
-            <td><button class="btn btn-text btn-sm">查看详情</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-5'">查看详情</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 15 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
       </div>
-    </div>
-
-    <!-- 调查详情面板说明 -->
-    <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">调查详情面板（点击"查看详情"展开）</div>
-      <div style="display:flex; gap:16px;">
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">调查组配置</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">调查组组长/组员配置、分工安排</div>
-        </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">流程制定</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">调查流程节点、时间节点安排</div>
-        </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">报告录入</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">事故原因/责任认定/整改建议录入</div>
-        </div>
-        <div style="flex:1; padding:12px; background:var(--bg-page); border-radius:var(--radius-md);">
-          <div style="font-size:13px; font-weight:600; color:var(--primary); margin-bottom:6px;">过程材料归档</div>
-          <div style="font-size:12px; color:var(--text-secondary); line-height:1.6;">照片/笔录/鉴定报告等材料归档</div>
-        </div>
-      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
     </div>
   </div>
 
@@ -157,10 +153,10 @@
   <div id="tab-archive" class="tab-content">
     <!-- 多维度筛选 -->
     <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">多维度筛选</div>
+      <div class="u-fs14-fw600-title">多维度筛选</div>
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
         <div>
-          <span style="font-size:12px; color:var(--text-secondary); margin-right:6px;">时间：</span>
+          <span style="font-size:var(--font-size-12); color:var(--text-secondary); margin-right:6px;">时间：</span>
           <span class="filter-tag active">全部</span>
           <span class="filter-tag">2026年</span>
           <span class="filter-tag">2025年</span>
@@ -168,7 +164,7 @@
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
         <div>
-          <span style="font-size:12px; color:var(--text-secondary); margin-right:6px;">原因：</span>
+          <span style="font-size:var(--font-size-12); color:var(--text-secondary); margin-right:6px;">原因：</span>
           <span class="filter-tag active">全部</span>
           <span class="filter-tag">人的不安全行为</span>
           <span class="filter-tag">物的不安全状态</span>
@@ -178,7 +174,7 @@
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
         <div>
-          <span style="font-size:12px; color:var(--text-secondary); margin-right:6px;">类型：</span>
+          <span style="font-size:var(--font-size-12); color:var(--text-secondary); margin-right:6px;">类型：</span>
           <span class="filter-tag active">全部</span>
           <span class="filter-tag">物体打击</span>
           <span class="filter-tag">车辆伤害</span>
@@ -191,7 +187,7 @@
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
         <div>
-          <span style="font-size:12px; color:var(--text-secondary); margin-right:6px;">等级：</span>
+          <span style="font-size:var(--font-size-12); color:var(--text-secondary); margin-right:6px;">等级：</span>
           <span class="filter-tag active">全部</span>
           <span class="filter-tag" style="color:var(--risk-major);">特别重大</span>
           <span class="filter-tag" style="color:var(--risk-major);">重大</span>
@@ -201,7 +197,7 @@
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:8px;">
         <div>
-          <span style="font-size:12px; color:var(--text-secondary); margin-right:6px;">损失：</span>
+          <span style="font-size:var(--font-size-12); color:var(--text-secondary); margin-right:6px;">损失：</span>
           <span class="filter-tag active">全部</span>
           <span class="filter-tag">100万以下</span>
           <span class="filter-tag">100-500万</span>
@@ -214,21 +210,21 @@
     <!-- 统计图表 -->
     <div style="display:flex; gap:16px; margin-bottom:16px;">
       <div class="card" style="flex:1; margin-bottom:0;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">年度事故趋势</div>
+        <div class="u-fs14-fw600-title">年度事故趋势</div>
         <div class="chart-placeholder">
           年度趋势折线图<br>
           2024年：8起 | 2025年：12起 | 2026年（截至5月）：15起
         </div>
       </div>
       <div class="card" style="flex:1; margin-bottom:0;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">事故类型分布</div>
+        <div class="u-fs14-fw600-title">事故类型分布</div>
         <div class="chart-placeholder">
           事故类型饼图<br>
           车辆伤害 27% | 坍塌 20% | 触电 13% | 淹溺 13% | 其他 27%
         </div>
       </div>
       <div class="card" style="flex:1; margin-bottom:0;">
-        <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">事故原因分析</div>
+        <div class="u-fs14-fw600-title">事故原因分析</div>
         <div class="chart-placeholder">
           原因分析柱状图<br>
           人的不安全行为 40% | 管理缺陷 30% | 物的不安全状态 20% | 环境因素 10%
@@ -238,7 +234,8 @@
 
     <!-- 档案列表 -->
     <div class="card">
-      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:12px;">事故档案列表</div>
+      <div class="u-fs14-fw600-title">事故档案列表</div>
+      <div class="table-wrap">
       <table class="data-table">
         <thead>
           <tr>
@@ -263,7 +260,7 @@
             <td>人的不安全行为</td>
             <td>15万元</td>
             <td>2026-04-10</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-6'">查看</button></td>
           </tr>
           <tr>
             <td>2</td>
@@ -274,7 +271,7 @@
             <td>物的不安全状态</td>
             <td>8万元</td>
             <td>2026-03-05</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-7'">查看</button></td>
           </tr>
           <tr>
             <td>3</td>
@@ -285,7 +282,7 @@
             <td>管理缺陷</td>
             <td>120万元</td>
             <td>2025-12-20</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-8'">查看</button></td>
           </tr>
           <tr>
             <td>4</td>
@@ -296,7 +293,7 @@
             <td>物的不安全状态</td>
             <td>580万元</td>
             <td>2025-09-30</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-9'">查看</button></td>
           </tr>
           <tr>
             <td>5</td>
@@ -307,26 +304,377 @@
             <td>人的不安全行为</td>
             <td>5万元</td>
             <td>2025-06-15</td>
-            <td><button class="btn btn-text btn-sm">查看</button></td>
+            <td><button class="btn btn-text btn-sm" data-action="openInvestigationDetail" data-param="'inv-10'">查看</button></td>
           </tr>
         </tbody>
       </table>
-      <div class="pagination">
-        <span>共 10 条</span>
-        <div class="pagination-page active">1</div>
-        <div class="pagination-page">2</div>
+      </div>
+      <div class="pagination-bar">
+  <span class="pagination-info">共 5 条</span>
+  <select class="pagination-size"><option value="10" selected>10条/页</option><option value="20">20条/页</option><option value="50">50条/页</option><option value="100">100条/页</option></select>
+  <div class="pagination"><div class="pagination-page active">1</div></div>
+  <div class="pagination-jump">前往<input type="number" min="1" class="pagination-jump-input">页<button class="btn btn-default btn-sm">跳转</button></div>
+</div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+  </div><!-- /view-list -->
+
+  <div id="view-detail" class="page-view">
+    <div class="card u-p-0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 0;">
+        <div style="font-size:var(--font-size-16);font-weight:600;">事故调查详情</div>
+        <button type="button" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:var(--radius-full);background:var(--primary-light);color:var(--primary);font-size:var(--font-size-13);border:none;cursor:pointer;" data-action="showInvestigationList">← 返回列表</button>
+      </div>
+      <!-- 基本信息 -->
+      <div style="padding:16px 24px 0;display:flex;gap:24px;flex-wrap:wrap;font-size:var(--font-size-13);">
+        <div><span style="color:var(--text-secondary);">事故名称：</span><span style="font-weight:500;">集装箱码头车辆碰撞事故</span></div>
+        <div><span style="color:var(--text-secondary);">事故编号：</span><span style="font-weight:500;">SG-2026-001</span></div>
+        <div><span style="color:var(--text-secondary);">事故等级：</span><span style="font-weight:500;color:var(--risk-moderate);">一般</span></div>
+        <div><span style="color:var(--text-secondary);">调查状态：</span><span class="tag tag-investigating">调查中</span></div>
+        <div><span style="color:var(--text-secondary);">调查组：</span><span style="font-weight:500;">集团联合调查组</span></div>
+        <div><span style="color:var(--text-secondary);">开始日期：</span><span style="font-weight:500;">2026-05-12</span></div>
+      </div>
+      <!-- 4-Tab 切换 -->
+      <div style="padding:0 20px;margin-top:16px;">
+        <div class="tab-bar" style="border-bottom:1px solid var(--border-light);">
+          <div class="tab-item active" data-action="switchDetailTab" data-param="tab-team">调查组</div>
+          <div class="tab-item" data-action="switchDetailTab" data-param="tab-process">调查流程</div>
+          <div class="tab-item" data-action="switchDetailTab" data-param="tab-report">调查报告</div>
+          <div class="tab-item" data-action="switchDetailTab" data-param="tab-material">过程材料</div>
+        </div>
+      </div>
+      <div style="padding:20px 24px 24px;">
+
+      <!-- Tab 1: 调查组 -->
+      <div id="tab-team" class="tab-content active">
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">调查组信息</div>
+            <div class="detail-row"><span class="label">调查组名称</span><span class="value">集团联合调查组</span></div>
+            <div class="detail-row"><span class="label">组长姓名</span><span class="value">李主任</span></div>
+            <div class="detail-row"><span class="label">组长职务</span><span class="value">安全管理部部长</span></div>
+            <div class="detail-row"><span class="label">联系方式</span><span class="value">138****6789</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="detail-section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">成员列表</div>
+              <button class="btn btn-primary btn-sm" data-action="showModal" data-param="modal-add-member">+ 添加成员</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:12px;">
+          <table class="data-table">
+            <thead>
+              <tr><th>姓名</th><th>职务</th><th>分工</th><th>操作</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>张安全</td><td>安全工程师</td><td>现场勘查</td><td><button class="btn btn-text btn-sm" style="color:var(--error);" data-action="removeMember">移除</button></td></tr>
+              <tr><td>王工程</td><td>技术工程师</td><td>原因分析</td><td><button class="btn btn-text btn-sm" style="color:var(--error);" data-action="removeMember">移除</button></td></tr>
+              <tr><td>赵法务</td><td>法务专员</td><td>责任认定</td><td><button class="btn btn-text btn-sm" style="color:var(--error);" data-action="removeMember">移除</button></td></tr>
+              <tr><td>陈资料</td><td>档案管理员</td><td>材料整理</td><td><button class="btn btn-text btn-sm" style="color:var(--error);" data-action="removeMember">移除</button></td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div style="margin-top:8px;font-size:var(--font-size-12);color:var(--text-description);">仅调查中状态可编辑成员信息</div>
+        </div>
+      </div>
+
+      <!-- Tab 2: 调查流程 -->
+      <div id="tab-process" class="tab-content">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="detail-section-title" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">调查步骤</div>
+            <button class="btn btn-primary btn-sm" data-action="addStep">+ 添加步骤</button>
+          </div>
+          <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>序号</th><th>步骤名称</th><th>计划完成日期</th><th>负责人</th><th>完成状态</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>成立调查组</td>
+                <td>2026-05-12</td>
+                <td>李主任</td>
+                <td><select class="form-input form-select" style="width:100px;padding:2px 8px;font-size:var(--font-size-12);"><option selected>已完成</option><option>进行中</option><option>未开始</option></select></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>现场勘查与证据收集</td>
+                <td>2026-05-20</td>
+                <td>张安全</td>
+                <td><select class="form-input form-select" style="width:100px;padding:2px 8px;font-size:var(--font-size-12);"><option>已完成</option><option selected>进行中</option><option>未开始</option></select></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>原因分析与责任认定</td>
+                <td>2026-05-25</td>
+                <td>王工程</td>
+                <td><select class="form-input form-select" style="width:100px;padding:2px 8px;font-size:var(--font-size-12);"><option>已完成</option><option>进行中</option><option selected>未开始</option></select></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>调查报告编制与审批</td>
+                <td>2026-05-26</td>
+                <td>李主任</td>
+                <td><select class="form-input form-select" style="width:100px;padding:2px 8px;font-size:var(--font-size-12);"><option>已完成</option><option>进行中</option><option selected>未开始</option></select></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <div style="margin-top:16px;text-align:right;">
+            <button class="btn btn-primary btn-sm" data-action="saveProcess">保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: 调查报告 -->
+      <div id="tab-report" class="tab-content">
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">原因分析</div>
+            <div class="form-group"><label class="form-label">直接原因</label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="事故发生的直接原因"></textarea></div></div>
+            <div class="form-group"><label class="form-label">间接原因</label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="导致事故的间接/管理原因"></textarea></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">责任认定</div>
+            <div class="form-group"><label class="form-label">责任认定 <span style="color:var(--error)">*</span></label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="事故责任认定结论"></textarea></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">责任人列表</div>
+            <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>姓名</th><th>责任类型</th><th>处理建议</th></tr></thead>
+              <tbody>
+                <tr><td>张驾驶员</td><td>直接责任</td><td>停岗培训1个月</td></tr>
+                <tr><td>李现场主管</td><td>管理责任</td><td>经济处罚并通报批评</td></tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">整改建议</div>
+            <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>措施</th><th>责任人</th><th>完成时限</th></tr></thead>
+              <tbody>
+                <tr><td>加强车辆限速管理，安装限速装置</td><td>李安全</td><td>2026-06-10</td></tr>
+                <tr><td>增设堆场行车警示标识</td><td>王安全</td><td>2026-06-15</td></tr>
+                <tr><td>开展车辆安全操作培训</td><td>张培训</td><td>2026-06-20</td></tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="detail-section">
+            <div class="detail-section-title">附件</div>
+            <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;color:var(--text-description);font-size:var(--font-size-13);cursor:pointer;">+ 点击上传附件</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:12px;justify-content:flex-end;">
+          <button class="btn btn-default btn-sm" data-action="saveDraft">保存草稿</button>
+          <button class="btn btn-primary btn-sm" data-action="submitReport">提交审批</button>
+        </div>
+      </div>
+
+      <!-- Tab 4: 过程材料 -->
+      <div id="tab-material" class="tab-content">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="filter-tag active" data-action="filterMat" data-param="全部">全部</span>
+              <span class="filter-tag" data-action="filterMat" data-param="现场照片">现场照片</span>
+              <span class="filter-tag" data-action="filterMat" data-param="询问笔录">询问笔录</span>
+              <span class="filter-tag" data-action="filterMat" data-param="鉴定报告">鉴定报告</span>
+              <span class="filter-tag" data-action="filterMat" data-param="监控录像">监控录像</span>
+              <span class="filter-tag" data-action="filterMat" data-param="其他">其他</span>
+            </div>
+            <button class="btn btn-primary btn-sm" data-action="showModal" data-param="modal-upload-material">上传材料</button>
+          </div>
+          <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>名称</th><th>类型</th><th>上传人</th><th>上传时间</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>事故现场全景照片</td><td><span class="tag tag-info">现场照片</span></td><td>张安全</td><td>2026-05-13 10:30</td><td><button class="btn btn-text btn-sm">下载</button><button class="btn btn-text btn-sm" style="color:var(--error);">删除</button></td></tr>
+              <tr><td>碰撞部位特写</td><td><span class="tag tag-info">现场照片</span></td><td>张安全</td><td>2026-05-13 10:35</td><td><button class="btn btn-text btn-sm">下载</button><button class="btn btn-text btn-sm" style="color:var(--error);">删除</button></td></tr>
+              <tr><td>驾驶员询问笔录</td><td><span class="tag tag-default">询问笔录</span></td><td>赵法务</td><td>2026-05-14 09:00</td><td><button class="btn btn-text btn-sm">下载</button><button class="btn btn-text btn-sm" style="color:var(--error);">删除</button></td></tr>
+              <tr><td>现场主管询问笔录</td><td><span class="tag tag-default">询问笔录</span></td><td>赵法务</td><td>2026-05-14 11:00</td><td><button class="btn btn-text btn-sm">下载</button><button class="btn btn-text btn-sm" style="color:var(--error);">删除</button></td></tr>
+              <tr><td>车辆技术鉴定报告</td><td><span class="tag tag-warning">鉴定报告</span></td><td>王工程</td><td>2026-05-16 15:00</td><td><button class="btn btn-text btn-sm">下载</button><button class="btn btn-text btn-sm" style="color:var(--error);">删除</button></td></tr>
+              <tr><td>堆场监控录像片段</td><td><span class="tag tag-info">监控录像</span></td><td>张安全</td><td>2026-05-13 14:00</td><td><button class="btn btn-text btn-sm">下载</button><button class="btn btn-text btn-sm" style="color:var(--error);">删除</button></td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
+      </div>
+    </div>
+  </div><!-- /view-detail -->
+
+  <div class="modal-overlay" id="modal-investigation-add" style="display:none;">
+    <div class="modal" style="width:640px;">
+      <div class="modal-header"><h3>新增事故调查</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-investigation-add">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">关联事故</label><div class="form-content"><select class="form-input form-select"><option>集装箱码头车辆碰撞事故</option></select></div></div>
+        <div class="form-group"><label class="form-label">调查组负责人</label><div class="form-content"><input class="form-input" placeholder="姓名"></div></div>
+        <div class="form-group"><label class="form-label">调查说明</label><div class="form-content"><textarea class="form-input" style="height:80px;padding:8px 12px;" placeholder="调查范围与计划"></textarea></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-investigation-add">取消</button>
+        <button class="btn btn-primary" data-action="createInvestigation">创建调查</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加成员弹窗 -->
+  <div class="modal-overlay" id="modal-add-member" style="display:none;">
+    <div class="modal" style="width:500px;">
+      <div class="modal-header"><h3>添加调查组成员</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-add-member">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">姓名 <span style="color:var(--error)">*</span></label><div class="form-content"><input class="form-input" placeholder="输入姓名搜索"></div></div>
+        <div class="form-group"><label class="form-label">职务</label><div class="form-content"><input class="form-input" placeholder="请输入职务"></div></div>
+        <div class="form-group"><label class="form-label">分工 <span style="color:var(--error)">*</span></label><div class="form-content"><input class="form-input" placeholder="请输入分工，如：现场勘查"></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-add-member">取消</button>
+        <button class="btn btn-primary" data-action="confirmAddMember">确认添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 上传材料弹窗 -->
+  <div class="modal-overlay" id="modal-upload-material" style="display:none;">
+    <div class="modal" style="width:560px;">
+      <div class="modal-header"><h3>上传过程材料</h3><button type="button" class="btn btn-text btn-sm" data-action="hideModal" data-param="modal-upload-material">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">材料类型 <span style="color:var(--error)">*</span></label><div class="form-content"><select class="form-input form-select"><option>现场照片</option><option>询问笔录</option><option>鉴定报告</option><option>监控录像</option><option>其他</option></select></div></div>
+        <div class="form-group"><label class="form-label">材料描述</label><div class="form-content"><input class="form-input" placeholder="简要描述材料内容"></div></div>
+        <div class="form-group"><label class="form-label">选择文件</label><div class="form-content">
+          <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:24px;text-align:center;color:var(--text-description);font-size:var(--font-size-13);cursor:pointer;">
+            + 点击选择文件或拖拽上传<br>
+            <span style="font-size:var(--font-size-12);color:var(--text-description);">支持 PDF/Word/图片/视频，单文件≤50MB，单次最多20个文件</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" data-action="hideModal" data-param="modal-upload-material">取消</button>
+        <button class="btn btn-primary" data-action="confirmUploadMaterial">确认上传</button>
       </div>
     </div>
   </div>
 
   <script>
+    function showInvestigationList() { setPageView('view-list', 'view-detail', 'list'); }
+    function openInvestigationDetail(id) { setPageView('view-list', 'view-detail', 'detail'); }
+    window.showInvestigationList = showInvestigationList;
+    window.openInvestigationDetail = openInvestigationDetail;
+
     function switchTab(name) {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + name).classList.add('active');
+      document.querySelectorAll('#view-list .tab-item').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('#view-list .tab-content').forEach(function(t) { t.classList.remove('active'); });
+      var tab = document.querySelector('#view-list .tab-item[data-param="' + name + '"]');
+      if (tab) tab.classList.add('active');
+      var panel = document.getElementById('tab-' + name);
+      if (panel) panel.classList.add('active');
     }
-    function showAddInvestigation() { alert('新增事故调查弹窗（开发中）'); }
+    window.switchTab = switchTab;
+
+    function switchDetailTab(name) {
+      var detail = document.getElementById('view-detail');
+      if (!detail) return;
+      detail.querySelectorAll('.tab-bar .tab-item').forEach(function(t) { t.classList.remove('active'); });
+      detail.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+      var tab = detail.querySelector('.tab-item[data-param="' + name + '"]');
+      if (tab) tab.classList.add('active');
+      var panel = document.getElementById(name);
+      if (panel) panel.classList.add('active');
+    }
+    window.switchDetailTab = switchDetailTab;
+
+    function filterMaterial(el, type) {
+      var parent = el.parentElement;
+      parent.querySelectorAll('.filter-tag').forEach(function(t) { t.classList.remove('active'); });
+      el.classList.add('active');
+      if (type === '全部') {
+        showToast('显示全部材料（原型）', 'info');
+      } else {
+        showToast('筛选：' + type + '（原型）', 'info');
+      }
+    }
+    window.filterMaterial = filterMaterial;
+
+    function showAddInvestigation() { showModal('modal-investigation-add'); }
+    window.showAddInvestigation = showAddInvestigation;
+  
+    /* ====== 事件委托 IIFE ====== */
+    (function() {
+      function handleClick(e) {
+        var btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var param = btn.getAttribute('data-param');
+        switch (action) {
+          case 'removeMember':
+            showToast('成员已移除（原型）', 'warning');
+            break;
+          case 'addStep':
+            showToast('步骤已添加（原型）', 'success');
+            break;
+          case 'saveProcess':
+            showToast('流程已保存（原型）', 'success');
+            break;
+          case 'saveDraft':
+            showToast('草稿已保存（原型）', 'success');
+            break;
+          case 'submitReport':
+            showToast('报告已提交审批（原型）', 'success');
+            break;
+          case 'filterMat':
+            filterMaterial(btn, param);
+            break;
+          case 'createInvestigation':
+            hideModal('modal-investigation-add');
+            showToast('调查任务已创建（原型）', 'success');
+            break;
+          case 'confirmAddMember':
+            hideModal('modal-add-member');
+            showToast('成员已添加（原型）', 'success');
+            break;
+          case 'confirmUploadMaterial':
+            hideModal('modal-upload-material');
+            showToast('材料已上传（原型）', 'success');
+            break;
+        }
+      }
+      document.addEventListener('click', handleClick);
+      // change 事件委托（如有 select 需委托）
+      document.addEventListener('change', function(e) {
+        var el = e.target;
+        var action = el.getAttribute('data-action');
+        if (!action) return;
+        // 按需添加 case
+      });
+      // Backdrop click to close modals
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+          hideModal(e.target.id);
+        }
+      });
+    })();
+
   </script>
+  <div class="toast" id="toast" class="u-none"></div>
 </body>
 </html>
